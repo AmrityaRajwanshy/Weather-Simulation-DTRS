@@ -1,0 +1,3479 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-slate-950 text-slate-100">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>TRETA SIH PS 26028 - Indian Railways 3D Weather Impact & Proactive ETA Simulation</title>
+ 
+  <!-- Google Fonts & Material Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+ 
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Space Grotesk', 'sans-serif'],
+            mono: ['IBM Plex Mono', 'monospace']
+          },
+          colors: {
+            irRed: '#b71c1c',
+            irGold: '#fbc02d',
+            irNavy: '#0d47a1',
+            obsidian: '#070b14',
+            /* --- Control-room palette: blueprint steel + brass signage --- */
+            slate: {
+              50:  '#EEF1F5', 100: '#E5E9EF', 200: '#CBD2DC', 300: '#A6B0BF',
+              400: '#7C8898', 500: '#57647A', 600: '#3C4759', 700: '#29323F',
+              800: '#1B2330', 900: '#10161F', 950: '#0A0E16'
+            },
+            amber: {
+              200: '#F3DDB0', 300: '#E9C685', 400: '#DDAE55', 500: '#CB9640',
+              600: '#B9822E', 950: '#241705'
+            },
+            yellow: { 300: '#F0D690', 400: '#E8C26A' },
+            blue: {
+              200: '#C3D8EB', 300: '#92B8DA', 400: '#5C93C4', 500: '#3170AB',
+              600: '#26588C', 700: '#1E4571', 950: '#0B1B33'
+            },
+            emerald: {
+              200: '#B7E0C9', 300: '#82CBA0', 400: '#4CB374', 500: '#2E9E5B', 950: '#0C2318'
+            },
+            rose: { 300: '#E39492', 400: '#D5615D', 500: '#C23B3B' },
+            indigo: { 400: '#8A94C7', 500: '#5C67A3', 600: '#464F87' },
+            purple: { 300: '#C4AEE0', 500: '#7C5CBF' }
+          }
+        }
+      }
+    };
+  </script>
+ 
+  <!-- Three.js via CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+ 
+  <style>
+    @keyframes pulseGlow {
+      0%, 100% {
+        box-shadow: 0 0 16px rgba(217, 169, 85, 0.4), inset 0 0 10px rgba(217, 169, 85, 0.2);
+      }
+      50% {
+        box-shadow: 0 0 28px rgba(217, 169, 85, 0.85), inset 0 0 16px rgba(217, 169, 85, 0.45);
+      }
+    }
+ 
+    @keyframes radarSweep {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+ 
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+ 
+    .animate-fadeIn { animation: fadeIn 0.25s ease-out forwards; }
+    .judge-btn-pulse { animation: pulseGlow 2s infinite; }
+ 
+    /* ---------------------------------------------------------------
+       Instrument panels: matte control-room steel with brass corner
+       brackets, evoking a cab gauge bezel rather than a SaaS glass card.
+       This bracket treatment is the one recurring signature device;
+       everything else stays quiet on purpose.
+       --------------------------------------------------------------- */
+    .glass-panel,
+    .glass-panel-subtle,
+    .glass-card {
+      position: relative;
+    }
+    .glass-panel::before, .glass-panel::after,
+    .glass-card::before, .glass-card::after {
+      content: '';
+      position: absolute;
+      width: 9px;
+      height: 9px;
+      pointer-events: none;
+      opacity: 0.55;
+    }
+    .glass-panel::before, .glass-card::before {
+      top: -1px; left: -1px;
+      border-top: 1.5px solid #DDAE55;
+      border-left: 1.5px solid #DDAE55;
+    }
+    .glass-panel::after, .glass-card::after {
+      bottom: -1px; right: -1px;
+      border-bottom: 1.5px solid #DDAE55;
+      border-right: 1.5px solid #DDAE55;
+    }
+ 
+    .glass-panel {
+      background: linear-gradient(180deg, rgba(16, 22, 31, 0.94) 0%, rgba(10, 14, 22, 0.96) 100%);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(124, 136, 152, 0.22);
+      box-shadow: 0 10px 24px -6px rgba(0, 0, 0, 0.65);
+    }
+ 
+    .glass-panel-subtle {
+      background: rgba(16, 22, 31, 0.72);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(124, 136, 152, 0.16);
+    }
+ 
+    .glass-card {
+      background: linear-gradient(180deg, rgba(27, 35, 48, 0.72) 0%, rgba(16, 22, 31, 0.82) 100%);
+      border: 1px solid rgba(124, 136, 152, 0.18);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    }
+ 
+    /* Faint engineering-drawing grid behind the viewport, texture only */
+    #viewport-container::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 1;
+      background-image:
+        linear-gradient(rgba(124, 136, 152, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(124, 136, 152, 0.05) 1px, transparent 1px);
+      background-size: 48px 48px;
+      mix-blend-mode: screen;
+    }
+ 
+    /* Control-lever range sliders (rectangular grip, not a default pill thumb) */
+    input[type=range] {
+      -webkit-appearance: none;
+      background: transparent;
+      cursor: pointer;
+    }
+    input[type=range]:focus {
+      outline: none;
+    }
+    input[type=range]::-webkit-slider-runnable-track {
+      height: 4px;
+      border-radius: 2px;
+      background: #29323F;
+      border: 1px solid rgba(124, 136, 152, 0.3);
+    }
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      height: 16px;
+      width: 8px;
+      border-radius: 2px;
+      background: #DDAE55;
+      margin-top: -6px;
+      box-shadow: 0 0 8px rgba(217, 169, 85, 0.7), 0 0 0 1px rgba(10, 14, 22, 0.8);
+      transition: transform 0.12s ease, background 0.12s ease;
+    }
+    input[type=range]::-webkit-slider-thumb:hover {
+      transform: scaleY(1.2);
+      background: #E9C685;
+    }
+ 
+    /* Sleek scrollbar */
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: rgba(10, 14, 22, 0.5); }
+    ::-webkit-scrollbar-thumb { background: rgba(124, 136, 152, 0.4); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(217, 169, 85, 0.7); }
+ 
+    /* Touch devices: larger touch targets for sliders */
+    @media (pointer: coarse) {
+      input[type=range] {
+        height: 34px;
+      }
+      input[type=range]::-webkit-slider-thumb {
+        height: 24px;
+        width: 14px;
+        margin-top: -10px;
+      }
+      input[type=range]::-webkit-slider-runnable-track {
+        height: 6px;
+      }
+    }
+ 
+    /* Body texture: faint blueprint grid, barely-there */
+    body {
+      background-image:
+        linear-gradient(rgba(124, 136, 152, 0.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(124, 136, 152, 0.035) 1px, transparent 1px);
+      background-size: 64px 64px;
+    }
+ 
+
+    /* Precision OCC HUD Card with Gold Corner Accents */
+    .hud-corner-card {
+      position: relative;
+      background: rgba(13, 20, 36, 0.82);
+      border: 1px solid rgba(30, 41, 59, 0.85);
+      border-radius: 6px;
+    }
+    .hud-corner-card::before {
+      content: '';
+      position: absolute;
+      top: -1px;
+      left: -1px;
+      width: 7px;
+      height: 7px;
+      border-top: 2px solid #D9A955;
+      border-left: 2px solid #D9A955;
+      border-top-left-radius: 4px;
+      pointer-events: none;
+    }
+    .hud-corner-card::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      right: -1px;
+      width: 7px;
+      height: 7px;
+      border-bottom: 2px solid #D9A955;
+      border-right: 2px solid #D9A955;
+      border-bottom-right-radius: 4px;
+      pointer-events: none;
+    }
+
+    input[type=range] {
+      accent-color: #D9A955;
+    }
+    input[type=range]::-webkit-slider-thumb {
+      background: #D9A955;
+      border: 1px solid #F5C564;
+      box-shadow: 0 0 8px rgba(217, 169, 85, 0.7);
+    }
+ 
+    /* ---------------------------------------------------------------
+       LEFT COMMAND SIDEBAR — replaces old top navbar.
+       A slim brass-riveted rail by default so the 3D corridor stays
+       full screen; expands into a full operations console on click.
+       --------------------------------------------------------------- */
+    #command-sidebar {
+      width: 68px;
+      transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      will-change: width;
+      background: linear-gradient(180deg, rgba(15, 23, 42, 0.98) 0%, rgba(10, 15, 29, 0.98) 50%, rgba(6, 10, 20, 0.99) 100%);
+      border-right: 1px solid rgba(217, 169, 85, 0.25);
+      box-shadow: 4px 0 28px rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+    }
+    #command-sidebar.sidebar-expanded {
+      width: 292px;
+    }
+    #command-sidebar .rail-label {
+      opacity: 0;
+      max-width: 0;
+      overflow: hidden;
+      white-space: nowrap;
+      transition: opacity 0.2s ease, max-width 0.3s ease;
+    }
+    #command-sidebar.sidebar-expanded .rail-label {
+      opacity: 1;
+      max-width: 230px;
+    }
+    #command-sidebar .rail-only {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: opacity 0.15s ease;
+    }
+    #command-sidebar.sidebar-expanded .rail-only {
+      display: none !important;
+    }
+    #command-sidebar .rail-full {
+      display: none;
+      opacity: 0;
+      transition: opacity 0.25s ease 0.05s;
+    }
+    #command-sidebar.sidebar-expanded .rail-full {
+      display: flex;
+      flex-direction: column;
+      opacity: 1;
+    }
+    #sidebar-collapse-arrow {
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    #command-sidebar.sidebar-expanded #sidebar-collapse-arrow {
+      transform: rotate(180deg);
+    }
+
+    /* Custom high-tech scrollbar for sidebar */
+    #command-sidebar .rail-full::-webkit-scrollbar {
+      width: 4px;
+    }
+    #command-sidebar .rail-full::-webkit-scrollbar-track {
+      background: rgba(10, 15, 29, 0.6);
+      border-radius: 4px;
+    }
+    #command-sidebar .rail-full::-webkit-scrollbar-thumb {
+      background: rgba(217, 169, 85, 0.35);
+      border-radius: 4px;
+    }
+    #command-sidebar .rail-full::-webkit-scrollbar-thumb:hover {
+      background: rgba(217, 169, 85, 0.7);
+    }
+
+    /* Rail floating tooltips in collapsed mode */
+    .rail-tooltip {
+      position: relative;
+    }
+    .rail-tooltip::after {
+      content: attr(data-tooltip);
+      position: absolute;
+      left: calc(100% + 12px);
+      top: 50%;
+      transform: translateY(-50%) scale(0.92);
+      background: #0B111E;
+      color: #F3F4F6;
+      font-size: 10.5px;
+      font-weight: 700;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      padding: 5px 9px;
+      border-radius: 6px;
+      border: 1px solid rgba(217, 169, 85, 0.4);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.85), 0 0 10px rgba(217, 169, 85, 0.2);
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.18s ease, transform 0.18s ease;
+      z-index: 100;
+    }
+    #command-sidebar:not(.sidebar-expanded) .rail-tooltip:hover::after {
+      opacity: 1;
+      transform: translateY(-50%) scale(1);
+    }
+
+    /* ---------------------------------------------------------------
+       RIGHT INTELLIGENCE SIDEBAR — Identical architecture to Left Sidebar.
+       A slim brass-riveted rail by default (68px); expands into the
+       full Intelligence Console (395px) on click.
+       --------------------------------------------------------------- */
+    #intelligence-sidebar {
+      width: 68px;
+      transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      will-change: width;
+      background: linear-gradient(180deg, rgba(15, 23, 42, 0.98) 0%, rgba(10, 15, 29, 0.98) 50%, rgba(6, 10, 20, 0.99) 100%);
+      border-left: 1px solid rgba(217, 169, 85, 0.25);
+      box-shadow: -4px 0 28px rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+    }
+    #intelligence-sidebar.sidebar-expanded {
+      width: 395px;
+    }
+    @media (max-width: 640px) {
+      #intelligence-sidebar.sidebar-expanded {
+        width: 100vw;
+        position: absolute;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        z-index: 50;
+      }
+    }
+    #intelligence-sidebar .right-rail-label {
+      opacity: 0;
+      max-width: 0;
+      overflow: hidden;
+      white-space: nowrap;
+      transition: opacity 0.2s ease, max-width 0.3s ease;
+    }
+    #intelligence-sidebar.sidebar-expanded .right-rail-label {
+      opacity: 1;
+      max-width: 250px;
+    }
+    #intelligence-sidebar .right-rail-only {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: opacity 0.15s ease;
+    }
+    #intelligence-sidebar.sidebar-expanded .right-rail-only {
+      display: none !important;
+    }
+    #intelligence-sidebar .right-rail-full {
+      display: none;
+      opacity: 0;
+      transition: opacity 0.25s ease 0.05s;
+    }
+    #intelligence-sidebar.sidebar-expanded .right-rail-full {
+      display: flex;
+      flex-direction: column;
+      opacity: 1;
+    }
+    #right-sidebar-collapse-arrow {
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    #intelligence-sidebar.sidebar-expanded #right-sidebar-collapse-arrow {
+      transform: rotate(180deg);
+    }
+
+    /* Custom high-tech scrollbar for right sidebar */
+    #intelligence-sidebar .right-rail-full::-webkit-scrollbar,
+    #intelligence-sidebar .right-rail-full *::-webkit-scrollbar {
+      width: 4px;
+    }
+    #intelligence-sidebar .right-rail-full::-webkit-scrollbar-track,
+    #intelligence-sidebar .right-rail-full *::-webkit-scrollbar-track {
+      background: rgba(10, 15, 29, 0.6);
+      border-radius: 4px;
+    }
+    #intelligence-sidebar .right-rail-full::-webkit-scrollbar-thumb,
+    #intelligence-sidebar .right-rail-full *::-webkit-scrollbar-thumb {
+      background: rgba(217, 169, 85, 0.35);
+      border-radius: 4px;
+    }
+    #intelligence-sidebar .right-rail-full::-webkit-scrollbar-thumb:hover,
+    #intelligence-sidebar .right-rail-full *::-webkit-scrollbar-thumb:hover {
+      background: rgba(217, 169, 85, 0.7);
+    }
+
+    /* Rail floating tooltips for right rail in collapsed mode (pointing left into scene) */
+    .rail-tooltip-right {
+      position: relative;
+    }
+    .rail-tooltip-right::after {
+      content: attr(data-tooltip);
+      position: absolute;
+      right: calc(100% + 12px);
+      top: 50%;
+      transform: translateY(-50%) scale(0.92);
+      background: #0B111E;
+      color: #F3F4F6;
+      font-size: 10.5px;
+      font-weight: 700;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      padding: 5px 9px;
+      border-radius: 6px;
+      border: 1px solid rgba(217, 169, 85, 0.4);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.85), 0 0 10px rgba(217, 169, 85, 0.2);
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.18s ease, transform 0.18s ease;
+      z-index: 100;
+    }
+    #intelligence-sidebar:not(.sidebar-expanded) .rail-tooltip-right:hover::after {
+      opacity: 1;
+      transform: translateY(-50%) scale(1);
+    }
+  </style>
+</head>
+<body class="h-full overflow-hidden flex font-sans select-none antialiased bg-slate-950 text-slate-100">
+
+  <!-- ============================================================== -->
+  <!-- LEFT COMMAND SIDEBAR: REPLACES OLD TOP NAVBAR                     -->
+  <!-- Collapsed = slim brass-riveted rail for 100% full screen view.    -->
+  <!-- Expanded = high-tech Mission Control with dynamic clock anchor.   -->
+  <!-- ============================================================== -->
+  <nav id="command-sidebar" class="h-full flex flex-col z-40 shrink-0 relative select-none">
+    <!-- Luminous Left Status Line -->
+    <div class="absolute top-0 left-0 bottom-0 w-[3px] bg-gradient-to-b from-amber-400 via-amber-500 to-amber-700 shadow-[0_0_10px_rgba(217,169,85,0.7)]"></div>
+
+    <!-- Header Row (Brand + Collapse Button) -->
+    <div class="h-16 px-2.5 sm:px-3 flex items-center justify-between border-b border-slate-800/80 bg-slate-950/40 shrink-0">
+      <div class="flex items-center space-x-2.5 min-w-0">
+        <!-- Golden Locomotive Crest -->
+        <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-amber-500/25 to-slate-950 border border-amber-400/80 shadow-[0_0_14px_rgba(217,169,85,0.35)] flex items-center justify-center shrink-0 cursor-pointer" id="sidebar-brand-btn" title="Toggle Command Console">
+          <span class="material-icons text-amber-400 text-xl">train</span>
+        </div>
+        <div class="rail-label min-w-0">
+          <div class="flex items-center space-x-1.5">
+            <h1 class="text-xs font-black tracking-wider text-white uppercase leading-none font-sans">
+              TRETA
+            </h1>
+            <span class="text-[8px] px-1.5 py-0.2 rounded bg-amber-500/10 text-amber-300 border border-amber-500/40 font-mono font-bold">PS 26028</span>
+          </div>
+          <div class="text-[8px] text-slate-400 font-mono mt-1 tracking-tight truncate flex items-center">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 mr-1 animate-pulse"></span>
+            INDIAN RAILWAYS OPS
+          </div>
+        </div>
+      </div>
+      <button id="btn-sidebar-collapse" title="Expand / collapse command console" class="w-8 h-8 rounded-lg bg-slate-800/90 hover:bg-amber-500/20 border border-slate-700/60 hover:border-amber-400/50 text-amber-400 flex items-center justify-center transition-all cursor-pointer shrink-0 shadow-sm group">
+        <span id="sidebar-collapse-arrow" class="material-icons text-base group-hover:scale-110 transition-transform">chevron_right</span>
+      </button>
+    </div>
+
+    <!-- COLLAPSED RAIL-ONLY VIEW (When collapsed to 68px) -->
+    <div class="rail-only flex-1 py-3 space-y-3 px-2.5">
+      <!-- Active Train Status Badge -->
+      <button id="rail-btn-train" class="rail-tooltip w-11 h-11 rounded-lg bg-slate-800/70 hover:bg-slate-800 border border-slate-700/60 hover:border-emerald-500/50 flex flex-col items-center justify-center transition cursor-pointer relative text-slate-200" data-tooltip="Train 12301 (WAP-7 #30201) • Active">
+        <span class="material-icons text-lg text-emerald-400">speed</span>
+        <span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+        <span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-emerald-400"></span>
+      </button>
+
+
+      <!-- Active Scenario Icon -->
+      <button id="rail-btn-scenario" class="rail-tooltip w-11 h-11 rounded-lg bg-slate-800/70 hover:bg-slate-800 border border-slate-700/60 hover:border-amber-400/50 flex items-center justify-center text-amber-300 transition cursor-pointer" data-tooltip="Weather Scenario (Click to Pick)">
+        <span id="rail-scenario-icon" class="material-icons text-lg">cloud</span>
+      </button>
+
+      <!-- Compact Clock Readout Tile (Real-Time IST) -->
+      <button id="rail-btn-clock" class="rail-tooltip w-11 py-1.5 px-0.5 rounded-lg bg-slate-950/90 border border-emerald-500/40 hover:border-emerald-400 shadow-inner flex flex-col items-center justify-center transition cursor-pointer" data-tooltip="Real-Time IST Clock (Indian Standard Time)">
+        <span class="text-[7px] font-mono text-emerald-400 font-bold leading-none">IST</span>
+        <span id="hud-sim-time-rail" class="text-[9px] font-mono font-black text-emerald-300 leading-tight mt-0.5">--:--</span>
+      </button>
+
+      <!-- Real-World IST Sync Status Pill -->
+      <div id="rail-btn-orig-mode" class="rail-tooltip w-11 py-1 px-0.5 rounded bg-slate-900 border border-emerald-500/30 flex flex-col items-center justify-center" data-tooltip="Real-World Indian Standard Time (Live IST Active)">
+        <span class="text-[6px] font-mono text-emerald-400 uppercase font-bold">SYNC</span>
+        <span id="rail-mode-text" class="text-[8px] font-mono text-emerald-300 font-black">IST</span>
+      </div>
+
+      <div class="w-6 h-px bg-slate-800 my-1"></div>
+
+      <!-- Horn Button -->
+      <button id="rail-btn-horn" class="rail-tooltip w-11 h-11 rounded-lg bg-slate-800/70 hover:bg-slate-800 border border-slate-700/60 text-amber-400 flex items-center justify-center transition cursor-pointer opacity-50" data-tooltip="WAP-7 Horn (Muted)">
+        <span class="material-icons text-lg">campaign</span>
+      </button>
+
+      <!-- Audio Toggle Button -->
+      <button id="rail-btn-audio" class="rail-tooltip w-11 h-11 rounded-lg bg-slate-800/70 hover:bg-slate-800 border border-slate-700/60 text-slate-400 hover:text-slate-200 flex items-center justify-center transition cursor-pointer" data-tooltip="Toggle Audio">
+        <span class="material-icons text-lg">volume_off</span>
+      </button>
+
+      <!-- Expand Button at Bottom -->
+      <div class="mt-auto pb-1">
+        <button id="rail-btn-expand" class="rail-tooltip w-9 h-9 rounded-full bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-400 hover:text-amber-400 flex items-center justify-center transition cursor-pointer" data-tooltip="Expand Operations Console">
+          <span class="material-icons text-base">menu_open</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- EXPANDED OPERATIONS BODY (When expanded to 292px) -->
+    <div class="rail-full flex-1 overflow-y-auto px-3 py-3.5 space-y-3">
+
+      <!-- Card 1: Active Train Working Profile -->
+      <div class="glass-card rounded-lg p-2.5 border border-slate-800/90 bg-slate-950/60 shadow-lg relative overflow-hidden">
+        <div class="flex items-center justify-between text-[9px] font-mono text-slate-400 mb-1">
+          <span class="uppercase tracking-widest text-slate-500 font-bold">WORKING PROFILE</span>
+          <span class="px-1.5 py-0.2 rounded bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 flex items-center font-bold">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 mr-1 animate-ping"></span>ACTIVE
+          </span>
+        </div>
+        <div class="text-xs font-bold text-slate-100 font-mono tracking-tight truncate" id="hud-train-id">12301 Howrah Rajdhani</div>
+        <div class="flex items-center justify-between text-[9px] text-slate-400 font-mono mt-0.5">
+          <span id="hud-loco-no" class="text-slate-300 font-semibold">WAP-7 #30201</span>
+          <span class="text-amber-400/90 font-bold">25kV AC OHE</span>
+        </div>
+      </div>
+
+      <!-- Card 2: REAL-TIME IST CLOCK -->
+      <div class="glass-card rounded-lg p-3 border border-emerald-500/35 bg-gradient-to-br from-emerald-950/25 via-slate-950/80 to-slate-900/50 shadow-xl relative">
+        <div class="flex items-center justify-between text-[9px] font-mono mb-1.5">
+          <span class="uppercase tracking-widest text-emerald-400 font-bold flex items-center">
+            <span class="material-icons text-xs mr-1 text-emerald-400">schedule</span>
+            REAL-TIME IST CLOCK
+          </span>
+          <span class="text-[8px] font-mono font-bold px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 flex items-center">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 mr-1 animate-pulse"></span>
+            LIVE IST
+          </span>
+        </div>
+
+        <!-- Large Digital LED Clock Display (Real IST Clock) -->
+        <div class="text-center py-2.5 bg-slate-950/90 rounded-md border border-slate-800/90 shadow-inner my-1">
+          <div class="text-2xl font-mono font-black text-emerald-400 tracking-wider drop-shadow-[0_0_12px_rgba(52,211,153,0.5)]" id="hud-sim-time">--:--:--</div>
+          <div class="text-[8px] text-slate-400 font-mono mt-0.5 flex items-center justify-center space-x-1">
+            <span>Timezone:</span>
+            <span class="text-slate-300 font-bold">Indian Standard Time (UTC+05:30)</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Card 3: Weather Hazard Scenario Selector -->
+      <div class="glass-card rounded-lg p-2.5 border border-slate-800 bg-slate-950/60 shadow-lg">
+        <div class="text-[9px] text-slate-400 uppercase font-bold tracking-widest font-mono mb-1.5 flex items-center justify-between">
+          <span>ACTIVE SCENARIO</span>
+          <span class="material-icons text-xs text-blue-400">cloud</span>
+        </div>
+        <div class="relative">
+          <select id="scenario-select" class="w-full bg-slate-900 border border-slate-700/80 hover:border-amber-400/60 text-slate-100 text-[11px] font-semibold rounded-md px-2.5 py-2 pr-7 focus:outline-none focus:border-amber-400 appearance-none cursor-pointer shadow-inner transition-colors">
+            <option value="judge_fog_demo" selected>Weather Simulation</option>
+            <option value="dense_fog">Dense Winter Fog Corridor (150m)</option>
+            <option value="clear">Clear Weather Corridor (130 km/h)</option>
+            <option value="monsoon">Heavy Downpour (Monsoon)</option>
+            <option value="thunderstorm">Severe Thunderstorm (Lightning)</option>
+          </select>
+          <span class="material-icons text-xs text-amber-400 absolute right-2 top-2.5 pointer-events-none">arrow_drop_down</span>
+        </div>
+      </div>
+
+      <!-- Card 5: Locomotive Audio & Pilot Controls -->
+      <div class="glass-card rounded-lg p-2.5 border border-slate-800 bg-slate-950/60 shadow-lg mt-auto">
+        <div class="text-[9px] text-slate-400 uppercase font-bold tracking-widest font-mono mb-2">LOCOMOTIVE AUDIO</div>
+        <div class="grid grid-cols-2 gap-2">
+          <button id="btn-horn" title="Horn (muted - unmute audio first)" class="w-full py-2 px-2 bg-slate-800 hover:bg-slate-700 active:bg-amber-600 border border-slate-700 text-amber-400 rounded-md shadow transition cursor-pointer flex items-center justify-center space-x-1 opacity-50">
+            <span class="material-icons text-sm">campaign</span>
+            <span class="text-[10px] font-bold font-mono uppercase">HORN</span>
+          </button>
+          <button id="btn-audio-toggle" title="Toggle Synthesized Audio" class="w-full py-2 px-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 rounded-md shadow transition cursor-pointer flex items-center justify-center space-x-1">
+            <span class="material-icons text-sm">volume_off</span>
+            <span class="text-[10px] font-bold font-mono uppercase" id="audio-toggle-text">MUTED</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </nav>
+ 
+  <!-- ============================================================== -->
+  <!-- MAIN WORKSPACE: 3D VIEWPORT (FULL SCREEN) + SLIDING INTELLIGENCE DRAWER -->
+  <!-- ============================================================== -->
+  <main class="flex-1 h-full overflow-hidden relative">
+ 
+    <!-- 3D VIEWPORT CANVAS AREA (TRUE FULL SCREEN) -->
+    <div id="viewport-container" class="w-full h-full relative bg-slate-950 overflow-hidden flex flex-col">
+      <!-- Three.js Canvas -->
+      <canvas id="three-canvas" class="w-full h-full block focus:outline-none"></canvas>
+ 
+      <!-- JUDGE DEMO PROGRESS BANNER OVERLAY -->
+      <div id="judge-step-banner" class="hidden absolute top-2 sm:top-4 left-1/2 -translate-x-1/2 z-20 max-w-2xl w-[94%] sm:w-[92%] glass-panel rounded-md p-2 sm:p-3 border-l-4 border-l-amber-500 shadow-2xl flex items-center space-x-2 sm:space-x-3.5 animate-fadeIn">
+        <div class="w-7 h-7 sm:w-9 sm:h-9 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center shrink-0 border border-amber-500/30">
+          <span class="material-icons text-base sm:text-xl font-bold">radar</span>
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center justify-between">
+            <span class="text-[9px] sm:text-[11px] font-extrabold uppercase tracking-wider text-amber-400">SIH Benchmark Sequence</span>
+            <span id="judge-step-timer" class="text-[10px] sm:text-xs font-mono font-bold px-1.5 sm:px-2 py-0.2 sm:py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">T+0s</span>
+          </div>
+          <p id="judge-step-text" class="text-[10px] sm:text-xs font-medium text-slate-100 leading-snug mt-0.5 sm:mt-1 truncate font-mono">
+            Initializing proactive lookahead evaluation...
+          </p>
+        </div>
+      </div>
+
+      <!-- PROACTIVE WEATHER HAZARD SCREEN EARLY AWARENESS BANNER -->
+      <div id="proactive-hazard-banner" class="absolute top-2 sm:top-4 left-1/2 -translate-x-1/2 z-20 max-w-2xl w-[94%] sm:w-[92%] glass-panel rounded-lg p-2.5 sm:p-3 border border-amber-500/40 shadow-[0_0_25px_rgba(217,169,85,0.25)] flex items-center justify-between transition-all duration-300 pointer-events-auto">
+        <!-- Left: Glowing Icon + Hazard Title, Span & Advisory -->
+        <div class="flex items-center space-x-2.5 sm:space-x-3 min-w-0">
+          <div id="hazard-banner-icon-box" class="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center shrink-0 border border-amber-500/40 shadow-[0_0_12px_rgba(217,169,85,0.4)]">
+            <span id="hazard-banner-icon" class="material-icons text-lg sm:text-2xl animate-pulse">cloud</span>
+          </div>
+          <div class="min-w-0">
+            <div class="flex items-center space-x-1.5 sm:space-x-2 flex-wrap gap-y-1">
+              <span id="hazard-banner-badge" class="text-[9px] sm:text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 font-mono">
+                DENSE FOG ZONE AHEAD
+              </span>
+              <span id="hazard-banner-span-badge" class="text-[9px] sm:text-[10px] font-mono text-slate-200 font-bold bg-slate-900/80 px-2 py-0.5 rounded border border-slate-700/70">
+                REGION LENGTH: 30.0 KM (Km 30.0 ➔ 60.0)
+              </span>
+            </div>
+            <p id="hazard-banner-desc" class="text-[10px] sm:text-xs font-medium text-slate-200 truncate mt-0.5 sm:mt-1 font-mono">
+              Dense radiation fog front • Sighting: 180m • Safe MPS: 90 km/h
+            </p>
+          </div>
+        </div>
+
+        <!-- Right: Time to Arrival / Exit Countdown & Distance -->
+        <div class="flex flex-col items-end shrink-0 pl-2 sm:pl-3.5 border-l border-slate-700/60 ml-2">
+          <div class="text-[8px] sm:text-[9px] font-mono uppercase text-slate-400 tracking-wider font-bold">
+            <span id="hazard-banner-time-label">ARRIVAL IN</span>
+          </div>
+          <div id="hazard-banner-countdown" class="text-sm sm:text-lg font-black font-mono text-amber-400 tracking-tight drop-shadow-[0_0_8px_rgba(217,169,85,0.6)]">
+            02m 15s
+          </div>
+          <div id="hazard-banner-dist" class="text-[8px] sm:text-[9px] font-mono font-bold text-slate-400">
+            28.0 km ahead
+          </div>
+        </div>
+      </div>
+
+      <!-- VIEWPORT TOP HUD OVERLAYS -->
+      <div class="absolute top-2 left-2 sm:top-4 sm:left-4 z-10 flex flex-col space-y-1.5 sm:space-y-2 pointer-events-none max-w-[calc(100%-1rem)]">
+        <!-- Speed & Distance Card -->
+        <div class="glass-panel rounded-md px-3 py-2 sm:px-4 sm:py-3.5 shadow-2xl pointer-events-auto min-w-[160px] sm:min-w-[220px]">
+          <div class="flex items-baseline justify-between">
+            <div class="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono">Train Speed</div>
+            <div class="text-[9px] sm:text-[10px] text-rose-400 font-mono font-semibold bg-rose-500/10 px-1 py-0.5 rounded border border-rose-500/20">MPS: 130</div>
+          </div>
+          <div class="flex items-baseline space-x-1.5 sm:space-x-2 mt-0.5 sm:mt-1">
+            <span id="hud-speed" class="text-2xl sm:text-4xl font-black font-mono text-amber-400 tracking-tight drop-shadow-[0_0_12px_rgba(217,169,85,0.4)]">130</span>
+            <span class="text-[10px] sm:text-xs text-slate-400 font-extrabold uppercase font-mono">km/h</span>
+            <span class="text-[10px] sm:text-xs text-emerald-400 font-mono font-bold ml-auto" id="hud-target-speed">130 km/h</span>
+          </div>
+          <!-- Corridor Progress -->
+          <div class="mt-1.5 sm:mt-3">
+            <div class="flex justify-between text-[9px] sm:text-[10px] text-slate-400 font-mono mb-0.5 sm:mb-1">
+              <span>NDLS</span>
+              <span id="hud-route-km" class="text-amber-400 font-extrabold">Km 2.0 / 180</span>
+              <span>HWH</span>
+            </div>
+            <div class="w-full h-1.5 bg-slate-900 rounded-full overflow-hidden border border-slate-800">
+              <div id="route-progress-fill" class="h-full bg-gradient-to-r from-blue-500 via-amber-400 to-emerald-400 rounded-full w-0 transition-all duration-300"></div>
+            </div>
+          </div>
+        </div>
+ 
+        <!-- Forward Radar Lookahead Scanner Status -->
+        <div class="glass-panel-subtle rounded-md px-2.5 py-1.5 sm:px-3.5 sm:py-2 text-[10px] sm:text-xs flex items-center space-x-2 pointer-events-auto border border-blue-500/20 w-fit">
+          <div class="relative w-3.5 h-3.5 sm:w-4 sm:h-4 flex items-center justify-center shrink-0">
+            <div class="w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full border border-blue-400/40"></div>
+            <div class="absolute w-2 h-2 rounded-full bg-blue-500 animate-ping"></div>
+            <div class="w-1.5 h-1.5 rounded-full bg-blue-400"></div>
+          </div>
+          <span class="text-[10px] sm:text-[11px] text-slate-300 font-medium font-mono">Horizon: <strong class="text-blue-400 font-bold">50 KM</strong><span class="hidden sm:inline"> AHEAD</span></span>
+        </div>
+      </div>
+ 
+      <!-- CAMERA MODE SELECTOR (OVERLAY BOTTOM-LEFT) -->
+      <div class="absolute bottom-12 left-2 right-2 max-w-[calc(100%-1rem)] overflow-x-auto glass-panel rounded-md p-1 flex items-center space-x-1 shadow-2xl sm:bottom-4 sm:left-4 sm:right-auto sm:max-w-none z-10">
+        <button data-camera="TRAIN_FOLLOW" class="px-2 py-1 sm:px-3 sm:py-1.5 text-[10px] sm:text-xs font-bold rounded-md bg-indigo-600 text-white transition flex items-center space-x-1 cursor-pointer shadow-md shrink-0">
+          <span class="material-icons text-xs">videocam</span>
+          <span class="hidden sm:inline">Train Follow</span><span class="sm:hidden">Follow</span>
+        </button>
+        <button data-camera="CAB_VIEW" class="px-2 py-1 sm:px-3 sm:py-1.5 text-[10px] sm:text-xs font-bold rounded-md bg-slate-800 text-slate-300 hover:bg-slate-700 transition flex items-center space-x-1 cursor-pointer shrink-0">
+          <span class="material-icons text-xs">directions_transit</span>
+          <span class="hidden sm:inline">Cab View</span><span class="sm:hidden">Cab</span>
+        </button>
+        <button data-camera="WEATHER_ZONE" class="px-2 py-1 sm:px-3 sm:py-1.5 text-[10px] sm:text-xs font-bold rounded-md bg-slate-800 text-slate-300 hover:bg-slate-700 transition flex items-center space-x-1 cursor-pointer shrink-0">
+          <span class="material-icons text-xs">cloud</span>
+          <span class="hidden sm:inline">Hazard Front</span><span class="sm:hidden">Hazard</span>
+        </button>
+        <button data-camera="NETWORK" class="px-2 py-1 sm:px-3 sm:py-1.5 text-[10px] sm:text-xs font-bold rounded-md bg-slate-800 text-slate-300 hover:bg-slate-700 transition flex items-center space-x-1 cursor-pointer shrink-0">
+          <span class="material-icons text-xs">map</span>
+          <span class="hidden sm:inline">Corridor Map</span><span class="sm:hidden">Map</span>
+        </button>
+        <button data-camera="STATION" class="px-2 py-1 sm:px-3 sm:py-1.5 text-[10px] sm:text-xs font-bold rounded-md bg-slate-800 text-slate-300 hover:bg-slate-700 transition flex items-center space-x-1 cursor-pointer shrink-0">
+          <span class="material-icons text-xs">domain</span>
+          <span class="hidden sm:inline">Station View</span><span class="sm:hidden">Station</span>
+        </button>
+      </div>
+ 
+      <!-- PLAYBACK & TIME SPEED CONTROLS (OVERLAY BOTTOM-RIGHT) -->
+      <div class="absolute bottom-2 left-2 right-2 justify-between z-10 glass-panel rounded-md p-1 flex items-center shadow-2xl sm:bottom-4 sm:left-auto sm:right-4 sm:justify-start sm:space-x-1">
+        <button id="btn-play-pause" class="px-2.5 py-1 sm:px-3.5 sm:py-1.5 text-[10px] sm:text-xs font-extrabold rounded-md bg-blue-600 text-white hover:bg-blue-500 transition flex items-center cursor-pointer shadow-md shrink-0">
+          <span class="material-icons text-xs sm:text-sm mr-1">pause</span>Pause
+        </button>
+        <button id="btn-reset" class="p-1 sm:px-2.5 sm:py-1.5 text-[10px] sm:text-xs font-semibold rounded-md bg-slate-800 text-slate-300 hover:bg-slate-700 transition cursor-pointer shrink-0" title="Reset Simulation">
+          <span class="material-icons text-xs sm:text-sm">restart_alt</span>
+        </button>
+        <div class="h-3 sm:h-4 w-px bg-slate-700 mx-0.5 sm:mx-1"></div>
+        <div class="flex items-center space-x-0.5 sm:space-x-1">
+          <button data-speed="1" class="px-1.5 sm:px-2.5 py-0.5 sm:py-1 text-[9px] sm:text-xs font-mono font-bold rounded-md bg-blue-600 text-white transition cursor-pointer">1X</button>
+          <button data-speed="2" class="px-1.5 sm:px-2.5 py-0.5 sm:py-1 text-[9px] sm:text-xs font-mono font-bold rounded-md bg-slate-800 text-slate-300 hover:bg-slate-700 transition cursor-pointer">2X</button>
+          <button data-speed="5" class="px-1.5 sm:px-2.5 py-0.5 sm:py-1 text-[9px] sm:text-xs font-mono font-bold rounded-md bg-slate-800 text-slate-300 hover:bg-slate-700 transition cursor-pointer">5X</button>
+          <button data-speed="10" class="px-1.5 sm:px-2.5 py-0.5 sm:py-1 text-[9px] sm:text-xs font-mono font-bold rounded-md bg-slate-800 text-slate-300 hover:bg-slate-700 transition cursor-pointer">10X</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ============================================================== -->
+  <!-- RIGHT INTELLIGENCE SIDEBAR: EXACT ARCHITECTURE AS LEFT SIDEBAR     -->
+  <!-- Collapsed = slim brass-riveted rail (68px) with quick-access tiles -->
+  <!-- Expanded = full 395px Intelligence Console matching mockups        -->
+  <!-- ============================================================== -->
+  <aside id="intelligence-sidebar" class="h-full flex flex-col z-40 shrink-0 relative select-none">
+    <!-- Luminous Right Status Line -->
+    <div class="absolute top-0 right-0 bottom-0 w-[3px] bg-gradient-to-b from-amber-400 via-amber-500 to-amber-700 shadow-[0_0_10px_rgba(217,169,85,0.7)]"></div>
+
+    <!-- Header Row (Brand Crest + Collapse/Expand Button) -->
+    <div class="h-16 px-2.5 sm:px-3 flex items-center justify-between border-b border-slate-800/80 bg-slate-950/40 shrink-0">
+      <!-- Collapse / Expand Toggle Button -->
+      <button id="btn-right-sidebar-collapse" title="Expand / collapse intelligence console" class="w-8 h-8 rounded-lg bg-slate-800/90 hover:bg-amber-500/20 border border-slate-700/60 hover:border-amber-400/50 text-amber-400 flex items-center justify-center transition-all cursor-pointer shrink-0 shadow-sm group">
+        <span id="right-sidebar-collapse-arrow" class="material-icons text-base group-hover:scale-110 transition-transform">chevron_left</span>
+      </button>
+
+      <!-- Golden Intelligence Crest + Brand Label -->
+      <div class="flex items-center space-x-2.5 min-w-0 flex-row-reverse space-x-reverse">
+        <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-amber-500/25 to-slate-950 border border-amber-400/80 shadow-[0_0_14px_rgba(217,169,85,0.35)] flex items-center justify-center shrink-0 cursor-pointer" id="right-sidebar-brand-btn" title="Toggle Intelligence Console">
+          <span class="material-icons text-amber-400 text-xl">tune</span>
+        </div>
+        <div class="right-rail-label min-w-0 text-right">
+          <div class="flex items-center justify-end space-x-1.5">
+            <span class="text-[8px] px-1.5 py-0.2 rounded bg-blue-500/10 text-blue-300 border border-blue-500/40 font-mono font-bold">ML CORE</span>
+            <h2 class="text-xs font-black tracking-wider text-white uppercase leading-none font-sans">
+              INTELLIGENCE
+            </h2>
+          </div>
+          <div class="text-[8px] text-slate-400 font-mono mt-1 tracking-tight truncate flex items-center justify-end">
+            <span>PROACTIVE WEATHER AI</span>
+            <span class="w-1.5 h-1.5 rounded-full bg-blue-400 ml-1 animate-pulse"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- COLLAPSED RIGHT RAIL-ONLY VIEW (When collapsed to 68px) -->
+    <div class="right-rail-only flex-1 py-3 space-y-3 px-2.5">
+      <!-- Dynamic ETA Engine Rail Tile -->
+      <button id="right-rail-btn-eta" class="rail-tooltip-right w-11 py-1.5 px-0.5 rounded-lg bg-slate-950/90 border border-amber-500/40 hover:border-amber-400 shadow-inner flex flex-col items-center justify-center transition cursor-pointer" data-tooltip="Dynamic ETA Engine (Click to Open)">
+        <span class="material-icons text-base text-amber-400">schedule</span>
+        <span id="hud-rail-pred-eta" class="text-[8px] font-mono font-black text-amber-400 leading-tight mt-0.5">22:09</span>
+      </button>
+
+      <!-- Weather Risk Model Rail Tile -->
+      <button id="right-rail-btn-risk" class="rail-tooltip-right w-11 h-11 rounded-lg bg-slate-800/70 hover:bg-slate-800 border border-slate-700/60 hover:border-rose-500/50 flex flex-col items-center justify-center transition cursor-pointer relative text-slate-200" data-tooltip="Weather Risk Model (High Risk 82%)">
+        <span class="material-icons text-lg text-rose-400">radar</span>
+        <span id="hud-rail-risk-text" class="text-[7px] font-mono font-black text-rose-400 mt-0.5">82%</span>
+      </button>
+
+      <!-- Simulation Sliders Rail Tile -->
+      <button id="right-rail-btn-controls" class="rail-tooltip-right w-11 h-11 rounded-lg bg-slate-800/70 hover:bg-slate-800 border border-slate-700/60 hover:border-indigo-400/50 flex items-center justify-center text-indigo-300 transition cursor-pointer" data-tooltip="Simulation Sliders & Scrubbing">
+        <span class="material-icons text-lg">tune</span>
+      </button>
+
+      <div class="w-6 h-px bg-slate-800 my-1"></div>
+
+      <!-- Quick Action Fog Rail Tile -->
+      <button id="right-rail-btn-fog" class="rail-tooltip-right w-11 h-11 rounded-lg bg-amber-950/30 hover:bg-amber-900/40 border border-amber-500/50 text-amber-300 flex items-center justify-center transition cursor-pointer" data-tooltip="Test Fog Scenario @ 28km">
+        <span class="material-icons text-lg">cloud</span>
+      </button>
+
+      <!-- Quick Action Clear Rail Tile -->
+      <button id="right-rail-btn-clear" class="rail-tooltip-right w-11 h-11 rounded-lg bg-emerald-950/30 hover:bg-emerald-900/40 border border-emerald-500/50 text-emerald-300 flex items-center justify-center transition cursor-pointer" data-tooltip="Clear Weather Corridor">
+        <span class="material-icons text-lg">wb_sunny</span>
+      </button>
+
+      <!-- Expand Button at Bottom -->
+      <div class="mt-auto pb-1">
+        <button id="right-rail-btn-expand" class="rail-tooltip-right w-9 h-9 rounded-full bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-400 hover:text-amber-400 flex items-center justify-center transition cursor-pointer" data-tooltip="Expand Intelligence Console">
+          <span class="material-icons text-base rotate-180">menu_open</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- EXPANDED OPERATIONS BODY (When expanded to 395px) -->
+    <div class="right-rail-full flex-1 flex flex-col overflow-hidden min-h-0">
+
+      <!-- SLIDING SEGMENTED TABS (ACTS AS SLIDER SWITCHER) -->
+      <div class="p-3 border-b border-slate-800/80 bg-slate-950/80 shrink-0">
+        <div class="flex items-center justify-between mb-2.5">
+          <span class="text-[11px] font-black uppercase tracking-widest text-slate-300 font-mono flex items-center">
+            <span class="material-icons text-sm text-amber-400 mr-1.5">tune</span>
+            INTELLIGENCE CONSOLE
+          </span>
+          <div class="flex items-center space-x-1.5">
+            <button id="slider-btn-prev" class="w-6 h-6 rounded bg-slate-900 hover:bg-slate-800 border border-slate-700/80 text-slate-300 hover:text-white flex items-center justify-center transition cursor-pointer" title="Previous Slide">
+              <span class="material-icons text-sm">chevron_left</span>
+            </button>
+            <button id="slider-btn-next" class="w-6 h-6 rounded bg-slate-900 hover:bg-slate-800 border border-slate-700/80 text-slate-300 hover:text-white flex items-center justify-center transition cursor-pointer" title="Next Slide">
+              <span class="material-icons text-sm">chevron_right</span>
+            </button>
+            <button id="btn-sidebar-close" class="w-6 h-6 rounded bg-slate-900 hover:bg-rose-950/60 border border-slate-700/80 text-slate-400 hover:text-rose-300 flex items-center justify-center transition cursor-pointer ml-0.5" title="Collapse Drawer">
+              <span class="material-icons text-sm">close</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 3-Slide Interactive Pill Navigation Slider -->
+        <div class="grid grid-cols-3 gap-1.5 p-1 bg-slate-950 rounded-md border border-slate-800 text-[10px] font-mono font-bold">
+          <button data-slide-target="0" class="slider-tab-btn py-1.5 px-1 rounded-md transition-all duration-200 text-center truncate bg-[#D9A955] text-slate-950 font-black shadow-md">
+            ETA ENGINE
+          </button>
+          <button data-slide-target="1" class="slider-tab-btn py-1.5 px-1 rounded-md transition-all duration-200 text-center truncate text-slate-400 hover:text-slate-200 font-bold">
+            RISK MODEL
+          </button>
+          <button data-slide-target="2" class="slider-tab-btn py-1.5 px-1 rounded-md transition-all duration-200 text-center truncate text-slate-400 hover:text-slate-200 font-bold">
+            CONTROLS
+          </button>
+        </div>
+      </div>
+
+      <!-- CAROUSEL SLIDER WRAPPER (HORIZONTAL SLIDING CONTAINER) -->
+      <div class="flex-1 overflow-hidden relative">
+        <div id="slider-track" class="flex h-full w-[300%] transition-transform duration-300 ease-out">
+
+          <!-- ========================================== -->
+          <!-- SLIDE 1: DYNAMIC ETA ENGINE               -->
+          <!-- ========================================== -->
+          <div class="w-1/3 h-full overflow-y-auto p-3.5 flex flex-col space-y-3">
+            
+            <!-- Header Card -->
+            <div class="flex items-center justify-between">
+              <div class="flex items-center space-x-2.5">
+                <div class="w-8 h-8 rounded-full border border-amber-500/40 bg-amber-500/10 flex items-center justify-center text-amber-400 shadow-[0_0_10px_rgba(217,169,85,0.2)]">
+                  <span class="material-icons text-base">schedule</span>
+                </div>
+                <div>
+                  <h2 class="text-xs font-black uppercase tracking-wider text-slate-100">Dynamic ETA Engine</h2>
+                  <div class="text-[9px] text-slate-400 font-mono tracking-wider">PROACTIVE WEATHER INTEGRATION</div>
+                </div>
+              </div>
+              <span class="text-[9px] text-blue-400 bg-blue-950/40 px-2 py-0.5 rounded border border-blue-500/40 font-mono font-bold flex items-center shadow">
+                <span class="w-1.5 h-1.5 rounded-full bg-blue-400 mr-1.5 animate-pulse"></span>CONTINUOUS ML SYNC
+              </span>
+            </div>
+
+            <!-- OCC TIMETABLE PROGRESSION STRIP -->
+            <div class="hud-corner-card p-3">
+              <div class="flex items-center justify-between text-[10px] font-mono mb-2">
+                <span class="font-extrabold text-slate-400 uppercase tracking-wider">TIMETABLE PROGRESSION</span>
+                <span id="hud-timetable-offset" class="font-black text-amber-400 uppercase tracking-wider text-[10px]">+7 MIN FORECAST OFFSET</span>
+              </div>
+              
+              <div class="flex items-center justify-between py-1">
+                <!-- SCHED BOX -->
+                <div class="flex-1 bg-slate-950/90 border border-slate-800 rounded px-1.5 py-1.5 text-center">
+                  <div class="text-[8px] font-mono font-bold text-slate-400 tracking-wider">SCHED</div>
+                  <div id="hud-sched-eta-prog" class="text-xs font-mono font-bold text-cyan-300 mt-0.5">--:--</div>
+                </div>
+                
+                <!-- Connector Line 1 -->
+                <div class="w-4 sm:w-6 h-[2px] bg-slate-700/80 mx-1"></div>
+                
+                <!-- CURRENT BOX -->
+                <div class="flex-1 bg-slate-950/90 border border-slate-800 rounded px-1.5 py-1.5 text-center">
+                  <div class="text-[8px] font-mono font-bold text-slate-400 tracking-wider">CURRENT</div>
+                  <div id="hud-curr-eta-prog" class="text-xs font-mono font-bold text-cyan-300 mt-0.5">--:--</div>
+                </div>
+                
+                <!-- Connector Line 2 (Highlighted Golden) -->
+                <div class="w-4 sm:w-6 h-[2px] bg-amber-500/80 mx-1 shadow-[0_0_6px_rgba(217,169,85,0.6)]"></div>
+                
+                <!-- PREDICTED BOX (Gold border highlight) -->
+                <div class="flex-1 bg-amber-950/20 border-2 border-amber-500/90 rounded px-1.5 py-1.5 text-center shadow-[0_0_10px_rgba(217,169,85,0.25)]">
+                  <div class="text-[8px] font-mono font-black text-amber-400 tracking-wider">PREDICTED</div>
+                  <div id="hud-pred-eta-prog" class="text-xs font-mono font-black text-amber-400 mt-0.5">--:--</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 2x2 Grid of Primary Metrics -->
+            <div class="grid grid-cols-2 gap-2.5">
+              <!-- Scheduled ETA -->
+              <div class="hud-corner-card p-3 flex flex-col justify-between min-h-[78px]">
+                <div>
+                  <div class="text-[9px] text-slate-400 uppercase font-mono font-bold tracking-wider">SCHEDULED ETA</div>
+                  <div class="text-xl font-mono font-black text-slate-100 mt-0.5" id="hud-sched-eta">--:--</div>
+                </div>
+                <div class="text-[9px] text-slate-400 font-mono mt-1">Timetable Baseline</div>
+              </div>
+
+              <!-- Current ETA -->
+              <div class="hud-corner-card p-3 flex flex-col justify-between min-h-[78px]">
+                <div>
+                  <div class="text-[9px] text-slate-400 uppercase font-mono font-bold tracking-wider">CURRENT ETA</div>
+                  <div class="text-xl font-mono font-black text-slate-100 mt-0.5" id="hud-curr-eta">22:02</div>
+                </div>
+                <div class="text-[9px] text-slate-400 font-mono mt-1" id="hud-op-delay">+2 min</div>
+              </div>
+
+              <!-- Weather Delay (Hero Card) -->
+              <div class="hud-corner-card p-3 flex flex-col justify-between min-h-[78px]">
+                <div>
+                  <div class="flex items-center justify-between text-[9px] text-amber-400 uppercase font-mono font-bold tracking-wider">
+                    <span>WEATHER DELAY</span>
+                    <span class="w-1.5 h-1.5 rounded-full bg-amber-400 inline-block animate-pulse"></span>
+                  </div>
+                  <div class="text-xl font-mono font-black text-amber-400 mt-0.5 drop-shadow-[0_0_8px_rgba(217,169,85,0.5)]" id="hud-pred-weather-delay">+7 min</div>
+                </div>
+                <div class="text-[9px] text-slate-400 font-mono mt-1">Computed Ahead of Zone</div>
+              </div>
+
+              <!-- Predicted ETA -->
+              <div class="hud-corner-card p-3 flex flex-col justify-between min-h-[78px]">
+                <div>
+                  <div class="flex items-center justify-between text-[9px] text-emerald-400 uppercase font-mono font-bold tracking-wider">
+                    <span>PREDICTED ETA</span>
+                    <span id="hud-confidence" class="text-emerald-400 font-black">84%</span>
+                  </div>
+                  <div class="text-xl font-mono font-black text-emerald-400 mt-0.5 drop-shadow-[0_0_8px_rgba(52,211,153,0.5)]" id="hud-pred-eta">22:09</div>
+                </div>
+                <div class="text-[9px] text-emerald-500/80 font-mono mt-1">ML Confidence Validated</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ========================================== -->
+          <!-- SLIDE 2: WEATHER RISK MODEL & ADVISORY    -->
+          <!-- ========================================== -->
+          <div class="w-1/3 h-full overflow-y-auto p-3.5 flex flex-col space-y-3">
+            <!-- Header -->
+            <div class="flex items-center justify-between">
+              <div class="flex items-center space-x-2.5">
+                <div class="w-8 h-8 rounded-full border border-blue-500/40 bg-blue-500/10 flex items-center justify-center text-blue-400 shadow-[0_0_10px_rgba(59,130,246,0.2)]">
+                  <span class="material-icons text-base">radar</span>
+                </div>
+                <div>
+                  <h2 class="text-xs font-black uppercase tracking-wider text-slate-100">Weather Risk Model</h2>
+                  <div class="text-[9px] text-slate-400 font-mono tracking-wider">ML HAZARD ESTIMATION</div>
+                </div>
+              </div>
+              <span id="hud-risk-badge" class="px-2.5 py-0.5 text-[10px] font-black rounded-full bg-rose-950/40 text-rose-300 border border-rose-800/60 font-mono uppercase">HIGH RISK</span>
+            </div>
+
+            <!-- Weather Risk Probability Card -->
+            <div class="hud-corner-card p-3">
+              <div class="flex justify-between text-xs font-mono mb-2">
+                <span class="text-slate-400">Weather Risk Probability</span>
+                <span id="hud-risk-level" class="text-rose-400 font-black">HIGH (82%)</span>
+              </div>
+              <div class="w-full h-2 bg-slate-950 rounded-full overflow-hidden border border-slate-800/80">
+                <div id="risk-gauge-fill" class="h-full bg-gradient-to-r from-emerald-500 via-amber-400 to-rose-500 rounded-full w-[82%] shadow-[0_0_8px_rgba(244,63,94,0.6)] transition-all duration-300"></div>
+              </div>
+            </div>
+
+            <!-- Telemetry Parameters -->
+            <div class="space-y-1 text-xs font-mono">
+              <div class="flex justify-between items-center py-1.5 border-b border-slate-800/80">
+                <span class="text-slate-400">Current Zone Weather</span>
+                <span id="hud-curr-weather-badge" class="px-2.5 py-0.5 rounded bg-emerald-950/60 text-emerald-300 border border-emerald-500/40 font-bold text-xs">CLEAR</span>
+              </div>
+
+              <div class="flex justify-between items-center py-1.5 border-b border-slate-800/80">
+                <span class="text-slate-400">Upcoming Weather Ahead</span>
+                <span id="hud-upcoming-weather-badge" class="px-2.5 py-0.5 rounded bg-amber-950/60 text-amber-300 border border-amber-500/40 font-bold text-xs">DENSE FOG</span>
+              </div>
+
+              <div class="flex justify-between items-center py-1.5 border-b border-slate-800/80">
+                <span class="text-slate-400">Distance to Hazard</span>
+                <span id="hud-distance-weather" class="font-black text-amber-400 text-sm">10.2 km</span>
+              </div>
+
+              <div class="flex justify-between items-center py-1.5 border-b border-slate-800/80">
+                <span class="text-slate-400">Time to Hazard Entry</span>
+                <span id="hud-hazard-time-to-entry" class="font-black text-amber-400 text-sm">02m 15s</span>
+              </div>
+
+              <div class="flex justify-between items-center py-1.5 border-b border-slate-800/80">
+                <span class="text-slate-400">Hazard Region Total Length</span>
+                <span id="hud-hazard-total-length" class="font-bold text-slate-100 text-sm">30.0 km (Km 30 ➔ 60)</span>
+              </div>
+
+              <div class="flex justify-between items-center py-1.5 border-b border-slate-800/80">
+                <span class="text-slate-400">Sighting Visibility</span>
+                <span id="hud-visibility" class="font-bold text-slate-100 text-sm">5000 m</span>
+              </div>
+
+              <div class="flex justify-between items-center py-1.5 border-b border-slate-800/80">
+                <span class="text-slate-400">Predicted Speed Reduction</span>
+                <span id="hud-speed-impact" class="font-black text-rose-400 text-sm">-40 km/h</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- ========================================== -->
+          <!-- SLIDE 3: INTERACTIVE SLIDERS & CONTROLS   -->
+          <!-- ========================================== -->
+          <div class="w-1/3 h-full overflow-y-auto p-3.5 flex flex-col space-y-3">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center space-x-2.5">
+                <div class="w-8 h-8 rounded-lg bg-blue-900/30 border border-blue-500/40 text-blue-400 flex items-center justify-center shadow">
+                  <span class="material-icons text-base">tune</span>
+                </div>
+                <div>
+                  <h2 class="text-xs font-black uppercase tracking-wider text-slate-100">Simulation Sliders</h2>
+                  <div class="text-[9px] text-slate-400 font-mono tracking-wider">MANUAL SCENARIO SCRUBBING</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- SLIDER 1: CORRIDOR POSITION SCRUBBER -->
+            <div class="hud-corner-card p-3.5">
+              <div class="flex justify-between text-xs font-mono mb-1">
+                <span class="text-slate-300 font-bold">Route Scrubber</span>
+                <span id="slider-val-km" class="text-amber-400 font-black">Km 32.1</span>
+              </div>
+              <input type="range" id="input-slider-km" min="0" max="180" step="0.5" value="32.1" class="w-full mt-2 cursor-pointer">
+              <div class="flex justify-between text-[9px] text-slate-500 font-mono mt-1.5">
+                <span>NDLS (0k)</span>
+                <span>CNB (45k)</span>
+                <span>PRYJ (90k)</span>
+                <span>HWH (180k)</span>
+              </div>
+            </div>
+
+            <!-- SLIDER 2: SIMULATE HAZARD DISTANCE AHEAD -->
+            <div class="hud-corner-card p-3.5">
+              <div class="flex justify-between text-xs font-mono mb-1">
+                <span class="text-slate-300 font-bold">Fog Distance Ahead</span>
+                <span id="slider-val-hazard" class="text-cyan-400 font-black">28.0 km</span>
+              </div>
+              <input type="range" id="input-slider-hazard" min="0" max="50" step="1" value="28" class="w-full mt-2 cursor-pointer">
+              <div class="flex justify-between text-[9px] text-slate-500 font-mono mt-1.5">
+                <span>0 km (Inside Fog)</span>
+                <span>25 km</span>
+                <span>50 km (Lookahead Horizon)</span>
+              </div>
+            </div>
+
+            <!-- SLIDER 3: WEATHER VISIBILITY / SEVERITY -->
+            <div class="hud-corner-card p-3.5">
+              <div class="flex justify-between text-xs font-mono mb-1">
+                <span class="text-slate-300 font-bold">Sighting Visibility</span>
+                <span id="slider-val-vis" class="text-emerald-400 font-black">180 m</span>
+              </div>
+              <input type="range" id="input-slider-vis" min="100" max="5000" step="50" value="180" class="w-full mt-2 cursor-pointer">
+              <div class="flex justify-between text-[9px] text-slate-500 font-mono mt-1.5">
+                <span>100m (Dense Fog)</span>
+                <span>1500m</span>
+                <span>5000m (Clear Sky)</span>
+              </div>
+            </div>
+
+            <!-- Quick Action Preset Buttons -->
+            <div class="grid grid-cols-2 gap-2 pt-1 font-mono text-[10px]">
+              <button id="btn-quick-fog" class="py-2.5 px-2 rounded-lg bg-amber-950/30 text-amber-300 border border-amber-500/50 hover:bg-amber-500/20 transition cursor-pointer font-bold tracking-wider uppercase text-center shadow flex items-center justify-center space-x-1">
+                <span class="material-icons text-xs">cloud</span>
+                <span>FOG (30k)</span>
+              </button>
+              <button id="btn-quick-rain" class="py-2.5 px-2 rounded-lg bg-blue-950/30 text-blue-300 border border-blue-500/50 hover:bg-blue-500/20 transition cursor-pointer font-bold tracking-wider uppercase text-center shadow flex items-center justify-center space-x-1">
+                <span class="material-icons text-xs">water_drop</span>
+                <span>RAIN (25k)</span>
+              </button>
+              <button id="btn-quick-storm" class="py-2.5 px-2 rounded-lg bg-purple-950/30 text-purple-300 border border-purple-500/50 hover:bg-purple-500/20 transition cursor-pointer font-bold tracking-wider uppercase text-center shadow flex items-center justify-center space-x-1">
+                <span class="material-icons text-xs">bolt</span>
+                <span>STORM (35k)</span>
+              </button>
+              <button id="btn-quick-clear" class="py-2.5 px-2 rounded-lg bg-emerald-950/30 text-emerald-300 border border-emerald-500/50 hover:bg-emerald-500/20 transition cursor-pointer font-bold tracking-wider uppercase text-center shadow flex items-center justify-center space-x-1">
+                <span class="material-icons text-xs">wb_sunny</span>
+                <span>CLEAR (180k)</span>
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- BOTTOM SLIDER DOTS INDICATOR -->
+      <div class="py-2 px-4 bg-slate-950/95 border-t border-slate-800/80 flex items-center justify-center space-x-2 shrink-0">
+        <span class="slider-dot w-6 h-1.5 rounded-full bg-[#D9A955] shadow-[0_0_8px_rgba(217,169,85,0.8)] transition-all duration-300 cursor-pointer" title="Dynamic ETA Engine"></span>
+        <span class="slider-dot w-1.5 h-1.5 rounded-full bg-slate-700 hover:bg-slate-500 transition-all duration-300 cursor-pointer" title="Weather Risk Model"></span>
+        <span class="slider-dot w-1.5 h-1.5 rounded-full bg-slate-700 hover:bg-slate-500 transition-all duration-300 cursor-pointer" title="Simulation Controls & Sliders"></span>
+      </div>
+
+    </div>
+  </aside>
+ 
+  <!-- ============================================================== -->
+  <!-- APPLICATION CODE SCRIPT: SELF-CONTAINED SIMULATION ENGINE       -->
+  <!-- ============================================================== -->
+  <script type="module">
+    // --- REAL-TIME INDIAN STANDARD TIME (IST, UTC+05:30) UTILITY ---
+    function getISTNow() {
+      const d = new Date();
+      // Enforce Asia/Kolkata timezone (IST, UTC+05:30)
+      const formatter = new Intl.DateTimeFormat('en-GB', {
+        timeZone: 'Asia/Kolkata',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false
+      });
+      const parts = formatter.formatToParts(d);
+      let h = 0, m = 0, s = 0;
+      for (const p of parts) {
+        if (p.type === 'hour') h = parseInt(p.value, 10);
+        if (p.type === 'minute') m = parseInt(p.value, 10);
+        if (p.type === 'second') s = parseInt(p.value, 10);
+      }
+      h = h % 24;
+      const hh = String(h).padStart(2, '0');
+      const mm = String(m).padStart(2, '0');
+      const ss = String(s).padStart(2, '0');
+      return {
+        h,
+        m,
+        s,
+        timeString: `${hh}:${mm}:${ss}`,
+        shortString: `${hh}:${mm}`,
+        totalSec: h * 3600 + m * 60 + s
+      };
+    }
+
+    // --- 1. WEATHER PROVIDER & DATA LOADER ---
+    class WeatherProvider {
+      constructor(options = {}) {
+        this.providerName = options.provider || 'DEMO_CACHE';
+        this.apiKey = options.apiKey || null;
+        this.isDemoMode = true;
+      }
+      async getCurrentWeather(lat, lon, routeKm = 0) {
+        return {
+          source: 'SIMULATION WEATHER (TRETA Cache)',
+          is_live: false,
+          route_km: routeKm,
+          disclaimer: 'SIMULATION PARAMETERS - Demonstration Corridor'
+        };
+      }
+      async getForecast(lat, lon, hoursAhead = 3) {
+        return {
+          source: 'SIMULATION WEATHER (TRETA Offline Cache)',
+          is_live: false,
+          forecast_horizon_hours: hoursAhead,
+          probability_of_precipitation: 78,
+          confidence: 0.88
+        };
+      }
+      async getHistoricalWeather(lat, lon, dateRange = 'last_7_days') {
+        return {
+          source: 'SIMULATION WEATHER (TRETA Historical Baseline)',
+          is_live: false,
+          historical_delay_penalty_min: 7.2
+        };
+      }
+    }
+ 
+    // --- 2. WEATHER ML RISK & DELAY IMPACT MODEL ---
+    class WeatherModel {
+      async predictWeatherImpact(features) {
+        const {
+          weather_type = 'DENSE FOG',
+          distance_to_weather_zone = 28,
+          visibility = 180,
+          rainfall = 0,
+          wind_speed = 4
+        } = features;
+ 
+        let hazard_probability = 0.05;
+        let predicted_speed_reduction = 0;
+        let predicted_delay_minutes = 0;
+        let confidence = 0.92;
+        let reason = 'Optimal track conditions ahead.';
+ 
+        const typeUpper = (weather_type || 'CLEAR').toUpperCase();
+        const visNorm = Math.max(50, Math.min(5000, visibility));
+ 
+        switch (typeUpper) {
+          case 'DENSE FOG': {
+            hazard_probability = 0.82;
+            predicted_speed_reduction = 40; // 130 -> 90 km/h
+            predicted_delay_minutes = 7.0;
+            confidence = 0.84;
+            reason = `Dense radiation fog ahead (${Math.round(visNorm)}m visibility). Signal sighting distance restricted. Advisory safe speed restriction recommended before zone entry.`;
+            break;
+          }
+          case 'HEAVY RAIN': {
+            hazard_probability = 0.76;
+            predicted_speed_reduction = 30; // 130 -> 100 km/h
+            predicted_delay_minutes = 5.5;
+            confidence = 0.86;
+            reason = 'Heavy downpour on track. Rail adhesion reduced. Braking distance extension safety margins enforced.';
+            break;
+          }
+          case 'THUNDERSTORM': {
+            hazard_probability = 0.88;
+            predicted_speed_reduction = 50; // 130 -> 80 km/h
+            predicted_delay_minutes = 9.5;
+            confidence = 0.81;
+            reason = 'Gale force crosswinds (>65 km/h) & lightning. Risk of OHE catenary oscillation & debris.';
+            break;
+          }
+          case 'FLOOD RISK': {
+            hazard_probability = 0.94;
+            predicted_speed_reduction = 85; // 130 -> 45 km/h
+            predicted_delay_minutes = 16.0;
+            confidence = 0.89;
+            reason = 'Water level near rail top at bridge culvert. Mandatory caution order 45 km/h.';
+            break;
+          }
+          case 'LANDSLIDE RISK': {
+            hazard_probability = 0.91;
+            predicted_speed_reduction = 90;
+            predicted_delay_minutes = 22.0;
+            confidence = 0.79;
+            reason = 'Hill cutting saturation index critical. Geological alert: track patrol clearance required.';
+            break;
+          }
+          case 'HEAT': {
+            hazard_probability = 0.62;
+            predicted_speed_reduction = 20;
+            predicted_delay_minutes = 3.5;
+            confidence = 0.88;
+            reason = 'Rail temperature exceeded de-stressing threshold (>58°C). Buckling caution applied.';
+            break;
+          }
+          case 'LIGHT RAIN': {
+            hazard_probability = 0.22;
+            predicted_speed_reduction = 10;
+            predicted_delay_minutes = 1.8;
+            confidence = 0.90;
+            reason = 'Light drizzle. Normal signal aspects maintained with cautious throttle.';
+            break;
+          }
+          case 'CLEAR':
+          default: {
+            hazard_probability = 0.04;
+            predicted_speed_reduction = 0;
+            predicted_delay_minutes = 0.0;
+            confidence = 0.95;
+            reason = 'Optimal atmospheric conditions. Track adhesion and sighting nominal.';
+            break;
+          }
+        }
+ 
+        return {
+          hazard_probability,
+          predicted_speed_reduction,
+          predicted_delay_minutes,
+          p50_delay: predicted_delay_minutes,
+          p90_delay: Math.round(predicted_delay_minutes * 1.35 * 10) / 10,
+          confidence,
+          reason
+        };
+      }
+    }
+ 
+    // --- 3. DYNAMIC ETA ENGINE & TIMETABLE PROGRESSION ---
+    const CORRIDOR_STATION_OFFSETS = [
+      { code: 'NDLS', name: 'New Delhi', km: 0, offsetMin: 0 },
+      { code: 'CNB', name: 'Kanpur Central', km: 45, offsetMin: 26 },
+      { code: 'PRYJ', name: 'Prayagraj Jn', km: 90, offsetMin: 52 },
+      { code: 'DHN', name: 'Dhanbad Jn', km: 140, offsetMin: 80 },
+      { code: 'HWH', name: 'Howrah Terminal', km: 180, offsetMin: 105 }
+    ];
+
+    // Total scheduled corridor transit time in minutes (NDLS departure -> HWH arrival)
+    const CORRIDOR_SCHEDULE_MINUTES = 105;
+
+    class ETAEngine {
+      constructor(baseDepartureMinutes = null) {
+        this.currentOperationalDelayMin = 0.0;
+        this.predictedWeatherDelayMin = 0.0;
+        this.confidencePct = 84;
+        if (baseDepartureMinutes === null || baseDepartureMinutes === undefined) {
+          const now = getISTNow();
+          baseDepartureMinutes = Math.floor(now.totalSec / 60);
+        }
+        this.setBaseDeparture(baseDepartureMinutes);
+      }
+      setBaseDeparture(baseMinutes) {
+        this.baseDepartureMinutes = baseMinutes;
+        this.baseScheduledMinutes = baseMinutes + CORRIDOR_SCHEDULE_MINUTES;
+        this.stations = CORRIDOR_STATION_OFFSETS.map(st => {
+          const sMin = this.baseDepartureMinutes + st.offsetMin;
+          return {
+            code: st.code,
+            name: st.name,
+            km: st.km,
+            schedMin: sMin,
+            schedTime: this.formatTotalMinutes(sMin)
+          };
+        });
+      }
+      update({ currentKm, currentDelayMin, mlPrediction, isInHazardZone, weatherZoneAhead }) {
+        if (typeof currentDelayMin === 'number') {
+          this.currentOperationalDelayMin = currentDelayMin;
+        }
+        if (mlPrediction && mlPrediction.predicted_delay_minutes !== undefined) {
+          this.predictedWeatherDelayMin = mlPrediction.predicted_delay_minutes;
+          this.confidencePct = Math.round((mlPrediction.confidence || 0.84) * 100);
+        } else if (!weatherZoneAhead && !isInHazardZone) {
+          this.predictedWeatherDelayMin = 0.0;
+        }
+ 
+        const schedTotalMin = this.baseScheduledMinutes;
+        const currentTotalMin = schedTotalMin + this.currentOperationalDelayMin;
+        const predictedTotalMin = currentTotalMin + this.predictedWeatherDelayMin;
+ 
+        // Find Next Destination (Item 5)
+        const nextSt = this.stations.find(st => st.km > currentKm) || this.stations[this.stations.length - 1];
+        const distToNext = Math.max(0, nextSt.km - currentKm);
+        const nextDelayOffset = (weatherZoneAhead && weatherZoneAhead.start_km <= nextSt.km) ? this.predictedWeatherDelayMin : 0;
+        const nextPredMin = nextSt.schedMin + nextDelayOffset;
+ 
+        return {
+          scheduledEta: this.formatTotalMinutes(schedTotalMin),
+          currentEta: this.formatTotalMinutes(currentTotalMin),
+          predictedWeatherDelay: `+${Math.round(this.predictedWeatherDelayMin)} min`,
+          predictedEta: this.formatTotalMinutes(predictedTotalMin),
+          confidence: `${this.confidencePct}%`,
+          currentDelay: `+${Math.round(this.currentOperationalDelayMin)} min`,
+          nextStationName: `${nextSt.code} - ${nextSt.name}`,
+          nextStationDist: distToNext.toFixed(1),
+          nextStationEta: this.formatTotalMinutes(nextPredMin),
+          stations: this.stations
+        };
+      }
+      formatTotalMinutes(totalMin) {
+        const rawMin = Math.round(totalMin);
+        const h = Math.floor((rawMin / 60) % 24);
+        const m = Math.floor(rawMin % 60);
+        return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+      }
+    }
+ 
+    // --- 4. 3D RAILWAY ENVIRONMENT (Three.js) ---
+    class RailwayEnvironment {
+      constructor(scene) {
+        this.scene = scene;
+        this.trackLengthMeters = 12000;
+        this.gaugeWidth = 1.676;
+        this.sleeperSpacing = 0.60;
+        this.oheSpacing = 45.0;
+        this.signalSpacing = 800.0;
+        this.materials = this.initMaterials();
+        this.buildWorld();
+      }
+      initMaterials() {
+        return {
+          railSteel: new THREE.MeshStandardMaterial({ color: 0xa0aab2, metalness: 0.85, roughness: 0.25 }),
+          sleeperConcrete: new THREE.MeshStandardMaterial({ color: 0xd1cfc7, roughness: 0.9, metalness: 0.1 }),
+          ballastGravel: new THREE.MeshStandardMaterial({ color: 0x4a4744, roughness: 0.95 }),
+          ground: new THREE.MeshStandardMaterial({ color: 0x3d4d28, roughness: 0.95 }),
+          mustard: new THREE.MeshStandardMaterial({ color: 0xc8a820, roughness: 0.9 }),
+          riverWater: new THREE.MeshStandardMaterial({ color: 0x1f4e5b, roughness: 0.1, metalness: 0.8, transparent: true, opacity: 0.85 }),
+          oheSteel: new THREE.MeshStandardMaterial({ color: 0x78909c, metalness: 0.6, roughness: 0.4 }),
+          catenaryWire: new THREE.MeshBasicMaterial({ color: 0x37474f }),
+          contactWire: new THREE.MeshBasicMaterial({ color: 0xd88a38 }),
+          signalMast: new THREE.MeshStandardMaterial({ color: 0x37474f, metalness: 0.5, roughness: 0.5 }),
+          signalGreen: new THREE.MeshBasicMaterial({ color: 0x00e676 }),
+          signalYellow: new THREE.MeshBasicMaterial({ color: 0xffab00 }),
+          signalRed: new THREE.MeshBasicMaterial({ color: 0xff1744 }),
+          signalOff: new THREE.MeshBasicMaterial({ color: 0x111111 }),
+          stationYellow: new THREE.MeshStandardMaterial({ color: 0xfbc02d, roughness: 0.4 }),
+          brickRed: new THREE.MeshStandardMaterial({ color: 0xb71c1c, roughness: 0.8 }),
+          foliageGreen: new THREE.MeshStandardMaterial({ color: 0x2e7d32, roughness: 0.85 }),
+          trunkBrown: new THREE.MeshStandardMaterial({ color: 0x5d4037, roughness: 0.9 })
+        };
+      }
+      buildWorld() {
+        // Ground Plane
+        const groundGeo = new THREE.PlaneGeometry(16000, 1600, 32, 16);
+        const ground = new THREE.Mesh(groundGeo, this.materials.ground);
+        ground.rotation.x = -Math.PI / 2;
+        ground.position.set(6000, -0.4, 0);
+        ground.receiveShadow = true;
+        this.scene.add(ground);
+ 
+        // Mustard crop patches
+        for (let i = 0; i < 24; i++) {
+          const fieldGeo = new THREE.PlaneGeometry(280 + Math.random() * 200, 180 + Math.random() * 100);
+          const field = new THREE.Mesh(fieldGeo, this.materials.mustard);
+          field.rotation.x = -Math.PI / 2;
+          const zOff = (Math.random() > 0.5 ? 1 : -1) * (150 + Math.random() * 300);
+          field.position.set(i * 500 + Math.random() * 200, -0.38, zOff);
+          this.scene.add(field);
+        }
+ 
+        // Ballast Bed
+        const ballastGeo = new THREE.BoxGeometry(this.trackLengthMeters, 0.45, 3.8);
+        const ballast = new THREE.Mesh(ballastGeo, this.materials.ballastGravel);
+        ballast.position.set(this.trackLengthMeters / 2, 0.15, 0);
+        this.scene.add(ballast);
+ 
+        // PSC Concrete Sleepers (Instanced for 60 FPS)
+        const sleeperCount = Math.floor(this.trackLengthMeters / this.sleeperSpacing);
+        const sleeperGeo = new THREE.BoxGeometry(0.24, 0.18, 2.6);
+        const sleeperMesh = new THREE.InstancedMesh(sleeperGeo, this.materials.sleeperConcrete, sleeperCount);
+        const dummy = new THREE.Object3D();
+        for (let i = 0; i < sleeperCount; i++) {
+          dummy.position.set(i * this.sleeperSpacing, 0.35, 0);
+          dummy.updateMatrix();
+          sleeperMesh.setMatrixAt(i, dummy.matrix);
+        }
+        sleeperMesh.instanceMatrix.needsUpdate = true;
+        this.scene.add(sleeperMesh);
+ 
+        // Broad Gauge Steel Rails
+        const railGeo = new THREE.BoxGeometry(this.trackLengthMeters, 0.16, 0.08);
+        const leftRail = new THREE.Mesh(railGeo, this.materials.railSteel);
+        leftRail.position.set(this.trackLengthMeters / 2, 0.52, -this.gaugeWidth / 2);
+        this.scene.add(leftRail);
+ 
+        const rightRail = new THREE.Mesh(railGeo, this.materials.railSteel);
+        rightRail.position.set(this.trackLengthMeters / 2, 0.52, this.gaugeWidth / 2);
+        this.scene.add(rightRail);
+ 
+        // OHE Electric Catenary Masts
+        const mastCount = Math.floor(this.trackLengthMeters / this.oheSpacing);
+        const oheGroup = new THREE.Group();
+        const poleGeo = new THREE.CylinderGeometry(0.08, 0.09, 7.2, 8);
+        const armGeo = new THREE.BoxGeometry(0.06, 0.06, 3.2);
+        const dropGeo = new THREE.CylinderGeometry(0.015, 0.015, 1.4, 4);
+ 
+        for (let i = 0; i < mastCount; i++) {
+          const x = i * this.oheSpacing;
+          const side = (i % 2 === 0) ? -1 : 1;
+          const mastZ = side * 2.8;
+ 
+          const pole = new THREE.Mesh(poleGeo, this.materials.oheSteel);
+          pole.position.set(x, 3.6, mastZ);
+          oheGroup.add(pole);
+ 
+          const arm = new THREE.Mesh(armGeo, this.materials.oheSteel);
+          arm.position.set(x, 6.8, mastZ - (side * 1.5));
+          oheGroup.add(arm);
+ 
+          const drop = new THREE.Mesh(dropGeo, this.materials.oheSteel);
+          drop.position.set(x, 6.1, 0);
+          oheGroup.add(drop);
+        }
+        this.scene.add(oheGroup);
+ 
+        // Continuous Catenary and Contact Wires
+        const catGeo = new THREE.CylinderGeometry(0.012, 0.012, this.trackLengthMeters, 6);
+        const catWire = new THREE.Mesh(catGeo, this.materials.catenaryWire);
+        catWire.rotation.z = Math.PI / 2;
+        catWire.position.set(this.trackLengthMeters / 2, 6.8, 0);
+        this.scene.add(catWire);
+ 
+        const conGeo = new THREE.CylinderGeometry(0.014, 0.014, this.trackLengthMeters, 6);
+        const conWire = new THREE.Mesh(conGeo, this.materials.contactWire);
+        conWire.rotation.z = Math.PI / 2;
+        conWire.position.set(this.trackLengthMeters / 2, 5.5, 0);
+        this.scene.add(conWire);
+ 
+        // Indian 4-Aspect Signals
+        const sigCount = Math.floor(this.trackLengthMeters / this.signalSpacing);
+        for (let i = 1; i <= sigCount; i++) {
+          this.buildSignal(i * this.signalSpacing, -2.6);
+        }
+ 
+        // Indian Stations
+        this.buildStation(300, 'NEW DELHI', 'नई दिल्ली');
+        this.buildStation(3000, 'KANPUR CENTRAL', 'कानपुर सेंट्रल');
+        this.buildStation(6000, 'PRAYAGRAJ JN', 'प्रयागराज जंक्शन');
+        this.buildStation(9200, 'DHANBAD JN', 'धनबाद जंक्शन');
+        this.buildStation(11800, 'HOWRAH TERMINAL', 'हावड़ा जंक्शन');
+ 
+        // Steel Truss Bridge over River
+        this.buildBridge(4800);
+ 
+        // Rural Scenery (Trees, Village Huts, Hills)
+        this.buildScenery();
+ 
+        // Item 12: Standing hazard-front marker used in Corridor Map mode.
+        // A translucent "weather wall" that always stays visible ahead of
+        // the train, independent of how transparent the surrounding fog is.
+        this.buildHazardFrontMarker();
+      }
+ 
+      buildHazardFrontMarker() {
+        const geo = new THREE.PlaneGeometry(60, 40);
+        const mat = new THREE.MeshBasicMaterial({
+          color: 0xDDAE55,
+          transparent: true,
+          opacity: 0.0,
+          side: THREE.DoubleSide,
+          depthWrite: false
+        });
+        this.hazardFrontMesh = new THREE.Mesh(geo, mat);
+        this.hazardFrontMesh.position.set(-99999, 20, 0);
+        this.hazardFrontMesh.visible = false;
+        this.scene.add(this.hazardFrontMesh);
+      }
+ 
+      buildSignal(x, z) {
+        const grp = new THREE.Group();
+        grp.position.set(x, 0, z);
+ 
+        const poleGeo = new THREE.CylinderGeometry(0.07, 0.08, 5.2, 8);
+        const pole = new THREE.Mesh(poleGeo, this.materials.signalMast);
+        pole.position.y = 2.6;
+        grp.add(pole);
+ 
+        const plateGeo = new THREE.BoxGeometry(0.5, 1.6, 0.15);
+        const plate = new THREE.Mesh(plateGeo, this.materials.signalMast);
+        plate.position.set(0, 4.2, 0);
+        grp.add(plate);
+ 
+        const lensGeo = new THREE.CircleGeometry(0.1, 16);
+        const green = new THREE.Mesh(lensGeo, this.materials.signalGreen);
+        green.position.set(0.08, 4.7, 0.08);
+        green.rotation.y = -Math.PI / 2;
+        grp.add(green);
+ 
+        const light = new THREE.PointLight(0x00e676, 1.5, 20);
+        light.position.set(0.2, 4.5, 0);
+        grp.add(light);
+ 
+        this.scene.add(grp);
+      }
+ 
+      buildStation(x, name, hindi) {
+        const stGroup = new THREE.Group();
+        stGroup.position.set(x, 0, 0);
+ 
+        // Raised Platform
+        const platGeo = new THREE.BoxGeometry(320, 0.85, 6.5);
+        const platMat = new THREE.MeshStandardMaterial({ color: 0x9e9e9e, roughness: 0.8 });
+        const plat = new THREE.Mesh(platGeo, platMat);
+        plat.position.set(0, 0.42, 4.8);
+        stGroup.add(plat);
+ 
+        // Yellow tactile safety line
+        const lineGeo = new THREE.BoxGeometry(320, 0.02, 0.15);
+        const lineMat = new THREE.MeshBasicMaterial({ color: 0xffd600 });
+        const line = new THREE.Mesh(lineGeo, lineMat);
+        line.position.set(0, 0.86, 1.8);
+        stGroup.add(line);
+ 
+        // Shelter Roof & Pillars
+        const roofGeo = new THREE.BoxGeometry(160, 0.1, 5.0);
+        const roofMat = new THREE.MeshStandardMaterial({ color: 0x1565c0, roughness: 0.5 });
+        const roof = new THREE.Mesh(roofGeo, roofMat);
+        roof.position.set(0, 4.6, 5.0);
+        stGroup.add(roof);
+ 
+        for (let px = -70; px <= 70; px += 25) {
+          const pilGeo = new THREE.CylinderGeometry(0.12, 0.12, 3.8, 8);
+          const pil = new THREE.Mesh(pilGeo, this.materials.oheSteel);
+          pil.position.set(px, 2.7, 5.0);
+          stGroup.add(pil);
+        }
+ 
+        // Yellow Bilingual Station Board
+        const boardGroup = this.createBoard(name, hindi);
+        boardGroup.position.set(-60, 1.8, 3.8);
+        stGroup.add(boardGroup);
+ 
+        const boardGroupFar = this.createBoard(name, hindi);
+        boardGroupFar.position.set(60, 1.8, 3.8);
+        stGroup.add(boardGroupFar);
+ 
+        this.scene.add(stGroup);
+      }
+ 
+      createBoard(name, hindi) {
+        const grp = new THREE.Group();
+        const legGeo = new THREE.BoxGeometry(0.12, 1.8, 0.12);
+        const leg1 = new THREE.Mesh(legGeo, this.materials.sleeperConcrete);
+        leg1.position.set(-1.8, 0, 0);
+        grp.add(leg1);
+        const leg2 = new THREE.Mesh(legGeo, this.materials.sleeperConcrete);
+        leg2.position.set(1.8, 0, 0);
+        grp.add(leg2);
+ 
+        const boardGeo = new THREE.BoxGeometry(4.2, 1.2, 0.08);
+        const board = new THREE.Mesh(boardGeo, this.materials.stationYellow);
+        board.position.set(0, 1.1, 0);
+        grp.add(board);
+ 
+        const canvas = document.createElement('canvas');
+        canvas.width = 512;
+        canvas.height = 148;
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#ffcc00';
+        ctx.fillRect(0, 0, 512, 148);
+        ctx.strokeStyle = '#000';
+        ctx.lineWidth = 6;
+        ctx.strokeRect(6, 6, 500, 136);
+        ctx.fillStyle = '#000';
+        ctx.textAlign = 'center';
+        ctx.font = 'bold 36px sans-serif';
+        ctx.fillText(hindi, 256, 52);
+        ctx.font = 'bold 38px sans-serif';
+        ctx.fillText(name, 256, 102);
+        ctx.font = 'bold 16px monospace';
+        ctx.fillText('ELEVATION: 182M | भारतीय रेल', 256, 130);
+ 
+        const tex = new THREE.CanvasTexture(canvas);
+        const labelGeo = new THREE.PlaneGeometry(4.1, 1.15);
+        const labelMat = new THREE.MeshBasicMaterial({ map: tex, transparent: true });
+        const labelFront = new THREE.Mesh(labelGeo, labelMat);
+        labelFront.position.set(0, 1.1, 0.045);
+        labelFront.rotation.y = Math.PI;
+        grp.add(labelFront);
+ 
+        return grp;
+      }
+ 
+      buildBridge(x) {
+        // River
+        const rivGeo = new THREE.PlaneGeometry(600, 1600);
+        const riv = new THREE.Mesh(rivGeo, this.materials.riverWater);
+        riv.rotation.x = -Math.PI / 2;
+        riv.position.set(x, -1.8, 0);
+        this.scene.add(riv);
+ 
+        // Truss Bridge
+        const brGrp = new THREE.Group();
+        brGrp.position.set(x, 0, 0);
+ 
+        for (let px = -250; px <= 250; px += 100) {
+          const pierGeo = new THREE.BoxGeometry(6, 4.5, 4.5);
+          const pier = new THREE.Mesh(pierGeo, this.materials.sleeperConcrete);
+          pier.position.set(px, -0.6, 0);
+          brGrp.add(pier);
+        }
+ 
+        const trussMat = new THREE.MeshStandardMaterial({ color: 0x992211, metalness: 0.6, roughness: 0.4 });
+        const spanGeo = new THREE.BoxGeometry(580, 0.4, 0.2);
+        [-2.2, 2.2].forEach(z => {
+          const bC = new THREE.Mesh(spanGeo, trussMat);
+          bC.position.set(0, 0.3, z);
+          brGrp.add(bC);
+          const tC = new THREE.Mesh(spanGeo, trussMat);
+          tC.position.set(0, 5.2, z);
+          brGrp.add(tC);
+        });
+ 
+        for (let tx = -270; tx <= 270; tx += 20) {
+          const strutGeo = new THREE.BoxGeometry(0.18, 5.2, 0.18);
+          [-2.2, 2.2].forEach(z => {
+            const st = new THREE.Mesh(strutGeo, trussMat);
+            st.position.set(tx, 2.7, z);
+            brGrp.add(st);
+          });
+        }
+        this.scene.add(brGrp);
+      }
+ 
+      buildScenery() {
+        const treeGroup = new THREE.Group();
+        const trunkGeo = new THREE.CylinderGeometry(0.25, 0.4, 3.5, 6);
+        const foliageGeo = new THREE.DodecahedronGeometry(2.4, 1);
+ 
+        for (let i = 0; i < 280; i++) {
+          const x = Math.random() * this.trackLengthMeters;
+          if (Math.abs(x - 4800) < 350) continue;
+          const side = Math.random() > 0.5 ? 1 : -1;
+          const z = side * (12 + Math.random() * 90);
+ 
+          const trunk = new THREE.Mesh(trunkGeo, this.materials.trunkBrown);
+          trunk.position.set(x, 1.75, z);
+          treeGroup.add(trunk);
+ 
+          const fol = new THREE.Mesh(foliageGeo, this.materials.foliageGreen);
+          fol.position.set(x, 4.4, z);
+          fol.scale.set(1 + Math.random() * 0.5, 0.8 + Math.random() * 0.4, 1 + Math.random() * 0.5);
+          treeGroup.add(fol);
+        }
+        this.scene.add(treeGroup);
+ 
+        // Village Huts
+        for (let i = 0; i < 45; i++) {
+          const x = i * 260 + Math.random() * 80;
+          const side = Math.random() > 0.5 ? 1 : -1;
+          const z = side * (25 + Math.random() * 50);
+ 
+          const hutGeo = new THREE.BoxGeometry(6, 3, 5);
+          const hut = new THREE.Mesh(hutGeo, this.materials.brickRed);
+          hut.position.set(x, 1.5, z);
+ 
+          const roofGeo = new THREE.ConeGeometry(5, 2, 4);
+          const thatchMat = new THREE.MeshStandardMaterial({ color: 0xa1887f, roughness: 0.95 });
+          const rf = new THREE.Mesh(roofGeo, thatchMat);
+          rf.rotation.y = Math.PI / 4;
+          rf.position.set(x, 4.0, z);
+ 
+          this.scene.add(hut);
+          this.scene.add(rf);
+        }
+ 
+        // Hill Cuttings for Landslide sector
+        const hillGeo = new THREE.ConeGeometry(45, 28, 7);
+        const hillMat = new THREE.MeshStandardMaterial({ color: 0x6d573d, roughness: 0.95 });
+        for (let hx = 9800; hx <= 10600; hx += 120) {
+          const hillL = new THREE.Mesh(hillGeo, hillMat);
+          hillL.position.set(hx, 10, -32);
+          this.scene.add(hillL);
+ 
+          const hillR = new THREE.Mesh(hillGeo, hillMat);
+          hillR.position.set(hx, 10, 32);
+          this.scene.add(hillR);
+        }
+      }
+    }
+ 
+    // --- 5. 3D TRAIN DYNAMICS & MODEL (Three.js) ---
+    class Train {
+      constructor(scene) {
+        this.scene = scene;
+        this.trainId = '12301 Howrah Rajdhani Express';
+        this.locoNumber = 'WAP-7 #30201 (Ghaziabad Shed)';
+        this.worldX = 0;
+        this.routeKm = 0.0;
+        this.currentSpeed = 130.0;
+        this.targetSpeed = 130.0;
+        this.mps = 130.0;
+        this.acceleration = 0.35;
+        this.deceleration = 0.65;
+        this.currentDelayMinutes = 0.0;
+        this.accumulatedLossSeconds = 0.0;
+        this.coachCount = 6;
+        this.locoLength = 20.5;
+        this.coachLength = 23.5;
+        this.group = new THREE.Group();
+        this.materials = this.initMaterials();
+        this.buildTrain();
+        this.scene.add(this.group);
+      }
+      initMaterials() {
+        return {
+          wap7White: new THREE.MeshStandardMaterial({ color: 0xf5f5f5, roughness: 0.35, metalness: 0.2 }),
+          wap7Red: new THREE.MeshStandardMaterial({ color: 0xc62828, roughness: 0.4 }),
+          underframe: new THREE.MeshStandardMaterial({ color: 0x212121, roughness: 0.85, metalness: 0.7 }),
+          lhbRed: new THREE.MeshStandardMaterial({ color: 0x9b111e, roughness: 0.35 }),
+          lhbSilver: new THREE.MeshStandardMaterial({ color: 0xd6d6d6, roughness: 0.25, metalness: 0.4 }),
+          lhbRoof: new THREE.MeshStandardMaterial({ color: 0xb0bec5, roughness: 0.5, metalness: 0.5 }),
+          window: new THREE.MeshStandardMaterial({ color: 0x1a237e, roughness: 0.1, metalness: 0.9, transparent: true, opacity: 0.75 }),
+          pantograph: new THREE.MeshStandardMaterial({ color: 0xfdd835, metalness: 0.5, roughness: 0.3 }),
+          cowcatcher: new THREE.MeshStandardMaterial({ color: 0xd32f2f, roughness: 0.6 }),
+          headlightLens: new THREE.MeshBasicMaterial({ color: 0xffffff }),
+          railSteel: new THREE.MeshStandardMaterial({ color: 0x9fa8a3, metalness: 0.85, roughness: 0.25 })
+        };
+      }
+      buildTrain() {
+        this.loco = this.buildWAP7();
+        this.group.add(this.loco);
+ 
+        let curX = - (this.locoLength / 2 + 1.0);
+        for (let i = 0; i < this.coachCount; i++) {
+          const c = this.buildLHBCoach();
+          curX -= (this.coachLength / 2);
+          c.position.set(curX, 0, 0);
+          this.group.add(c);
+          curX -= (this.coachLength / 2 + 1.0);
+        }
+      }
+      buildWAP7() {
+        const loco = new THREE.Group();
+        const bodyGeo = new THREE.BoxGeometry(this.locoLength, 2.7, 2.8);
+        const body = new THREE.Mesh(bodyGeo, this.materials.wap7White);
+        body.position.set(0, 2.3, 0);
+        loco.add(body);
+ 
+        const noseGeo = new THREE.CylinderGeometry(1.4, 1.4, 2.7, 16, 1, false, -Math.PI / 2, Math.PI);
+        const nose = new THREE.Mesh(noseGeo, this.materials.wap7White);
+        nose.rotation.z = Math.PI / 2;
+        nose.position.set(this.locoLength / 2, 2.3, 0);
+        loco.add(nose);
+ 
+        const stripeGeo = new THREE.BoxGeometry(this.locoLength + 0.2, 0.45, 2.84);
+        const stripe = new THREE.Mesh(stripeGeo, this.materials.wap7Red);
+        stripe.position.set(0, 1.85, 0);
+        loco.add(stripe);
+ 
+        const winGeo = new THREE.BoxGeometry(0.1, 0.75, 1.1);
+        const wL = new THREE.Mesh(winGeo, this.materials.window);
+        wL.position.set(this.locoLength / 2 + 1.25, 2.8, -0.65);
+        loco.add(wL);
+        const wR = new THREE.Mesh(winGeo, this.materials.window);
+        wR.position.set(this.locoLength / 2 + 1.25, 2.8, 0.65);
+        loco.add(wR);
+ 
+        const lensGeo = new THREE.CylinderGeometry(0.16, 0.16, 0.1, 16);
+        const hL = new THREE.Mesh(lensGeo, this.materials.headlightLens);
+        hL.rotation.z = Math.PI / 2;
+        hL.position.set(this.locoLength / 2 + 1.35, 2.0, -0.45);
+        loco.add(hL);
+        const hR = new THREE.Mesh(lensGeo, this.materials.headlightLens);
+        hR.rotation.z = Math.PI / 2;
+        hR.position.set(this.locoLength / 2 + 1.35, 2.0, 0.45);
+        loco.add(hR);
+ 
+        // Item 11: headlight is a real, non-blocking SpotLight only — no
+        // slanting translucent cone mesh sits in front of the cab glass.
+        const spot = new THREE.SpotLight(0xfff59d, 4.0, 140, Math.PI / 7, 0.35, 1.2);
+        spot.position.set(this.locoLength / 2 + 1.5, 2.0, 0);
+        const targetObj = new THREE.Object3D();
+        targetObj.position.set(this.locoLength / 2 + 60, 0.5, 0);
+        this.scene.add(targetObj);
+        spot.target = targetObj;
+        loco.add(spot);
+ 
+        const cowGeo = new THREE.ConeGeometry(1.6, 1.2, 4);
+        const cow = new THREE.Mesh(cowGeo, this.materials.cowcatcher);
+        cow.rotation.x = Math.PI / 4;
+        cow.rotation.z = -Math.PI / 2;
+        cow.position.set(this.locoLength / 2 + 0.8, 0.6, 0);
+        loco.add(cow);
+ 
+        const panto = this.buildPantograph();
+        panto.position.set(4.5, 3.65, 0);
+        loco.add(panto);
+ 
+        const bogieGeo = new THREE.BoxGeometry(4.8, 0.5, 2.4);
+        const bF = new THREE.Mesh(bogieGeo, this.materials.underframe);
+        bF.position.set(5.5, 0.65, 0);
+        loco.add(bF);
+        const bR = new THREE.Mesh(bogieGeo, this.materials.underframe);
+        bR.position.set(-5.5, 0.65, 0);
+        loco.add(bR);
+ 
+        return loco;
+      }
+      buildPantograph() {
+        const p = new THREE.Group();
+        const base = new THREE.Mesh(new THREE.BoxGeometry(2.2, 0.1, 1.4), this.materials.underframe);
+        p.add(base);
+        const lA = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 1.4, 6), this.materials.pantograph);
+        lA.rotation.z = -Math.PI / 5;
+        lA.position.set(0.4, 0.6, 0);
+        p.add(lA);
+        const uA = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 1.5, 6), this.materials.pantograph);
+        uA.rotation.z = Math.PI / 4.5;
+        uA.position.set(-0.2, 1.4, 0);
+        p.add(uA);
+        const hd = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.04, 2.2), this.materials.underframe);
+        hd.position.set(-0.6, 1.85, 0);
+        p.add(hd);
+        return p;
+      }
+      buildLHBCoach() {
+        const c = new THREE.Group();
+        const lower = new THREE.Mesh(new THREE.BoxGeometry(this.coachLength, 1.2, 2.9), this.materials.lhbRed);
+        lower.position.set(0, 1.5, 0);
+        c.add(lower);
+        const upper = new THREE.Mesh(new THREE.BoxGeometry(this.coachLength, 1.4, 2.9), this.materials.lhbSilver);
+        upper.position.set(0, 2.8, 0);
+        c.add(upper);
+        const roof = new THREE.Mesh(new THREE.CylinderGeometry(1.5, 1.5, this.coachLength, 16, 1, false, 0, Math.PI), this.materials.lhbRoof);
+        roof.rotation.z = Math.PI / 2;
+        roof.rotation.y = Math.PI / 2;
+        roof.position.set(0, 3.4, 0);
+        c.add(roof);
+ 
+        const winGeo = new THREE.BoxGeometry(1.4, 0.7, 2.95);
+        for (let wx = -9.5; wx <= 9.5; wx += 2.2) {
+          const w = new THREE.Mesh(winGeo, this.materials.window);
+          w.position.set(wx, 2.85, 0);
+          c.add(w);
+        }
+        return c;
+      }
+      setTargetSpeed(targetKmh) {
+        this.targetSpeed = Math.max(0, Math.min(this.mps, targetKmh));
+      }
+      update(deltaSec, timeMultiplier = 1) {
+        const dt = deltaSec * timeMultiplier;
+        if (dt <= 0) return;
+ 
+        if (this.currentSpeed < this.targetSpeed) {
+          const accel = (this.acceleration * 3.6) * dt;
+          this.currentSpeed = Math.min(this.targetSpeed, this.currentSpeed + accel);
+        } else if (this.currentSpeed > this.targetSpeed) {
+          const brake = (this.deceleration * 3.6) * dt;
+          this.currentSpeed = Math.max(this.targetSpeed, this.currentSpeed - brake);
+        }
+ 
+        const speedMs = this.currentSpeed / 3.6;
+        this.worldX += speedMs * dt;
+        if (this.worldX > 12000) this.worldX = 12000;
+        this.routeKm = (this.worldX / 12000) * 180.0;
+        this.group.position.x = this.worldX;
+ 
+        if (this.currentSpeed < this.mps) {
+          const lossRate = 1.0 - (this.currentSpeed / this.mps);
+          this.accumulatedLossSeconds += lossRate * dt;
+          this.currentDelayMinutes = this.accumulatedLossSeconds / 60.0;
+        }
+      }
+      setAtmosphericVisibility(visMeters) {
+        this.visibilityMeters = visMeters;
+      }
+    }
+ 
+    // --- 6. WEATHER VISUAL ENGINE (Three.js) ---
+    class WeatherEngine {
+      constructor(scene, renderer) {
+        this.scene = scene;
+        this.renderer = renderer;
+        this.currentWeatherType = 'CLEAR';
+        this.lightningTimer = 0;
+        this.nextStrikeTime = 2500;
+        this.initLighting();
+        this.initRainSystem();
+        this.initFloodPlane();
+      }
+      initLighting() {
+        this.ambient = new THREE.AmbientLight(0xffffff, 0.75);
+        this.scene.add(this.ambient);
+        this.sun = new THREE.DirectionalLight(0xfffaed, 1.4);
+        this.sun.position.set(150, 250, 80);
+        this.scene.add(this.sun);
+        this.lightning = new THREE.PointLight(0xa6d4ff, 0, 800, 1.5);
+        this.lightning.position.set(0, 100, 0);
+        this.scene.add(this.lightning);
+        this.scene.fog = new THREE.FogExp2(0xd0e0f0, 0.00035);
+        this.scene.background = new THREE.Color(0x87ceeb);
+      }
+      initRainSystem() {
+        const count = 15000;
+        const rainGeo = new THREE.BufferGeometry();
+        const pos = new Float32Array(count * 3);
+        this.rainVel = new Float32Array(count);
+        for (let i = 0; i < count; i++) {
+          pos[i * 3 + 0] = (Math.random() - 0.5) * 400;
+          pos[i * 3 + 1] = Math.random() * 80;
+          pos[i * 3 + 2] = (Math.random() - 0.5) * 300;
+          this.rainVel[i] = 1.5 + Math.random() * 2.0;
+        }
+        rainGeo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+        this.rainParticles = new THREE.Points(rainGeo, new THREE.PointsMaterial({
+          color: 0x90caf9, size: 0.35, transparent: true, opacity: 0.65
+        }));
+        this.rainParticles.visible = false;
+        this.scene.add(this.rainParticles);
+      }
+      initFloodPlane() {
+        const floodGeo = new THREE.PlaneGeometry(2500, 120);
+        this.floodPlane = new THREE.Mesh(floodGeo, new THREE.MeshStandardMaterial({
+          color: 0x546e7a, roughness: 0.1, metalness: 0.8, transparent: true, opacity: 0.75
+        }));
+        this.floodPlane.rotation.x = -Math.PI / 2;
+        this.floodPlane.position.set(9600, 0.28, 0);
+        this.floodPlane.visible = false;
+        this.scene.add(this.floodPlane);
+      }
+      setWeather(type, intensity = 1.0, visibility = 4000) {
+        this.currentWeatherType = (type || 'CLEAR').toUpperCase();
+        switch (this.currentWeatherType) {
+          case 'DENSE FOG': {
+            this.scene.background.setHex(0xb0bec5);
+            this.scene.fog.color.setHex(0xb0bec5);
+            this.scene.fog.density = Math.max(0.012, 0.024 * (1.0 - (visibility / 1000)));
+            this.ambient.intensity = 0.55;
+            this.sun.intensity = 0.25;
+            this.rainParticles.visible = false;
+            this.floodPlane.visible = false;
+            break;
+          }
+          case 'HEAVY RAIN': {
+            this.scene.background.setHex(0x455a64);
+            this.scene.fog.color.setHex(0x455a64);
+            this.scene.fog.density = 0.0045;
+            this.ambient.intensity = 0.45;
+            this.sun.intensity = 0.35;
+            this.rainParticles.visible = true;
+            this.floodPlane.visible = false;
+            break;
+          }
+          case 'THUNDERSTORM': {
+            // Item 14: During thunderstorm it should be shown, not the rain
+            this.scene.background.setHex(0x1a2329);
+            this.scene.fog.color.setHex(0x222d34);
+            this.scene.fog.density = 0.004;
+            this.ambient.intensity = 0.28;
+            this.sun.intensity = 0.12;
+            this.rainParticles.visible = false;
+            this.floodPlane.visible = false;
+            break;
+          }
+          case 'LIGHT RAIN': {
+            this.scene.background.setHex(0x78909c);
+            this.scene.fog.color.setHex(0x78909c);
+            this.scene.fog.density = 0.002;
+            this.ambient.intensity = 0.65;
+            this.sun.intensity = 0.7;
+            this.rainParticles.visible = true;
+            this.floodPlane.visible = false;
+            break;
+          }
+          case 'CLEAR':
+          default: {
+            this.scene.background.setHex(0x87ceeb);
+            this.scene.fog.color.setHex(0xd0e0f0);
+            this.scene.fog.density = 0.00035;
+            this.ambient.intensity = 0.8;
+            this.sun.intensity = 1.4;
+            this.rainParticles.visible = false;
+            this.floodPlane.visible = false;
+            break;
+          }
+        }
+      }
+      applyFogForWeather(type, visibility = 4000) {
+        const t = (type || 'CLEAR').toUpperCase();
+        switch (t) {
+          case 'DENSE FOG':
+            this.scene.fog.color.setHex(0xb0bec5);
+            this.scene.fog.density = Math.max(0.012, 0.024 * (1.0 - (visibility / 1000)));
+            break;
+          case 'HEAVY RAIN':
+            this.scene.fog.color.setHex(0x455a64);
+            this.scene.fog.density = 0.0045;
+            break;
+          case 'THUNDERSTORM':
+            this.scene.fog.color.setHex(0x222d34);
+            this.scene.fog.density = 0.004;
+            break;
+          case 'CLEAR':
+          default:
+            this.scene.fog.color.setHex(0xd0e0f0);
+            this.scene.fog.density = 0.00035;
+            break;
+        }
+      }
+      update(deltaMs, cameraX = 0, cameraZ = 0) {
+        // Item 14: Thunderstorm lightning strikes without rain
+        if (this.currentWeatherType === 'THUNDERSTORM') {
+          this.rainParticles.visible = false;
+          this.lightningTimer += deltaMs;
+          if (this.lightningTimer > this.nextStrikeTime) {
+            this.lightningTimer = 0;
+            this.nextStrikeTime = 2200 + Math.random() * 4200;
+            this.triggerLightning(cameraX, cameraZ);
+          }
+        }
+ 
+        // Item 15: Continuous rain during monsoon shower following camera position
+        if ((this.currentWeatherType === 'HEAVY RAIN' || this.currentWeatherType === 'LIGHT RAIN') && this.rainParticles) {
+          this.rainParticles.visible = true;
+          this.rainParticles.position.set(cameraX, 0, cameraZ);
+          const pos = this.rainParticles.geometry.attributes.position.array;
+          const c = pos.length / 3;
+          const step = deltaMs / 16;
+          for (let i = 0; i < c; i++) {
+            pos[i * 3 + 1] -= this.rainVel[i] * step;
+            pos[i * 3 + 0] -= 0.3 * step;
+            if (pos[i * 3 + 1] < -1.0) {
+              pos[i * 3 + 1] = 75 + Math.random() * 25;
+              pos[i * 3 + 0] = (Math.random() - 0.5) * 400;
+              pos[i * 3 + 2] = (Math.random() - 0.5) * 350;
+            }
+          }
+          this.rainParticles.geometry.attributes.position.needsUpdate = true;
+        }
+      }
+      triggerLightning(cameraX, cameraZ) {
+        const lx = cameraX + (Math.random() - 0.5) * 160;
+        const lz = cameraZ + (Math.random() - 0.5) * 120;
+        this.lightning.position.set(lx, 100, lz);
+ 
+        this.lightning.intensity = 6.0;
+        this.ambient.intensity = 2.8;
+        this.scene.background.setHex(0xd0e8ff);
+ 
+        setTimeout(() => {
+          this.lightning.intensity = 0.5;
+          this.ambient.intensity = 0.5;
+          this.scene.background.setHex(0x1a2329);
+ 
+          setTimeout(() => {
+            this.lightning.intensity = 4.5;
+            this.ambient.intensity = 2.2;
+            this.scene.background.setHex(0xbcd9f8);
+ 
+            setTimeout(() => {
+              this.lightning.intensity = 0;
+              this.ambient.intensity = 0.28;
+              this.scene.background.setHex(0x1a2329);
+            }, 60);
+          }, 80);
+        }, 70);
+      }
+    }
+ 
+    // --- 7. CORE SIMULATION CONTROLLER ---
+    class Simulation {
+      constructor(container, canvas) {
+        this.container = container;
+        this.canvas = canvas;
+        this.isPlaying = true;
+        this.timeMultiplier = 1.0;
+        this.anchorMode = 'live'; // Real-World IST (Asia/Kolkata)
+        const initialIST = getISTNow();
+        this.baseDepartureSec = initialIST.totalSec;
+        this.baseDepartureMinutes = Math.floor(initialIST.totalSec / 60);
+        this.originalTimeLabel = `${initialIST.timeString} IST`;
+        this.simClockSec = this.baseDepartureSec;
+        this.eventLogs = [];
+        this.activeCameraMode = 'TRAIN_FOLLOW';
+        this.lookaheadHorizonKm = 50.0;
+        this.lastScanTime = 0;
+
+        this.weatherModel = new WeatherModel();
+        this.etaEngine = new ETAEngine(this.baseDepartureMinutes);
+        this.currentZone = null;
+        this.upcomingHazardZone = null;
+        this.latestMLPrediction = null;
+        this.isInHazardZone = false;
+
+        this.initThree();
+        this.railway = new RailwayEnvironment(this.scene);
+        this.train = new Train(this.scene);
+        this.weatherEngine = new WeatherEngine(this.scene, this.renderer);
+
+        // Dynamically initialize Sim Clock anchored to actual Real-World IST
+        this.initOriginalTime();
+
+        this.activeZones = [
+          { start_km: 0, end_km: 30, weather_type: 'CLEAR', visibility_m: 5000, rainfall_mmh: 0, wind_speed_kmh: 10 },
+          { start_km: 30, end_km: 60, weather_type: 'DENSE FOG', visibility_m: 180, rainfall_mmh: 0, wind_speed_kmh: 4 },
+          { start_km: 60, end_km: 180, weather_type: 'CLEAR', visibility_m: 4500, rainfall_mmh: 0, wind_speed_kmh: 12 }
+        ];
+
+        this.logEvent(`Simulation Clock synchronized to Real IST (${this.originalTimeLabel}).`);
+        this.logEvent('Train started from New Delhi Jn (NDLS) on clear signal aspect.');
+        this.logEvent('Forward lookahead radar active (50 km scan horizon).');
+        this.performLookahead(true);
+
+        this.lastTime = performance.now();
+        this.animate = this.animate.bind(this);
+        requestAnimationFrame(this.animate);
+      }
+
+      initThree() {
+        const w = this.container.clientWidth || window.innerWidth;
+        const h = this.container.clientHeight || window.innerHeight;
+        this.scene = new THREE.Scene();
+        this.camera = new THREE.PerspectiveCamera(55, w / h, 0.5, 20000);
+        this.camera.position.set(0, 15, 35);
+        this.renderer = new THREE.WebGLRenderer({ canvas: this.canvas, antialias: true, powerPreference: 'high-performance' });
+        this.renderer.setSize(w, h);
+        this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+        window.addEventListener('resize', () => {
+          const nw = this.container.clientWidth || window.innerWidth;
+          const nh = this.container.clientHeight || window.innerHeight;
+          this.camera.aspect = nw / nh;
+          this.camera.updateProjectionMatrix();
+          this.renderer.setSize(nw, nh);
+        });
+      }
+
+      logEvent(msg) {
+        const total = Math.floor(this.simClockSec);
+        const h = String(Math.floor((total / 3600) % 24)).padStart(2, '0');
+        const m = String(Math.floor((total / 60) % 60)).padStart(2, '0');
+        const s = String(Math.floor(total % 60)).padStart(2, '0');
+        this.eventLogs.unshift({ time: `${h}:${m}:${s}`, message: msg });
+        if (this.eventLogs.length > 40) this.eventLogs.pop();
+        renderEventLogs(this.eventLogs);
+      }
+
+      // Real-World IST Time Anchor Controller
+      initOriginalTime() {
+        this.anchorMode = 'live';
+        this.elapsedSimSec = 0.0;
+        this.isScrubbed = false;
+
+        const now = getISTNow();
+        this.baseDepartureSec = now.totalSec;
+        this.baseDepartureMinutes = Math.floor(now.totalSec / 60);
+        this.originalTimeLabel = `${now.timeString} IST`;
+        this.simClockSec = this.baseDepartureSec;
+
+        // Dynamically update ETAEngine's timetable base with real IST departure
+        if (this.etaEngine) {
+          this.etaEngine.setBaseDeparture(this.baseDepartureMinutes);
+        }
+        this.updateClock(0);
+      }
+
+      // Real-Time IST Clock Updater
+      // In normal 1x execution (unscrubbed): directly mirrors current real-world IST clock
+      // In fast-forward or scrubbed mode: advances relative to IST departure anchor
+      updateClock(deltaSec = 0) {
+        if (!this.isScrubbed && this.timeMultiplier === 1.0) {
+          const now = getISTNow();
+          this.simClockSec = now.totalSec;
+        } else {
+          if (deltaSec > 0 && this.isPlaying) {
+            this.elapsedSimSec += deltaSec * this.timeMultiplier;
+          }
+          this.simClockSec = (this.baseDepartureSec + this.elapsedSimSec) % 86400;
+        }
+      }
+
+      // Explicit sync when user scrubs route distance slider or timeline ribbon
+      syncSimClockToProgression() {
+        this.isScrubbed = true;
+        const km = (this.train ? this.train.routeKm : 0.0);
+        const progressFraction = Math.max(0, Math.min(1, km / 180.0));
+        this.elapsedSimSec = progressFraction * (CORRIDOR_SCHEDULE_MINUTES * 60);
+        this.updateClock(0);
+      }
+ 
+      async performLookahead(forceML = false) {
+        const km = this.train.routeKm;
+        this.currentZone = this.activeZones.find(z => km >= z.start_km && km < z.end_km) || this.activeZones[0];
+        this.weatherEngine.setWeather(this.currentZone.weather_type, 1.0, this.currentZone.visibility_m || 4000);
+        this.train.setAtmosphericVisibility(this.currentZone.visibility_m || 4000);
+ 
+        const upcoming = this.activeZones.filter(z => z.start_km > km && z.start_km <= km + this.lookaheadHorizonKm);
+        const nextHazard = upcoming.find(z => z.weather_type !== 'CLEAR');
+ 
+        if (nextHazard) {
+          const dist = Math.max(0, nextHazard.start_km - km);
+          const isNew = !this.upcomingHazardZone || (this.upcomingHazardZone.start_km !== nextHazard.start_km);
+          this.upcomingHazardZone = nextHazard;
+          this.distToHazard = dist;
+ 
+          if (isNew || forceML) {
+            const pred = await this.weatherModel.predictWeatherImpact({
+              weather_type: nextHazard.weather_type,
+              distance_to_weather_zone: dist,
+              visibility: nextHazard.visibility_m || 180
+            });
+            this.latestMLPrediction = pred;
+            this.logEvent(`ML Inference: ${nextHazard.weather_type} detected ahead (${dist.toFixed(1)} km). Risk: ${(pred.hazard_probability*100).toFixed(0)}%, Delay: +${pred.predicted_delay_minutes}m.`);
+          }
+        } else {
+          this.upcomingHazardZone = null;
+          this.distToHazard = 0;
+          if (!this.isInHazardZone) this.latestMLPrediction = null;
+        }
+ 
+        const isNowHazard = this.currentZone.weather_type !== 'CLEAR';
+        if (isNowHazard && !this.isInHazardZone) {
+          this.isInHazardZone = true;
+          this.logEvent(`Train entered ${this.currentZone.weather_type} zone at Km ${km.toFixed(1)}. Speed restriction applied.`);
+          const safeSpeed = this.latestMLPrediction ? (130 - this.latestMLPrediction.predicted_speed_reduction) : 90;
+          this.train.setTargetSpeed(safeSpeed);
+        } else if (!isNowHazard && this.isInHazardZone) {
+          this.isInHazardZone = false;
+          this.logEvent(`Train exited hazard zone into CLEAR at Km ${km.toFixed(1)}. Speed limit restored to 130 km/h.`);
+          this.train.setTargetSpeed(130);
+        }
+      }
+ 
+      setCorridorKm(km) {
+        this.train.routeKm = Math.max(0, Math.min(180, km));
+        this.train.worldX = (this.train.routeKm / 180.0) * 12000;
+        this.syncSimClockToProgression();
+        this.performLookahead(true);
+      }
+ 
+      updateCamera() {
+        const x = this.train.worldX;
+        switch (this.activeCameraMode) {
+          case 'CAB_VIEW':
+            this.camera.position.set(x + 11.2, 2.75, 0.45);
+            this.camera.lookAt(x + 120, 2.2, 0);
+            break;
+          case 'NETWORK':
+            // Overhead Corridor Map view
+            this.camera.position.set(x + 150, 240, 180);
+            this.camera.lookAt(x + 80, 0, 0);
+            break;
+          case 'WEATHER_ZONE': {
+            const hx = this.upcomingHazardZone ? (this.upcomingHazardZone.start_km / 180) * 12000 : x + 600;
+            this.camera.position.set(hx - 120, 25, 45);
+            this.camera.lookAt(hx, 4, 0);
+            break;
+          }
+          case 'STATION':
+            this.camera.position.set(3020, 3.5, 9.5);
+            this.camera.lookAt(x, 2.2, 0);
+            break;
+          case 'TRAIN_FOLLOW':
+          default:
+            // Item 11: Clear, unobstructed train follow perspective with no slanting cones
+            this.camera.position.set(x - 24, 6.2, 9.5);
+            this.camera.lookAt(x + 25, 2.4, 0);
+            break;
+        }
+      }
+ 
+      animate() {
+        requestAnimationFrame(this.animate);
+        const now = performance.now();
+        const deltaMs = Math.min(100, now - this.lastTime);
+        this.lastTime = now;
+        const deltaSec = deltaMs / 1000;
+ 
+        if (this.isPlaying) {
+          this.train.update(deltaSec, this.timeMultiplier);
+          // Dynamically advance and synchronize the simulation clock with respect to original time
+          this.updateClock(deltaSec);
+          // Item 15: Rain follows camera coordinates so it continues seamlessly
+          this.weatherEngine.update(deltaMs * this.timeMultiplier, this.camera.position.x, this.camera.position.z);
+ 
+          this.lastScanTime += deltaSec * this.timeMultiplier;
+          if (this.lastScanTime >= 1.5) {
+            this.performLookahead(false);
+            this.lastScanTime = 0;
+          }
+ 
+          if (window.judgeSequenceActive) {
+            window.updateJudgeBenchmark(deltaSec * this.timeMultiplier);
+          }
+        }
+ 
+        this.updateCamera();
+ 
+        // Item 12: In Corridor Map, the sector around/behind the train stays
+        // transparent so the loco is clearly visible, while the upcoming
+        // hazard front (if any) is kept fully rendered via a standing
+        // "weather wall" marker instead of being washed out by the global
+        // transparency — the front where the train is heading is "kept as
+        // it is".
+        if (this.activeCameraMode === 'NETWORK') {
+          if (this.scene.fog) {
+            this.scene.fog.density = 0.0010; // Light transparent mist for overhead map
+          }
+          this.updateHazardFrontMarker();
+        } else {
+          if (this.weatherEngine && this.currentZone) {
+            this.weatherEngine.applyFogForWeather(this.currentZone.weather_type, this.currentZone.visibility_m || 4000);
+          }
+          if (this.railway && this.railway.hazardFrontMesh) {
+            this.railway.hazardFrontMesh.visible = false;
+          }
+        }
+ 
+        this.renderer.render(this.scene, this.camera);
+        this.broadcastHUD();
+      }
+ 
+      updateHazardFrontMarker() {
+        const mesh = this.railway && this.railway.hazardFrontMesh;
+        if (!mesh) return;
+        if (this.upcomingHazardZone) {
+          const hazardWorldX = (this.upcomingHazardZone.start_km / 180.0) * 12000;
+          mesh.position.set(hazardWorldX, 20, 0);
+          mesh.visible = true;
+          const colorMap = {
+            'DENSE FOG': 0xB0BEC5, 'HEAVY RAIN': 0x5C93C4, 'THUNDERSTORM': 0x7C5CBF,
+            'FLOOD RISK': 0xC23B3B, 'LANDSLIDE RISK': 0x8D6E63, 'HEAT': 0xE8C26A
+          };
+          mesh.material.color.setHex(colorMap[this.upcomingHazardZone.weather_type] || 0xDDAE55);
+          mesh.material.opacity = 0.35;
+        } else {
+          mesh.visible = false;
+        }
+      }
+
+      broadcastHUD() {
+        const eta = this.etaEngine.update({
+          currentKm: this.train.routeKm,
+          currentDelayMin: this.train.currentDelayMinutes,
+          mlPrediction: this.latestMLPrediction,
+          isInHazardZone: this.isInHazardZone,
+          weatherZoneAhead: this.upcomingHazardZone
+        });
+
+        // Compute Proactive Hazard Screen Early Awareness Metrics
+        const currentSpeedVal = Math.max(10, Math.round(this.train.currentSpeed) || 130);
+        const kmVal = this.train.routeKm;
+
+        let hazardType = 'CLEAR';
+        let isInsideHazard = false;
+        let hazardCountdown = '00m 00s';
+        let hazardTimeLabel = 'ARRIVAL IN';
+        let hazardSpanBadge = 'SPAN: 180 KM';
+        let hazardDesc = 'Optimal atmospheric conditions • Normal speed 130 km/h • Signal sighting nominal';
+        let hazardDistText = 'Nominal (>50 km)';
+        let hazardTimeToEntryRisk = 'Nominal (>50 km)';
+        let hazardTotalLengthRisk = 'Clear Corridor (180 km)';
+        let hazardTotalLengthKm = 0;
+
+        if (this.isInHazardZone && this.currentZone && this.currentZone.weather_type !== 'CLEAR') {
+          isInsideHazard = true;
+          hazardType = this.currentZone.weather_type;
+          const totalLen = Math.max(0.1, this.currentZone.end_km - this.currentZone.start_km);
+          hazardTotalLengthKm = totalLen;
+          const remainingKm = Math.max(0, this.currentZone.end_km - kmVal);
+          const secToExit = Math.round((remainingKm / currentSpeedVal) * 3600);
+          const m = Math.floor(secToExit / 60);
+          const s = secToExit % 60;
+          hazardCountdown = `${String(m).padStart(2, '0')}m ${String(s).padStart(2, '0')}s`;
+          hazardTimeLabel = 'ZONE CLEARANCE IN';
+          hazardSpanBadge = `TOTAL SPAN: ${totalLen.toFixed(1)} KM • ${remainingKm.toFixed(1)} KM REMAINING`;
+          hazardDistText = `Exit at Km ${this.currentZone.end_km.toFixed(1)}`;
+          hazardTimeToEntryRisk = `Inside Zone (${hazardCountdown} to exit)`;
+          hazardTotalLengthRisk = `${totalLen.toFixed(1)} km (Km ${this.currentZone.start_km.toFixed(1)} ➔ ${this.currentZone.end_km.toFixed(1)})`;
+
+          if (hazardType === 'DENSE FOG') {
+            hazardDesc = `Radiation fog active • Sighting: ${this.currentZone.visibility_m || 180}m • Enforcing safe MPS 90 km/h`;
+          } else if (hazardType === 'HEAVY RAIN') {
+            hazardDesc = `Heavy precipitation active • Sighting: ${this.currentZone.visibility_m || 600}m • Reduced rail adhesion (100 km/h)`;
+          } else if (hazardType === 'THUNDERSTORM') {
+            hazardDesc = `Severe storm front active • Catenary sway & lightning caution • Safe MPS 80 km/h`;
+          } else {
+            hazardDesc = `Caution order in effect • Safe MPS applied • Track monitoring active`;
+          }
+        } else if (this.upcomingHazardZone) {
+          isInsideHazard = false;
+          hazardType = this.upcomingHazardZone.weather_type;
+          const totalLen = Math.max(0.1, this.upcomingHazardZone.end_km - this.upcomingHazardZone.start_km);
+          hazardTotalLengthKm = totalLen;
+          const distKm = Math.max(0, this.distToHazard);
+          const secToArrival = Math.round((distKm / currentSpeedVal) * 3600);
+          const m = Math.floor(secToArrival / 60);
+          const s = secToArrival % 60;
+          hazardCountdown = `${String(m).padStart(2, '0')}m ${String(s).padStart(2, '0')}s`;
+          hazardTimeLabel = 'ARRIVAL IN';
+          hazardSpanBadge = `REGION LENGTH: ${totalLen.toFixed(1)} KM (Km ${this.upcomingHazardZone.start_km.toFixed(1)} ➔ ${this.upcomingHazardZone.end_km.toFixed(1)})`;
+          hazardDistText = `${distKm.toFixed(1)} km ahead`;
+          hazardTimeToEntryRisk = hazardCountdown;
+          hazardTotalLengthRisk = `${totalLen.toFixed(1)} km (Km ${this.upcomingHazardZone.start_km.toFixed(1)} ➔ ${this.upcomingHazardZone.end_km.toFixed(1)})`;
+
+          if (hazardType === 'DENSE FOG') {
+            hazardDesc = `Dense radiation fog front • Sighting: ${this.upcomingHazardZone.visibility_m || 180}m • Recommended MPS: 90 km/h`;
+          } else if (hazardType === 'HEAVY RAIN') {
+            hazardDesc = `Heavy rain downpour front • Wet rail adhesion alert • Recommended MPS: 100 km/h`;
+          } else if (hazardType === 'THUNDERSTORM') {
+            hazardDesc = `Severe thunderstorm front • Lightning hazard & gusts • Recommended MPS: 80 km/h`;
+          } else {
+            hazardDesc = `Upcoming track weather change • ML caution advisory`;
+          }
+        }
+
+        updateHUDTelemetry({
+          trainId: this.train.trainId,
+          locoNo: this.train.locoNumber,
+          currentSpeed: Math.round(this.train.currentSpeed),
+          targetSpeed: Math.round(this.train.targetSpeed),
+          routeKm: this.train.routeKm.toFixed(1),
+          simClock: this.formatSimTime(),
+          origTimeLabel: this.originalTimeLabel,
+          anchorMode: this.anchorMode,
+          currWeather: this.currentZone ? this.currentZone.weather_type : 'CLEAR',
+          upcomingWeather: this.upcomingHazardZone ? this.upcomingHazardZone.weather_type : 'None',
+          distToWeather: this.upcomingHazardZone ? `${this.distToHazard.toFixed(1)} km` : 'None (>50 km)',
+          visibility: this.currentZone ? `${this.currentZone.visibility_m || 4000} m` : '4000 m',
+          riskLevel: this.latestMLPrediction ? (this.latestMLPrediction.hazard_probability > 0.7 ? 'HIGH' : 'MODERATE') : 'LOW',
+          riskProb: this.latestMLPrediction ? `${Math.round(this.latestMLPrediction.hazard_probability * 100)}%` : '4%',
+          speedImpact: this.latestMLPrediction && this.latestMLPrediction.predicted_speed_reduction > 0 ? `-${this.latestMLPrediction.predicted_speed_reduction} km/h` : '0 km/h',
+          reason: this.latestMLPrediction ? this.latestMLPrediction.reason : 'Optimal track conditions ahead.',
+          schedEta: eta.scheduledEta,
+          currEta: eta.currentEta,
+          predDelay: eta.predictedWeatherDelay,
+          predEta: eta.predictedEta,
+          confidence: eta.confidence,
+          opDelay: eta.currentDelay,
+          nextStationName: eta.nextStationName,
+          nextStationDist: eta.nextStationDist,
+          nextStationEta: eta.nextStationEta,
+          stations: eta.stations,
+          // Proactive Hazard Screen Awareness Data
+          hazardType,
+          isInsideHazard,
+          hazardCountdown,
+          hazardTimeLabel,
+          hazardSpanBadge,
+          hazardDesc,
+          hazardDistText,
+          hazardTimeToEntryRisk,
+          hazardTotalLengthRisk,
+          hazardTotalLengthKm
+        });
+      }
+ 
+      formatSimTime() {
+        const total = Math.floor(this.simClockSec);
+        const h = String(Math.floor((total / 3600) % 24)).padStart(2, '0');
+        const m = String(Math.floor((total / 60) % 60)).padStart(2, '0');
+        const s = String(Math.floor(total % 60)).padStart(2, '0');
+        return `${h}:${m}:${s}`;
+      }
+    }
+ 
+    // --- 8. GLOBAL APP HOOKS & UI BINDINGS ---
+    let simInstance = null;
+    let audioContext = null;
+    let isMuted = true;
+    let activeSlideIndex = 0;
+ 
+    function initWebAudio() {
+      if (!audioContext) {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioContext.state === 'suspended') audioContext.resume();
+    }
+ 
+    function soundWAP7Horn() {
+      initWebAudio();
+      if (isMuted || !audioContext) return;
+      const now = audioContext.currentTime;
+      const osc1 = audioContext.createOscillator();
+      const osc2 = audioContext.createOscillator();
+      const gain = audioContext.createGain();
+      osc1.type = 'sawtooth';
+      osc1.frequency.setValueAtTime(311.13, now); // Eb4
+      osc2.type = 'sawtooth';
+      osc2.frequency.setValueAtTime(369.99, now); // F#4
+      gain.gain.setValueAtTime(0.01, now);
+      gain.gain.linearRampToValueAtTime(0.20, now + 0.08);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 1.2);
+      osc1.connect(gain);
+      osc2.connect(gain);
+      gain.connect(audioContext.destination);
+      osc1.start(now);
+      osc2.start(now);
+      osc1.stop(now + 1.2);
+      osc2.stop(now + 1.2);
+    }
+
+    // Centralized audio mute & horn state controller
+    function toggleAudioMute() {
+      initWebAudio();
+      isMuted = !isMuted;
+      const hornBtn = document.getElementById('btn-horn');
+      const railHornBtn = document.getElementById('rail-btn-horn');
+      const audioBtn = document.getElementById('btn-audio-toggle');
+      const railAudioBtn = document.getElementById('rail-btn-audio');
+      const audioText = document.getElementById('audio-toggle-text');
+
+      if (audioBtn) {
+        const icon = audioBtn.querySelector('.material-icons');
+        if (icon) {
+          icon.textContent = isMuted ? 'volume_off' : 'volume_up';
+          icon.className = `material-icons text-sm ${isMuted ? 'text-slate-400' : 'text-emerald-400'}`;
+        }
+      }
+      if (railAudioBtn) {
+        const icon = railAudioBtn.querySelector('.material-icons');
+        if (icon) {
+          icon.textContent = isMuted ? 'volume_off' : 'volume_up';
+          icon.className = `material-icons text-lg ${isMuted ? 'text-slate-400' : 'text-emerald-400'}`;
+        }
+        railAudioBtn.dataset.tooltip = isMuted ? 'Unmute Audio' : 'Mute Audio';
+      }
+      if (audioText) {
+        audioText.textContent = isMuted ? 'MUTED' : 'ACTIVE';
+        audioText.className = `text-[10px] font-bold font-mono uppercase ${isMuted ? 'text-slate-400' : 'text-emerald-400'}`;
+      }
+
+      [hornBtn, railHornBtn].forEach(btn => {
+        if (!btn) return;
+        if (isMuted) {
+          btn.classList.add('opacity-50');
+          btn.setAttribute('aria-disabled', 'true');
+          btn.title = 'Horn (muted - unmute audio first)';
+          if (btn.hasAttribute('data-tooltip')) btn.dataset.tooltip = 'WAP-7 Horn (Muted)';
+        } else {
+          btn.classList.remove('opacity-50');
+          btn.removeAttribute('aria-disabled');
+          btn.title = 'Sound WAP-7 Horn';
+          if (btn.hasAttribute('data-tooltip')) btn.dataset.tooltip = 'Sound WAP-7 Horn';
+        }
+      });
+    }
+
+    // Real-World IST System Clock Ticker
+    function startRealTimeTicker() {
+      const realTimeEl = document.getElementById('hud-real-time');
+      const updateTime = () => {
+        if (!realTimeEl) return;
+        const now = getISTNow();
+        realTimeEl.textContent = `${now.timeString} IST`;
+      };
+      updateTime();
+      setInterval(updateTime, 1000);
+    }
+
+    function setClockAnchorModeUI() {
+      const railMode = document.getElementById('rail-mode-text');
+      if (railMode) railMode.textContent = 'IST';
+    }
+ 
+    // SLIDER TAB NAVIGATION (3 SLIDES)
+    window.setSlide = function(index) {
+      activeSlideIndex = Math.max(0, Math.min(2, index));
+      const track = document.getElementById('slider-track');
+      if (track) {
+        track.style.transform = `translateX(-${(activeSlideIndex * 100) / 3}%)`;
+      }
+
+      // Update button highlights
+      document.querySelectorAll('.slider-tab-btn').forEach((btn, i) => {
+        if (i === activeSlideIndex) {
+          btn.className = 'slider-tab-btn py-1.5 px-1 rounded-md transition-all duration-200 text-center truncate bg-[#D9A955] text-slate-950 font-black shadow-md';
+        } else {
+          btn.className = 'slider-tab-btn py-1.5 px-1 rounded-md transition-all duration-200 text-center truncate text-slate-400 hover:text-slate-200 font-bold';
+        }
+      });
+
+      // Update dot indicators with sleek pill morphing
+      document.querySelectorAll('.slider-dot').forEach((dot, i) => {
+        if (i === activeSlideIndex) {
+          dot.className = 'slider-dot w-6 h-1.5 rounded-full bg-[#D9A955] shadow-[0_0_8px_rgba(217,169,85,0.8)] transition-all duration-300 cursor-pointer';
+        } else {
+          dot.className = 'slider-dot w-1.5 h-1.5 rounded-full bg-slate-700 hover:bg-slate-500 transition-all duration-300 cursor-pointer';
+        }
+      });
+    };
+
+    function updateHUDTelemetry(d) {
+      setElText('hud-train-id', d.trainId);
+      setElText('hud-loco-no', d.locoNo);
+      setElText('hud-speed', d.currentSpeed);
+      setElText('hud-target-speed', `${d.targetSpeed} km/h`);
+      setElText('hud-route-km', `Km ${d.routeKm} / 180`);
+      setElText('hud-sim-time', d.simClock);
+      setElText('hud-sim-time-rail', d.simClock ? d.simClock.substring(0, 5) : '--:--');
+      setElText('hud-orig-time-label', d.origTimeLabel || 'Live IST');
+      setElText('rail-mode-text', 'IST');
+
+      const railWeatherIcon = document.getElementById('rail-scenario-icon');
+      if (railWeatherIcon) {
+        const iconMap = {
+          'CLEAR': 'wb_sunny',
+          'DENSE FOG': 'cloud',
+          'HEAVY RAIN': 'water_drop',
+          'LIGHT RAIN': 'water_drop',
+          'THUNDERSTORM': 'bolt'
+        };
+        railWeatherIcon.textContent = iconMap[d.currWeather] || 'cloud';
+      }
+
+      const prog = Math.min(100, (parseFloat(d.routeKm) / 180.0) * 100);
+      const fill = document.getElementById('route-progress-fill');
+      if (fill) fill.style.width = `${prog}%`;
+
+      // Weather badges
+      const currB = document.getElementById('hud-curr-weather-badge');
+      if (currB) {
+        currB.textContent = d.currWeather;
+        currB.className = `px-2.5 py-0.5 text-xs font-bold rounded ${getBadgeCls(d.currWeather)}`;
+      }
+      const upcB = document.getElementById('hud-upcoming-weather-badge');
+      if (upcB) {
+        upcB.textContent = d.upcomingWeather;
+        upcB.className = `px-2.5 py-0.5 text-xs font-bold rounded ${getBadgeCls(d.upcomingWeather)}`;
+      }
+
+      setElText('hud-distance-weather', d.distToWeather);
+      setElText('hud-visibility', d.visibility);
+      setElText('hud-speed-impact', d.speedImpact);
+      setElText('hud-ml-reason', d.reason);
+
+      // Slide 1 Risk Model New Telemetry Rows
+      setElText('hud-hazard-time-to-entry', d.hazardTimeToEntryRisk || '00m 00s');
+      setElText('hud-hazard-total-length', d.hazardTotalLengthRisk || 'Clear Corridor (180 km)');
+
+      setElText('hud-risk-level', `${d.riskLevel} (${d.riskProb})`);
+      const rB = document.getElementById('hud-risk-badge');
+      if (rB) {
+        rB.textContent = `${d.riskLevel} RISK`;
+        rB.className = `px-2.5 py-0.5 text-[10px] font-black rounded-full font-mono uppercase ${d.riskLevel === 'HIGH' ? 'bg-rose-500/20 text-rose-300 border border-rose-500/40 animate-pulse' : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'}`;
+      }
+
+      const riskGauge = document.getElementById('risk-gauge-fill');
+      if (riskGauge) {
+        riskGauge.style.width = d.riskProb || '82%';
+      }
+
+      // Proactive Screen Early Awareness Banner Data Binding
+      setElText('hazard-banner-time-label', d.hazardTimeLabel || 'ARRIVAL IN');
+      setElText('hazard-banner-countdown', d.hazardCountdown || '00m 00s');
+      setElText('hazard-banner-dist', d.hazardDistText || '--');
+      setElText('hazard-banner-span-badge', d.hazardSpanBadge || 'SPAN: 180 KM');
+      setElText('hazard-banner-desc', d.hazardDesc || 'Nominal conditions');
+
+      const pBanner = document.getElementById('proactive-hazard-banner');
+      const pIconBox = document.getElementById('hazard-banner-icon-box');
+      const pIcon = document.getElementById('hazard-banner-icon');
+      const pBadge = document.getElementById('hazard-banner-badge');
+      const pCountdown = document.getElementById('hazard-banner-countdown');
+
+      if (pBanner) {
+        const judgeBanner = document.getElementById('judge-step-banner');
+        const isJudgeActive = judgeBanner && !judgeBanner.classList.contains('hidden');
+        pBanner.style.top = isJudgeActive ? '5.2rem' : '';
+
+        const hType = (d.hazardType || 'CLEAR').toUpperCase();
+        const isInside = d.isInsideHazard;
+
+        if (hType === 'DENSE FOG') {
+          pBanner.className = 'absolute top-2 sm:top-4 left-1/2 -translate-x-1/2 z-20 max-w-2xl w-[94%] sm:w-[92%] glass-panel rounded-lg p-2.5 sm:p-3 border border-amber-500/50 shadow-[0_0_25px_rgba(217,169,85,0.3)] flex items-center justify-between transition-all duration-300 pointer-events-auto';
+          if (pIconBox) pIconBox.className = 'w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center shrink-0 border border-amber-500/40 shadow-[0_0_12px_rgba(217,169,85,0.4)]';
+          if (pIcon) pIcon.textContent = 'cloud';
+          if (pBadge) {
+            pBadge.textContent = isInside ? 'ACTIVE DENSE FOG ZONE' : 'DENSE FOG ZONE AHEAD';
+            pBadge.className = 'text-[9px] sm:text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 font-mono';
+          }
+          if (pCountdown) pCountdown.className = 'text-sm sm:text-lg font-black font-mono text-amber-400 tracking-tight drop-shadow-[0_0_8px_rgba(217,169,85,0.6)]';
+        } else if (hType === 'HEAVY RAIN') {
+          pBanner.className = 'absolute top-2 sm:top-4 left-1/2 -translate-x-1/2 z-20 max-w-2xl w-[94%] sm:w-[92%] glass-panel rounded-lg p-2.5 sm:p-3 border border-blue-500/50 shadow-[0_0_25px_rgba(59,130,246,0.3)] flex items-center justify-between transition-all duration-300 pointer-events-auto';
+          if (pIconBox) pIconBox.className = 'w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-blue-500/20 text-blue-400 flex items-center justify-center shrink-0 border border-blue-500/40 shadow-[0_0_12px_rgba(59,130,246,0.4)]';
+          if (pIcon) pIcon.textContent = 'water_drop';
+          if (pBadge) {
+            pBadge.textContent = isInside ? 'ACTIVE HEAVY RAIN ZONE' : 'HEAVY RAIN ZONE AHEAD';
+            pBadge.className = 'text-[9px] sm:text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/40 font-mono';
+          }
+          if (pCountdown) pCountdown.className = 'text-sm sm:text-lg font-black font-mono text-blue-400 tracking-tight drop-shadow-[0_0_8px_rgba(59,130,246,0.6)]';
+        } else if (hType === 'THUNDERSTORM') {
+          pBanner.className = 'absolute top-2 sm:top-4 left-1/2 -translate-x-1/2 z-20 max-w-2xl w-[94%] sm:w-[92%] glass-panel rounded-lg p-2.5 sm:p-3 border border-purple-500/50 shadow-[0_0_25px_rgba(168,85,247,0.3)] flex items-center justify-between transition-all duration-300 pointer-events-auto';
+          if (pIconBox) pIconBox.className = 'w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-purple-500/20 text-purple-300 flex items-center justify-center shrink-0 border border-purple-500/40 shadow-[0_0_12px_rgba(168,85,247,0.4)]';
+          if (pIcon) pIcon.textContent = 'bolt';
+          if (pBadge) {
+            pBadge.textContent = isInside ? 'ACTIVE THUNDERSTORM FRONT' : 'SEVERE THUNDERSTORM AHEAD';
+            pBadge.className = 'text-[9px] sm:text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/40 font-mono';
+          }
+          if (pCountdown) pCountdown.className = 'text-sm sm:text-lg font-black font-mono text-purple-300 tracking-tight drop-shadow-[0_0_8px_rgba(168,85,247,0.6)]';
+        } else {
+          pBanner.className = 'absolute top-2 sm:top-4 left-1/2 -translate-x-1/2 z-20 max-w-2xl w-[94%] sm:w-[92%] glass-panel rounded-lg p-2.5 sm:p-3 border border-emerald-500/30 shadow-[0_0_20px_rgba(16,185,129,0.15)] flex items-center justify-between transition-all duration-300 pointer-events-auto';
+          if (pIconBox) pIconBox.className = 'w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0 border border-emerald-500/30';
+          if (pIcon) pIcon.textContent = 'wb_sunny';
+          if (pBadge) {
+            pBadge.textContent = 'TRACK CONDITIONS NOMINAL';
+            pBadge.className = 'text-[9px] sm:text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-mono';
+          }
+          if (pCountdown) pCountdown.className = 'text-sm sm:text-lg font-black font-mono text-emerald-400 tracking-tight drop-shadow-[0_0_8px_rgba(16,185,129,0.6)]';
+        }
+      }
+
+      // Sync ETA text across slides
+      setElText('hud-sched-eta', d.schedEta);
+      setElText('hud-curr-eta', d.currEta);
+      setElText('hud-curr-eta-sub', d.currEta);
+      setElText('hud-pred-weather-delay', d.predDelay);
+      setElText('hud-pred-eta', d.predEta);
+      setElText('hud-pred-eta-sub', d.predEta);
+      setElText('hud-confidence', d.confidence);
+      setElText('hud-op-delay', d.opDelay || '+0 min');
+      setElText('hud-mobile-eta-preview', d.predEta);
+
+      // Timetable Progression 3-Box Strip
+      setElText('hud-sched-eta-prog', d.schedEta);
+      setElText('hud-curr-eta-prog', d.currEta);
+      setElText('hud-pred-eta-prog', d.predEta);
+      const offsetUpper = (d.predDelay || '+0 min').toUpperCase();
+      setElText('hud-timetable-offset', `${offsetUpper} FORECAST OFFSET`);
+
+      // Dynamic OCC Station-by-Station Timetable Progression Refresh
+      renderTimetableProgression(d.routeKm, d.predDelay, d.stations);
+
+      // Next Destination (if element exists)
+      setElText('hud-next-station-name', d.nextStationName || 'HWH - Howrah Terminal');
+      setElText('hud-next-station-dist', d.nextStationDist ? `${d.nextStationDist} km away` : 'Arrived');
+      setElText('hud-next-station-eta', `ETA ${d.nextStationEta || d.predEta}`);
+
+      // Right Rail Mini Indicators
+      setElText('hud-rail-pred-eta', d.predEta ? d.predEta.substring(0, 5) : '--:--');
+      setElText('hud-rail-risk-text', d.riskProb || '4%');
+
+      // Timeline marker pin
+      const marker = document.getElementById('timeline-train-marker');
+      if (marker) marker.style.left = `${prog}%`;
+
+      // Update interactive sliders if not actively dragging
+      const kmSlider = document.getElementById('input-slider-km');
+      if (kmSlider && document.activeElement !== kmSlider) {
+        kmSlider.value = d.routeKm;
+        setElText('slider-val-km', `Km ${d.routeKm}`);
+      }
+      const hazardSlider = document.getElementById('input-slider-hazard');
+      if (hazardSlider && document.activeElement !== hazardSlider && d.distToWeather) {
+        const hKm = parseFloat(d.distToWeather);
+        if (!isNaN(hKm)) {
+          hazardSlider.value = hKm;
+          setElText('slider-val-hazard', `${hKm.toFixed(1)} km`);
+        }
+      }
+      const visSlider = document.getElementById('input-slider-vis');
+      if (visSlider && document.activeElement !== visSlider && d.visibility) {
+        const visM = parseInt(d.visibility);
+        if (!isNaN(visM)) {
+          visSlider.value = visM;
+          setElText('slider-val-vis', `${visM} m`);
+        }
+      }
+    }
+ 
+    // Dynamic OCC Station-by-Station Timetable Tracker (Item 4: refined design —
+    // a compact "departure board" strip with a connecting progress spine
+    // instead of a plain stacked list).
+    function renderTimetableProgression(routeKm, predDelay, stations) {
+      const container = document.getElementById('timetable-progression-list');
+      if (!container) return;
+ 
+      const stationList = stations || CORRIDOR_STATIONS;
+      const currentKmVal = typeof routeKm === 'number' ? routeKm : parseFloat(routeKm || 0);
+ 
+      // Determine the next station index
+      const nextIdx = stationList.findIndex(st => st.km > currentKmVal);
+ 
+      // Parse numerical weather delay minutes
+      const delayMinMatch = String(predDelay || '').match(/\+?(\d+)/);
+      const delayMin = delayMinMatch ? parseInt(delayMinMatch[1]) : 0;
+ 
+      container.innerHTML = `<div class="relative pl-4">
+        <div class="absolute left-[7px] top-1 bottom-1 w-[2px] bg-slate-800"></div>
+        ${stationList.map((st, i) => {
+          const isPassed = currentKmVal >= st.km && (nextIdx !== -1 ? i < nextIdx : i < stationList.length - 1);
+          const isCurrentNext = (nextIdx === -1 && i === stationList.length - 1) || (i === nextIdx);
+ 
+          let dotCls = 'bg-slate-700 border-slate-600';
+          let rowOpacity = '';
+          let codeColor = 'text-slate-300 font-bold';
+          let statusBadge = '<span class="px-1.5 py-0.2 text-[8px] font-mono font-semibold rounded bg-slate-800/60 text-slate-400 border border-slate-700/40 shrink-0">UPCOMING</span>';
+ 
+          if (isPassed) {
+            dotCls = 'bg-emerald-500 border-emerald-300';
+            rowOpacity = 'opacity-55';
+            codeColor = 'text-slate-500 line-through decoration-slate-600';
+            statusBadge = '<span class="px-1.5 py-0.2 text-[8px] font-mono font-bold rounded bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 shrink-0">CLEARED</span>';
+          } else if (isCurrentNext) {
+            const distKm = Math.max(0, st.km - currentKmVal).toFixed(1);
+            dotCls = 'bg-amber-400 border-amber-200 shadow-[0_0_10px_rgba(217,169,85,0.8)]';
+            codeColor = 'text-amber-300 font-extrabold';
+            statusBadge = `<span class="px-1.5 py-0.2 text-[8px] font-mono font-black rounded bg-amber-500/20 text-amber-300 border border-amber-500/50 shrink-0">NEXT • ${distKm}km</span>`;
+          }
+ 
+          const schedTime = st.schedTime;
+          let predTime = schedTime;
+          let diffBadge = '<span class="text-[8px] text-emerald-400 font-mono">ON TIME</span>';
+ 
+          if (!isPassed && delayMin > 0) {
+            const predTotalMin = st.schedMin + delayMin;
+            const h = String(Math.floor((predTotalMin / 60) % 24)).padStart(2, '0');
+            const m = String(Math.floor(predTotalMin % 60)).padStart(2, '0');
+            predTime = `${h}:${m}`;
+            diffBadge = `<span class="text-[8px] text-amber-400 font-mono font-bold">+${delayMin}m (ML)</span>`;
+          } else if (isPassed) {
+            diffBadge = '<span class="text-[8px] text-slate-500 font-mono">CLEARED</span>';
+          }
+ 
+          return `
+            <div class="relative flex items-center justify-between py-1 ${rowOpacity}">
+              <span class="absolute -left-[15px] top-1/2 -translate-y-1/2 w-2.5 h-2.5 rounded-full border-2 ${dotCls}"></span>
+              <div class="flex items-center space-x-2 min-w-0">
+                <span class="font-mono ${codeColor} shrink-0 w-9">${st.code}</span>
+                <div class="truncate">
+                  <div class="text-slate-200 truncate font-sans text-[10px] font-medium leading-tight">${st.name}</div>
+                  <div class="text-[8px] text-slate-500 font-mono">Km ${st.km}</div>
+                </div>
+              </div>
+              <div class="flex items-center space-x-2 shrink-0">
+                ${statusBadge}
+                <div class="text-right font-mono min-w-[62px]">
+                  <div class="text-slate-300 font-bold leading-tight flex items-center justify-end space-x-1">
+                    <span class="${delayMin > 0 && !isPassed ? 'text-slate-500 text-[9px] line-through' : 'text-slate-200'}">${schedTime}</span>
+                    ${delayMin > 0 && !isPassed ? `<span class="text-amber-400 font-extrabold text-[10px]">${predTime}</span>` : ''}
+                  </div>
+                  <div>${diffBadge}</div>
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('')}
+      </div>`;
+    }
+ 
+    function getBadgeCls(type) {
+      switch ((type || '').toUpperCase()) {
+        case 'DENSE FOG': return 'bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-[0_0_8px_rgba(217, 169, 85, 0.3)]';
+        case 'HEAVY RAIN': return 'bg-blue-500/20 text-blue-300 border border-blue-500/40 shadow-[0_0_8px_rgba(49, 112, 171, 0.3)]';
+        case 'THUNDERSTORM': return 'bg-purple-500/20 text-purple-300 border border-purple-500/40 shadow-[0_0_8px_rgba(124, 92, 191, 0.3)]';
+        case 'FLOOD RISK': return 'bg-rose-500/20 text-rose-300 border border-rose-500/40 animate-pulse shadow-[0_0_8px_rgba(194, 59, 59, 0.3)]';
+        case 'CLEAR': default: return 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-[0_0_8px_rgba(46, 158, 91, 0.3)]';
+      }
+    }
+ 
+    function renderEventLogs(logs) {
+      // Event log list removed per user request
+    }
+ 
+    function setElText(id, val) {
+      const el = document.getElementById(id);
+      if (el) el.textContent = val;
+    }
+ 
+    function renderTimeline(zones) {
+      const c = document.getElementById('timeline-ribbon-container');
+      if (!c) return;
+      c.innerHTML = '';
+      zones.forEach(z => {
+        const seg = document.createElement('div');
+        const wPct = ((z.end_km - z.start_km) / 180.0) * 100;
+        seg.style.width = `${wPct}%`;
+        seg.className = `relative h-11 flex flex-col justify-center px-2.5 border-r border-slate-700/60 text-[11px] select-none truncate font-mono ${z.weather_type === 'DENSE FOG' ? 'bg-amber-950/60 text-amber-200 border-b-2 border-amber-500' : (z.weather_type === 'HEAVY RAIN' ? 'bg-blue-950/60 text-blue-200 border-b-2 border-blue-500' : (z.weather_type === 'THUNDERSTORM' ? 'bg-purple-950/60 text-purple-200 border-b-2 border-purple-500' : 'bg-emerald-950/60 text-emerald-200 border-b-2 border-emerald-500'))}`;
+        seg.innerHTML = `
+          <div class="font-extrabold truncate flex items-center justify-between">
+            <span>${z.weather_type}</span>
+            <span class="text-[9px] opacity-75">${Math.round(z.start_km)}-${Math.round(z.end_km)}k</span>
+          </div>
+          <div class="text-[9px] opacity-60 truncate">SECTOR ${Math.round(z.start_km)} KM</div>
+        `;
+        c.appendChild(seg);
+      });
+    }
+
+    // --- 9. JUDGE BENCHMARK SEQUENCER ---
+    let judgeTimer = 0;
+    window.judgeSequenceActive = false;
+
+    window.startJudgeBenchmark = function() {
+      initWebAudio();
+      window.judgeSequenceActive = true;
+      judgeTimer = 0;
+      simInstance.train.routeKm = 0.0;
+      simInstance.train.worldX = 0;
+      simInstance.train.currentSpeed = 130;
+      simInstance.train.targetSpeed = 130;
+      simInstance.train.currentDelayMinutes = 0.0;
+      simInstance.train.accumulatedLossSeconds = 0;
+      simInstance.isScrubbed = false;
+      simInstance.elapsedSimSec = 0.0;
+      simInstance.updateClock(0);
+      simInstance.activeZones = [
+        { start_km: 0, end_km: 30, weather_type: 'CLEAR', visibility_m: 5000 },
+        { start_km: 30, end_km: 60, weather_type: 'DENSE FOG', visibility_m: 180 },
+        { start_km: 60, end_km: 180, weather_type: 'CLEAR', visibility_m: 4500 }
+      ];
+      renderTimeline(simInstance.activeZones);
+      window.setSlide(0); // Switch to ETA Engine slide
+      showJudgeBanner('T+0: Train 12301 Rajdhani Express running normally at 130 km/h in CLEAR weather.', 0);
+      simInstance.logEvent('JUDGE DEMO: Evaluated proactive lookahead and dynamic ETA update.');
+    };
+
+    window.updateJudgeBenchmark = function(dt) {
+      const prev = judgeTimer;
+      judgeTimer += dt;
+      const t = judgeTimer;
+
+      const baseMin = simInstance.baseDepartureMinutes !== undefined
+        ? simInstance.baseDepartureMinutes
+        : Math.floor(getISTNow().totalSec / 60);
+      const hwhSchedMin = simInstance.etaEngine && simInstance.etaEngine.stations && simInstance.etaEngine.stations[4]
+        ? simInstance.etaEngine.stations[4].schedMin
+        : baseMin + 105;
+      const hwhPredMin = hwhSchedMin + 7;
+      const predH = String(Math.floor((hwhPredMin / 60) % 24)).padStart(2, '0');
+      const predM = String(Math.floor(hwhPredMin % 60)).padStart(2, '0');
+      const predTimeStr = `${predH}:${predM}`;
+      const schedTimeStr = simInstance.etaEngine && simInstance.etaEngine.stations && simInstance.etaEngine.stations[4]
+        ? simInstance.etaEngine.stations[4].schedTime
+        : `${String(Math.floor((hwhSchedMin / 60) % 24)).padStart(2, '0')}:${String(Math.floor(hwhSchedMin % 60)).padStart(2, '0')}`;
+
+      if (prev < 5 && t >= 5) {
+        showJudgeBanner('T+5: Fog appears 30 km ahead on route corridor.', 5);
+        simInstance.logEvent('Meteorology: Dense Fog front developing at Km 30 (28 km ahead).');
+      } else if (prev < 8 && t >= 8) {
+        showJudgeBanner('T+8: Weather radar lookahead scanner detects Dense Fog 28 km ahead.', 8);
+        simInstance.logEvent('Forward Scanner: DENSE FOG detected 28 km ahead.');
+      } else if (prev < 10 && t >= 10) {
+        showJudgeBanner('T+10: ML Feature Engineering & /predict/weather-impact inference started.', 10);
+        simInstance.performLookahead(true);
+      } else if (prev < 12 && t >= 12) {
+        showJudgeBanner('T+12: ML Model Result: Weather Risk = 82% (HIGH). Sighting impaired.', 12);
+      } else if (prev < 14 && t >= 14) {
+        showJudgeBanner('T+14: ML Output: Speed Reduction = -40 km/h. Predicted Delay = +7 min.', 14);
+      } else if (prev < 16 && t >= 16) {
+        showJudgeBanner(`T+16: PROACTIVE ETA RECALCULATED: Predicted ETA shifts to ${predTimeStr} BEFORE entering fog!`, 16);
+        simInstance.logEvent(`PROACTIVE ETA RECALCULATED: Scheduled ${schedTimeStr} -> Predicted ${predTimeStr} (+7 min). Train STILL 22 km outside fog!`);
+      } else if (prev < 25 && t >= 25) {
+        showJudgeBanner('T+25: Train approaches fog boundary. Caution Double Yellow signal.', 25);
+      } else if (prev < 30 && t >= 30) {
+        showJudgeBanner('T+30: Train crosses Km 30 threshold and ENTERS DENSE FOG ZONE (Visibility 180m).', 30);
+      } else if (prev < 32 && t >= 32) {
+        showJudgeBanner('T+32: Speed reduction applied: decelerating from 130 km/h to 90 km/h.', 32);
+      } else if (prev < 45 && t >= 45) {
+        showJudgeBanner('T+45: Operating in fog zone at 90 km/h. Delay accumulates into Current ETA.', 45);
+      } else if (prev < 55 && t >= 55) {
+        showJudgeBanner('T+55: Train crosses Km 60 and EXITS DENSE FOG into CLEAR weather!', 55);
+      } else if (prev < 60 && t >= 60) {
+        showJudgeBanner(`T+60: Speed restored to 130 km/h. ETA stabilizes at ${predTimeStr}. Proactive ML prediction validated!`, 60);
+        simInstance.logEvent('Benchmark sequence completed successfully.');
+        window.judgeSequenceActive = false;
+      }
+    };
+ 
+    function showJudgeBanner(text, sec) {
+      const b = document.getElementById('judge-step-banner');
+      const t = document.getElementById('judge-step-text');
+      const tm = document.getElementById('judge-step-timer');
+      if (b && t) {
+        b.classList.remove('hidden');
+        t.textContent = text;
+        if (tm) tm.textContent = `T+${sec}s`;
+      }
+    }
+ 
+    // --- 10. BOOTSTRAP ---
+    window.addEventListener('DOMContentLoaded', () => {
+      const container = document.getElementById('viewport-container');
+      const canvas = document.getElementById('three-canvas');
+      simInstance = new Simulation(container, canvas);
+ 
+      renderTimeline(simInstance.activeZones);
+ 
+      // Play / Pause
+      document.getElementById('btn-play-pause').addEventListener('click', (e) => {
+        simInstance.isPlaying = !simInstance.isPlaying;
+        e.currentTarget.innerHTML = simInstance.isPlaying
+          ? '<span class="material-icons text-sm mr-1">pause</span>Pause'
+          : '<span class="material-icons text-sm mr-1">play_arrow</span>Play';
+      });
+ 
+      // Reset
+      document.getElementById('btn-reset').addEventListener('click', () => {
+        simInstance.train.routeKm = 0.0;
+        simInstance.train.worldX = 0;
+        simInstance.train.currentSpeed = 130;
+        simInstance.train.targetSpeed = 130;
+        simInstance.train.currentDelayMinutes = 0.0;
+        simInstance.train.accumulatedLossSeconds = 0;
+        simInstance.isScrubbed = false;
+        simInstance.elapsedSimSec = 0.0;
+        simInstance.initOriginalTime();
+        simInstance.logEvent(`Reset to departure baseline (${simInstance.originalTimeLabel}, 130 km/h).`);
+        document.getElementById('judge-step-banner').classList.add('hidden');
+      });
+ 
+      // Judge Demo Button (if present)
+      const btnJudgeDemo = document.getElementById('btn-judge-demo');
+      if (btnJudgeDemo) {
+        btnJudgeDemo.addEventListener('click', () => {
+          window.startJudgeBenchmark();
+        });
+      }
+ 
+      // Horn & Audio (Item 7: When muted, horn does not sound and does not force unmuting)
+      const hornBtn = document.getElementById('btn-horn');
+      const railHornBtn = document.getElementById('rail-btn-horn');
+      [hornBtn, railHornBtn].forEach(btn => {
+        if (!btn) return;
+        btn.addEventListener('click', () => {
+          if (isMuted) return; // Muted: do nothing at all, do NOT force unmute, do NOT play sound
+          soundWAP7Horn();
+        });
+      });
+ 
+      const audioToggleBtn = document.getElementById('btn-audio-toggle');
+      const railAudioBtn = document.getElementById('rail-btn-audio');
+      [audioToggleBtn, railAudioBtn].forEach(btn => {
+        if (!btn) return;
+        btn.addEventListener('click', () => {
+          toggleAudioMute();
+        });
+      });
+ 
+      // Camera Buttons
+      document.querySelectorAll('[data-camera]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          simInstance.activeCameraMode = btn.dataset.camera;
+          document.querySelectorAll('[data-camera]').forEach(b => {
+            b.classList.remove('bg-indigo-600', 'text-white');
+            b.classList.add('bg-slate-800', 'text-slate-300');
+          });
+          btn.classList.remove('bg-slate-800', 'text-slate-300');
+          btn.classList.add('bg-indigo-600', 'text-white');
+        });
+      });
+ 
+      // Speed Buttons
+      document.querySelectorAll('[data-speed]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const spd = parseFloat(btn.dataset.speed);
+          simInstance.timeMultiplier = spd;
+          document.querySelectorAll('[data-speed]').forEach(b => {
+            b.classList.remove('bg-blue-600', 'text-white');
+            b.classList.add('bg-slate-800', 'text-slate-300');
+          });
+          btn.classList.remove('bg-slate-800', 'text-slate-300');
+          btn.classList.add('bg-blue-600', 'text-white');
+        });
+      });
+ 
+      // Slider Tab Navigation Buttons
+      document.querySelectorAll('[data-slide-target]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const target = parseInt(btn.dataset.slideTarget);
+          window.setSlide(target);
+        });
+      });
+ 
+      document.getElementById('slider-btn-prev').addEventListener('click', () => {
+        window.setSlide(activeSlideIndex - 1);
+      });
+      document.getElementById('slider-btn-next').addEventListener('click', () => {
+        window.setSlide(activeSlideIndex + 1);
+      });
+ 
+      // Dot click navigation
+      document.querySelectorAll('.slider-dot').forEach((dot, idx) => {
+        dot.addEventListener('click', () => {
+          window.setSlide(idx);
+        });
+      });
+ 
+      // Touch / Swipe support for track
+      const trackEl = document.getElementById('slider-track');
+      if (trackEl) {
+        let touchStartX = 0;
+        trackEl.addEventListener('touchstart', (e) => {
+          touchStartX = e.changedTouches[0].screenX;
+        }, { passive: true });
+        trackEl.addEventListener('touchend', (e) => {
+          const diff = touchStartX - e.changedTouches[0].screenX;
+          if (Math.abs(diff) > 40) {
+            if (diff > 0) window.setSlide(activeSlideIndex + 1);
+            else window.setSlide(activeSlideIndex - 1);
+          }
+        }, { passive: true });
+      }
+ 
+      // Keyboard arrow shortcuts
+      window.addEventListener('keydown', (e) => {
+        if (['INPUT', 'SELECT', 'TEXTAREA'].includes(e.target.tagName)) return;
+        if (e.key === 'ArrowRight') {
+          window.setSlide(activeSlideIndex + 1);
+        } else if (e.key === 'ArrowLeft') {
+          window.setSlide(activeSlideIndex - 1);
+        }
+      });
+
+      // =========================================================================
+      // RIGHT INTELLIGENCE SIDEBAR: Symmetrical Architecture to Left Command Sidebar
+      // =========================================================================
+      const rightSidebar = document.getElementById('intelligence-sidebar');
+      const btnRightCollapse = document.getElementById('btn-right-sidebar-collapse');
+      const btnRightBrand = document.getElementById('right-sidebar-brand-btn');
+      const btnRightCloseInside = document.getElementById('btn-sidebar-close');
+      const btnRightExpandRail = document.getElementById('right-rail-btn-expand');
+      const btnRightEtaRail = document.getElementById('right-rail-btn-eta');
+      const btnRightRiskRail = document.getElementById('right-rail-btn-risk');
+      const btnRightControlsRail = document.getElementById('right-rail-btn-controls');
+      const btnRightFogRail = document.getElementById('right-rail-btn-fog');
+      const btnRightClearRail = document.getElementById('right-rail-btn-clear');
+
+      function toggleRightSidebar() {
+        if (!rightSidebar) return;
+        rightSidebar.classList.toggle('sidebar-expanded');
+        window.dispatchEvent(new Event('resize'));
+        setTimeout(() => window.dispatchEvent(new Event('resize')), 320);
+      }
+
+      function expandRightSidebar(targetSlide = null) {
+        if (!rightSidebar) return;
+        rightSidebar.classList.add('sidebar-expanded');
+        if (typeof targetSlide === 'number' && window.setSlide) {
+          window.setSlide(targetSlide);
+        }
+        window.dispatchEvent(new Event('resize'));
+        setTimeout(() => window.dispatchEvent(new Event('resize')), 320);
+      }
+
+      function collapseRightSidebar() {
+        if (!rightSidebar) return;
+        rightSidebar.classList.remove('sidebar-expanded');
+        window.dispatchEvent(new Event('resize'));
+        setTimeout(() => window.dispatchEvent(new Event('resize')), 320);
+      }
+
+      if (btnRightCollapse) btnRightCollapse.addEventListener('click', toggleRightSidebar);
+      if (btnRightBrand) btnRightBrand.addEventListener('click', toggleRightSidebar);
+      if (btnRightCloseInside) btnRightCloseInside.addEventListener('click', collapseRightSidebar);
+      if (btnRightExpandRail) btnRightExpandRail.addEventListener('click', () => expandRightSidebar());
+      if (btnRightEtaRail) btnRightEtaRail.addEventListener('click', () => expandRightSidebar(0));
+      if (btnRightRiskRail) btnRightRiskRail.addEventListener('click', () => expandRightSidebar(1));
+      if (btnRightControlsRail) btnRightControlsRail.addEventListener('click', () => expandRightSidebar(2));
+      if (btnRightFogRail) {
+        btnRightFogRail.addEventListener('click', () => {
+          document.getElementById('btn-quick-fog')?.click();
+        });
+      }
+      if (btnRightClearRail) {
+        btnRightClearRail.addEventListener('click', () => {
+          document.getElementById('btn-quick-clear')?.click();
+        });
+      }
+
+      // =========================================================================
+      // LEFT COMMAND SIDEBAR: Expand / Collapse & Rail Interactions
+      // =========================================================================
+      const commandSidebar = document.getElementById('command-sidebar');
+      const btnCollapse = document.getElementById('btn-sidebar-collapse');
+      const btnExpandRail = document.getElementById('rail-btn-expand');
+      const btnBrand = document.getElementById('sidebar-brand-btn');
+      const btnTrainRail = document.getElementById('rail-btn-train');
+      const btnClockRail = document.getElementById('rail-btn-clock');
+      const btnJudgeRail = document.getElementById('rail-btn-judge');
+      const btnScenarioRail = document.getElementById('rail-btn-scenario');
+      const btnOrigModeRail = document.getElementById('rail-btn-orig-mode');
+      const btnHornRail = document.getElementById('rail-btn-horn');
+      const btnAudioRail = document.getElementById('rail-btn-audio');
+
+      function toggleCommandSidebar() {
+        if (!commandSidebar) return;
+        commandSidebar.classList.toggle('sidebar-expanded');
+        window.dispatchEvent(new Event('resize'));
+        setTimeout(() => window.dispatchEvent(new Event('resize')), 320);
+      }
+
+      function expandCommandSidebar() {
+        if (!commandSidebar) return;
+        commandSidebar.classList.add('sidebar-expanded');
+        window.dispatchEvent(new Event('resize'));
+        setTimeout(() => window.dispatchEvent(new Event('resize')), 320);
+      }
+
+      function collapseCommandSidebar() {
+        if (!commandSidebar) return;
+        commandSidebar.classList.remove('sidebar-expanded');
+        window.dispatchEvent(new Event('resize'));
+        setTimeout(() => window.dispatchEvent(new Event('resize')), 320);
+      }
+
+      if (btnCollapse) btnCollapse.addEventListener('click', toggleCommandSidebar);
+      if (btnBrand) btnBrand.addEventListener('click', toggleCommandSidebar);
+      if (btnExpandRail) btnExpandRail.addEventListener('click', expandCommandSidebar);
+      if (btnTrainRail) btnTrainRail.addEventListener('click', expandCommandSidebar);
+      if (btnClockRail) btnClockRail.addEventListener('click', expandCommandSidebar);
+      if (btnHornRail) {
+        btnHornRail.addEventListener('click', () => {
+          document.getElementById('btn-horn')?.click();
+        });
+      }
+      if (btnAudioRail) {
+        btnAudioRail.addEventListener('click', () => {
+          document.getElementById('btn-audio')?.click();
+        });
+      }
+
+      if (btnJudgeRail) {
+        btnJudgeRail.addEventListener('click', () => {
+          window.startJudgeBenchmark();
+        });
+      }
+
+      if (btnScenarioRail) {
+        btnScenarioRail.addEventListener('click', () => {
+          expandCommandSidebar();
+          const sel = document.getElementById('scenario-select');
+          if (sel) sel.focus();
+        });
+      }
+
+      // Real-Time IST Sync Button
+      const btnSyncIST = document.getElementById('btn-sync-ist');
+      if (btnSyncIST) {
+        btnSyncIST.addEventListener('click', () => {
+          simInstance.initOriginalTime();
+          simInstance.logEvent(`Corridor departure synchronized to current live IST (${simInstance.originalTimeLabel}).`);
+        });
+      }
+
+      // Initialize real-time IST clock ticker and UI
+      startRealTimeTicker();
+      setClockAnchorModeUI();
+ 
+      // SLIDER 1: CORRIDOR POSITION SCRUBBER
+      const kmSlider = document.getElementById('input-slider-km');
+      if (kmSlider) {
+        kmSlider.addEventListener('input', (e) => {
+          const val = parseFloat(e.target.value);
+          setElText('slider-val-km', `Km ${val.toFixed(1)}`);
+          simInstance.setCorridorKm(val);
+        });
+      }
+ 
+      // SLIDER 2: SIMULATE HAZARD DISTANCE AHEAD
+      const hazardSlider = document.getElementById('input-slider-hazard');
+      if (hazardSlider) {
+        hazardSlider.addEventListener('input', (e) => {
+          const val = parseFloat(e.target.value);
+          setElText('slider-val-hazard', `${val.toFixed(1)} km`);
+          simInstance.distToHazard = val;
+          if (simInstance.upcomingHazardZone) {
+            simInstance.upcomingHazardZone.start_km = simInstance.train.routeKm + val;
+          }
+          simInstance.performLookahead(true);
+        });
+      }
+ 
+      // SLIDER 3: VISIBILITY / SEVERITY SLIDER
+      const visSlider = document.getElementById('input-slider-vis');
+      if (visSlider) {
+        visSlider.addEventListener('input', (e) => {
+          const val = parseFloat(e.target.value);
+          setElText('slider-val-vis', `${val} m`);
+          if (simInstance.currentZone) {
+            simInstance.currentZone.visibility_m = val;
+            simInstance.weatherEngine.setWeather(simInstance.currentZone.weather_type, 1.0, val);
+            simInstance.train.setAtmosphericVisibility(val);
+          }
+          simInstance.performLookahead(true);
+        });
+      }
+ 
+      // Interactive Click & Drag on Bottom Ribbon Bar
+      const ribbonBar = document.getElementById('timeline-ribbon-bar');
+      if (ribbonBar) {
+        const handleRibbonSeek = (e) => {
+          const rect = ribbonBar.getBoundingClientRect();
+          const clickX = e.clientX - rect.left;
+          const pct = Math.max(0, Math.min(1, clickX / rect.width));
+          const targetKm = pct * 180.0;
+          simInstance.setCorridorKm(targetKm);
+        };
+        ribbonBar.addEventListener('click', handleRibbonSeek);
+      }
+ 
+      // Quick Action Preset Buttons (Dynamic Multi-Hazard Corridors)
+      const btnQuickFog = document.getElementById('btn-quick-fog');
+      if (btnQuickFog) {
+        btnQuickFog.addEventListener('click', () => {
+          simInstance.setCorridorKm(2.0);
+          simInstance.activeZones = [
+            { start_km: 0, end_km: 30, weather_type: 'CLEAR', visibility_m: 5000 },
+            { start_km: 30, end_km: 60, weather_type: 'DENSE FOG', visibility_m: 180 },
+            { start_km: 60, end_km: 180, weather_type: 'CLEAR', visibility_m: 4500 }
+          ];
+          renderTimeline(simInstance.activeZones);
+          window.setSlide(0);
+          simInstance.performLookahead(true);
+          simInstance.logEvent('Preset Applied: Dense Fog Zone (30 km span @ Km 30-60).');
+        });
+      }
+
+      const btnQuickRain = document.getElementById('btn-quick-rain');
+      if (btnQuickRain) {
+        btnQuickRain.addEventListener('click', () => {
+          simInstance.setCorridorKm(2.0);
+          simInstance.activeZones = [
+            { start_km: 0, end_km: 20, weather_type: 'CLEAR', visibility_m: 5000 },
+            { start_km: 20, end_km: 45, weather_type: 'HEAVY RAIN', visibility_m: 600 },
+            { start_km: 45, end_km: 180, weather_type: 'CLEAR', visibility_m: 4500 }
+          ];
+          renderTimeline(simInstance.activeZones);
+          window.setSlide(0);
+          simInstance.performLookahead(true);
+          simInstance.logEvent('Preset Applied: Heavy Rain Corridor (25 km span @ Km 20-45).');
+        });
+      }
+
+      const btnQuickStorm = document.getElementById('btn-quick-storm');
+      if (btnQuickStorm) {
+        btnQuickStorm.addEventListener('click', () => {
+          simInstance.setCorridorKm(2.0);
+          simInstance.activeZones = [
+            { start_km: 0, end_km: 25, weather_type: 'CLEAR', visibility_m: 5000 },
+            { start_km: 25, end_km: 60, weather_type: 'THUNDERSTORM', visibility_m: 350 },
+            { start_km: 60, end_km: 180, weather_type: 'CLEAR', visibility_m: 4500 }
+          ];
+          renderTimeline(simInstance.activeZones);
+          window.setSlide(0);
+          simInstance.performLookahead(true);
+          simInstance.logEvent('Preset Applied: Severe Thunderstorm Front (35 km span @ Km 25-60).');
+        });
+      }
+
+      const btnQuickClear = document.getElementById('btn-quick-clear');
+      if (btnQuickClear) {
+        btnQuickClear.addEventListener('click', () => {
+          simInstance.activeZones = [
+            { start_km: 0, end_km: 180, weather_type: 'CLEAR', visibility_m: 6000 }
+          ];
+          renderTimeline(simInstance.activeZones);
+          window.setSlide(0);
+          simInstance.performLookahead(true);
+          simInstance.logEvent('Preset Applied: All Clear Corridor Profile (180 km).');
+        });
+      }
+ 
+      // Scenario dropdown: strictly the 5 requested scenarios (Item 2)
+      document.getElementById('scenario-select').addEventListener('change', (e) => {
+        const val = e.target.value;
+        if (val === 'clear') {
+          simInstance.activeZones = [{ start_km: 0, end_km: 180, weather_type: 'CLEAR', visibility_m: 6000 }];
+        } else if (val === 'dense_fog') {
+          simInstance.activeZones = [
+            { start_km: 0, end_km: 25, weather_type: 'CLEAR', visibility_m: 4500 },
+            { start_km: 25, end_km: 85, weather_type: 'DENSE FOG', visibility_m: 150 },
+            { start_km: 85, end_km: 180, weather_type: 'CLEAR', visibility_m: 4000 }
+          ];
+        } else if (val === 'monsoon') {
+          // Monsoon rain covers entire corridor uninterrupted in all cameras (Item 15)
+          simInstance.activeZones = [
+            { start_km: 0, end_km: 180, weather_type: 'HEAVY RAIN', visibility_m: 600 }
+          ];
+        } else if (val === 'thunderstorm') {
+          // Thunderstorm: lightning effects without rain (Item 14)
+          simInstance.activeZones = [
+            { start_km: 0, end_km: 30, weather_type: 'CLEAR', visibility_m: 4500 },
+            { start_km: 30, end_km: 120, weather_type: 'THUNDERSTORM', visibility_m: 400 },
+            { start_km: 120, end_km: 180, weather_type: 'CLEAR', visibility_m: 4500 }
+          ];
+        } else {
+          // judge_fog_demo or default
+          simInstance.activeZones = [
+            { start_km: 0, end_km: 30, weather_type: 'CLEAR', visibility_m: 5000 },
+            { start_km: 30, end_km: 60, weather_type: 'DENSE FOG', visibility_m: 180 },
+            { start_km: 60, end_km: 180, weather_type: 'CLEAR', visibility_m: 4500 }
+          ];
+        }
+        renderTimeline(simInstance.activeZones);
+        simInstance.performLookahead(true);
+      });
+    });
+  </script>
+</body>
+</html>
