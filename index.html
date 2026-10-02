@@ -26,27 +26,37 @@
             irGold: '#fbc02d',
             irNavy: '#0d47a1',
             obsidian: '#070b14',
-            /* --- Control-room palette: blueprint steel + brass signage --- */
+            /* --- Precision Light Theme Palette: Crisp Blueprint Porcelain + Brass Signage --- */
             slate: {
-              50:  '#EEF1F5', 100: '#E5E9EF', 200: '#CBD2DC', 300: '#A6B0BF',
-              400: '#7C8898', 500: '#57647A', 600: '#3C4759', 700: '#29323F',
-              800: '#1B2330', 900: '#10161F', 950: '#0A0E16'
+              50:  '#020617', // deepest high-contrast text/badge elements
+              100: '#0f172a', // primary headings, titles, and main numerical readouts
+              200: '#1e293b', // primary body text and labels
+              300: '#334155', // secondary text and metadata
+              400: '#475569', // subtitles, units, and captions
+              500: '#64748b', // separators and tertiary text
+              600: '#94a3b8', // subtle divider lines
+              700: '#cbd5e1', // element borders and frame dividers
+              800: '#e2e8f0', // container outlines, inactive button backgrounds
+              900: '#f1f5f9', // pod backgrounds, inner telemetry wells
+              950: '#ffffff'  // primary background, cards, and glass panels
             },
             amber: {
-              200: '#F3DDB0', 300: '#E9C685', 400: '#DDAE55', 500: '#CB9640',
-              600: '#B9822E', 950: '#241705'
+              100: '#fef3c7', 200: '#78350f', 300: '#92400e', 400: '#b45309',
+              500: '#d97706', 600: '#b45309', 950: '#fffbeb'
             },
-            yellow: { 300: '#F0D690', 400: '#E8C26A' },
+            yellow: { 300: '#a16207', 400: '#ca8a04' },
             blue: {
-              200: '#C3D8EB', 300: '#92B8DA', 400: '#5C93C4', 500: '#3170AB',
-              600: '#26588C', 700: '#1E4571', 950: '#0B1B33'
+              100: '#dbeafe', 200: '#1e3a8a', 300: '#1d4ed8', 400: '#1e40af', 500: '#2563eb',
+              600: '#1d4ed8', 700: '#1e40af', 950: '#eff6ff'
             },
             emerald: {
-              200: '#B7E0C9', 300: '#82CBA0', 400: '#4CB374', 500: '#2E9E5B', 950: '#0C2318'
+              100: '#d1fae5', 200: '#064e3b', 300: '#047857', 400: '#059669', 500: '#10b981',
+              950: '#ecfdf5'
             },
-            rose: { 300: '#E39492', 400: '#D5615D', 500: '#C23B3B' },
-            indigo: { 400: '#8A94C7', 500: '#5C67A3', 600: '#464F87' },
-            purple: { 300: '#C4AEE0', 500: '#7C5CBF' }
+            rose: { 200: '#881337', 300: '#9f1239', 400: '#be123c', 500: '#dc2626', 950: '#fff1f2' },
+            indigo: { 400: '#4338ca', 500: '#4f46e5', 600: '#4338ca' },
+            purple: { 200: '#581c87', 300: '#6b21a8', 400: '#7e22ce', 500: '#9333ea', 950: '#faf5ff' },
+            cyan: { 300: '#0369a1', 400: '#0284c7', 500: '#0ea5e9' }
           }
         }
       }
@@ -59,31 +69,29 @@
   <style>
     @keyframes pulseGlow {
       0%, 100% {
-        box-shadow: 0 0 16px rgba(217, 169, 85, 0.4), inset 0 0 10px rgba(217, 169, 85, 0.2);
+        box-shadow: 0 0 12px rgba(203, 150, 64, 0.35), inset 0 0 8px rgba(203, 150, 64, 0.15);
       }
       50% {
-        box-shadow: 0 0 28px rgba(217, 169, 85, 0.85), inset 0 0 16px rgba(217, 169, 85, 0.45);
+        box-shadow: 0 0 20px rgba(203, 150, 64, 0.65), inset 0 0 12px rgba(203, 150, 64, 0.3);
       }
     }
- 
+
     @keyframes radarSweep {
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
     }
- 
+
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(-4px); }
       to { opacity: 1; transform: translateY(0); }
     }
- 
+
     .animate-fadeIn { animation: fadeIn 0.25s ease-out forwards; }
     .judge-btn-pulse { animation: pulseGlow 2s infinite; }
- 
+
     /* ---------------------------------------------------------------
-       Instrument panels: matte control-room steel with brass corner
-       brackets, evoking a cab gauge bezel rather than a SaaS glass card.
-       This bracket treatment is the one recurring signature device;
-       everything else stays quiet on purpose.
+       Instrument panels: crisp porcelain glass with warm brass corner
+       brackets, evoking modern high-precision Indian Railways cab consoles.
        --------------------------------------------------------------- */
     .glass-panel,
     .glass-panel-subtle,
@@ -97,41 +105,42 @@
       width: 9px;
       height: 9px;
       pointer-events: none;
-      opacity: 0.55;
+      opacity: 0.85;
     }
     .glass-panel::before, .glass-card::before {
       top: -1px; left: -1px;
-      border-top: 1.5px solid #DDAE55;
-      border-left: 1.5px solid #DDAE55;
+      border-top: 1.5px solid #CB9640;
+      border-left: 1.5px solid #CB9640;
     }
     .glass-panel::after, .glass-card::after {
       bottom: -1px; right: -1px;
-      border-bottom: 1.5px solid #DDAE55;
-      border-right: 1.5px solid #DDAE55;
+      border-bottom: 1.5px solid #CB9640;
+      border-right: 1.5px solid #CB9640;
     }
- 
+
     .glass-panel {
-      background: linear-gradient(180deg, rgba(16, 22, 31, 0.94) 0%, rgba(10, 14, 22, 0.96) 100%);
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.94) 0%, rgba(248, 250, 252, 0.97) 100%);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(203, 213, 225, 0.9);
+      box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.08), 0 8px 10px -6px rgba(15, 23, 42, 0.04);
+    }
+
+    .glass-panel-subtle {
+      background: rgba(255, 255, 255, 0.88);
       backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
-      border: 1px solid rgba(124, 136, 152, 0.22);
-      box-shadow: 0 10px 24px -6px rgba(0, 0, 0, 0.65);
+      border: 1px solid rgba(203, 213, 225, 0.8);
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
     }
- 
-    .glass-panel-subtle {
-      background: rgba(16, 22, 31, 0.72);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-      border: 1px solid rgba(124, 136, 152, 0.16);
-    }
- 
+
     .glass-card {
-      background: linear-gradient(180deg, rgba(27, 35, 48, 0.72) 0%, rgba(16, 22, 31, 0.82) 100%);
-      border: 1px solid rgba(124, 136, 152, 0.18);
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.95) 0%, rgba(241, 245, 249, 0.92) 100%);
+      border: 1px solid rgba(203, 213, 225, 0.85);
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
     }
- 
-    /* Faint engineering-drawing grid behind the viewport, texture only */
+
+    /* Faint engineering-drawing grid behind the viewport */
     #viewport-container::before {
       content: '';
       position: absolute;
@@ -139,12 +148,12 @@
       pointer-events: none;
       z-index: 1;
       background-image:
-        linear-gradient(rgba(124, 136, 152, 0.05) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(124, 136, 152, 0.05) 1px, transparent 1px);
+        linear-gradient(rgba(148, 163, 184, 0.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(148, 163, 184, 0.06) 1px, transparent 1px);
       background-size: 48px 48px;
-      mix-blend-mode: screen;
+      mix-blend-mode: multiply;
     }
- 
+
     /* Control-lever range sliders (rectangular grip, not a default pill thumb) */
     input[type=range] {
       -webkit-appearance: none;
@@ -157,30 +166,30 @@
     input[type=range]::-webkit-slider-runnable-track {
       height: 4px;
       border-radius: 2px;
-      background: #29323F;
-      border: 1px solid rgba(124, 136, 152, 0.3);
+      background: #e2e8f0;
+      border: 1px solid rgba(148, 163, 184, 0.4);
     }
     input[type=range]::-webkit-slider-thumb {
       -webkit-appearance: none;
       height: 16px;
       width: 8px;
       border-radius: 2px;
-      background: #DDAE55;
+      background: #CB9640;
       margin-top: -6px;
-      box-shadow: 0 0 8px rgba(217, 169, 85, 0.7), 0 0 0 1px rgba(10, 14, 22, 0.8);
+      box-shadow: 0 1px 4px rgba(203, 150, 64, 0.4), 0 0 0 1px rgba(203, 213, 225, 0.9);
       transition: transform 0.12s ease, background 0.12s ease;
     }
     input[type=range]::-webkit-slider-thumb:hover {
       transform: scaleY(1.2);
-      background: #E9C685;
+      background: #B9822E;
     }
- 
-    /* Sleek scrollbar */
+
+    /* Sleek light scrollbar */
     ::-webkit-scrollbar { width: 5px; height: 5px; }
-    ::-webkit-scrollbar-track { background: rgba(10, 14, 22, 0.5); }
-    ::-webkit-scrollbar-thumb { background: rgba(124, 136, 152, 0.4); border-radius: 4px; }
-    ::-webkit-scrollbar-thumb:hover { background: rgba(217, 169, 85, 0.7); }
- 
+    ::-webkit-scrollbar-track { background: rgba(241, 245, 249, 0.8); }
+    ::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, 0.5); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(203, 150, 64, 0.8); }
+
     /* Touch devices: larger touch targets for sliders */
     @media (pointer: coarse) {
       input[type=range] {
@@ -195,22 +204,22 @@
         height: 6px;
       }
     }
- 
-    /* Body texture: faint blueprint grid, barely-there */
+
+    /* Body texture: faint blueprint grid on light base */
     body {
       background-image:
-        linear-gradient(rgba(124, 136, 152, 0.035) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(124, 136, 152, 0.035) 1px, transparent 1px);
+        linear-gradient(rgba(148, 163, 184, 0.08) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(148, 163, 184, 0.08) 1px, transparent 1px);
       background-size: 64px 64px;
     }
- 
 
     /* Precision OCC HUD Card with Gold Corner Accents */
     .hud-corner-card {
       position: relative;
-      background: rgba(13, 20, 36, 0.82);
-      border: 1px solid rgba(30, 41, 59, 0.85);
+      background: rgba(255, 255, 255, 0.92);
+      border: 1px solid rgba(226, 232, 240, 0.95);
       border-radius: 6px;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
     }
     .hud-corner-card::before {
       content: '';
@@ -219,8 +228,8 @@
       left: -1px;
       width: 7px;
       height: 7px;
-      border-top: 2px solid #D9A955;
-      border-left: 2px solid #D9A955;
+      border-top: 2px solid #CB9640;
+      border-left: 2px solid #CB9640;
       border-top-left-radius: 4px;
       pointer-events: none;
     }
@@ -231,31 +240,31 @@
       right: -1px;
       width: 7px;
       height: 7px;
-      border-bottom: 2px solid #D9A955;
-      border-right: 2px solid #D9A955;
+      border-bottom: 2px solid #CB9640;
+      border-right: 2px solid #CB9640;
       border-bottom-right-radius: 4px;
       pointer-events: none;
     }
 
     input[type=range] {
-      accent-color: #D9A955;
+      accent-color: #CB9640;
     }
     input[type=range]::-webkit-slider-thumb {
-      background: #D9A955;
-      border: 1px solid #F5C564;
-      box-shadow: 0 0 8px rgba(217, 169, 85, 0.7);
+      background: #CB9640;
+      border: 1px solid #DDAE55;
+      box-shadow: 0 1px 4px rgba(203, 150, 64, 0.4);
     }
- 
+
     /* Operations Control Deck & Intelligence Panel styling */
     #control-deck {
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-      box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.85), 0 0 20px rgba(217, 169, 85, 0.12);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      box-shadow: 0 20px 40px -10px rgba(15, 23, 42, 0.12), 0 0 0 1px rgba(226, 232, 240, 0.9);
     }
 
     #intelligence-sidebar {
       transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-      box-shadow: -8px 0 32px rgba(0, 0, 0, 0.8);
+      box-shadow: -8px 0 32px rgba(15, 23, 42, 0.1);
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
     }
@@ -270,17 +279,17 @@
     }
     #intelligence-sidebar::-webkit-scrollbar-track,
     #intelligence-sidebar *::-webkit-scrollbar-track {
-      background: rgba(10, 15, 29, 0.6);
+      background: rgba(241, 245, 249, 0.7);
       border-radius: 4px;
     }
     #intelligence-sidebar::-webkit-scrollbar-thumb,
     #intelligence-sidebar *::-webkit-scrollbar-thumb {
-      background: rgba(217, 169, 85, 0.35);
+      background: rgba(148, 163, 184, 0.5);
       border-radius: 4px;
     }
     #intelligence-sidebar::-webkit-scrollbar-thumb:hover,
     #intelligence-sidebar *::-webkit-scrollbar-thumb:hover {
-      background: rgba(217, 169, 85, 0.7);
+      background: rgba(203, 150, 64, 0.8);
     }
   </style>
 </head>
@@ -300,7 +309,7 @@
       </div>
       <div>
         <div class="flex items-center space-x-2">
-          <h1 class="text-xs sm:text-sm font-black tracking-wider text-white uppercase font-sans">TRETA</h1>
+          <h1 class="text-xs sm:text-sm font-black tracking-wider text-slate-100 uppercase font-sans">TRETA</h1>
           <span class="text-[9px] px-1.5 py-0.2 rounded bg-amber-500/10 text-amber-300 border border-amber-500/40 font-mono font-bold">PS 26028</span>
           <span class="hidden md:inline text-[9px] text-slate-400 font-mono">• Indian Railways Weather & ETA Simulation</span>
         </div>
@@ -324,10 +333,10 @@
         <span id="hud-real-time" class="text-xs sm:text-sm font-mono font-black text-emerald-300">--:--:-- IST</span>
       </div>
 
-      <!-- Toggle Intelligence Console Button -->
-      <button id="btn-toggle-intel" aria-label="Toggle Dynamic ETA and Weather Intelligence Panel" class="px-2.5 sm:px-3 py-1.5 rounded-lg bg-slate-800/90 hover:bg-amber-500/20 border border-slate-700/80 hover:border-amber-400/60 text-slate-200 hover:text-amber-300 text-xs font-mono font-bold flex items-center space-x-1.5 transition cursor-pointer shadow-md">
+      <!-- Toggle Operations Panel Button -->
+      <button id="btn-toggle-intel" aria-label="Toggle Operations & Dynamic ETA Panel" class="px-2.5 sm:px-3 py-1.5 rounded-lg bg-slate-800/90 hover:bg-amber-500/20 border border-slate-700/80 hover:border-amber-400/60 text-slate-200 hover:text-amber-300 text-xs font-mono font-bold flex items-center space-x-1.5 transition cursor-pointer shadow-md">
         <span class="material-icons text-sm text-amber-400">tune</span>
-        <span>ML Intelligence</span>
+        <span>Operations</span>
         <span class="w-2 h-2 rounded-full bg-blue-400 animate-pulse ml-0.5"></span>
       </button>
     </div>
@@ -386,7 +395,7 @@
           <div class="text-[8px] font-mono uppercase text-slate-400 tracking-wider font-bold">
             <span id="hazard-banner-time-label">ARRIVAL IN</span>
           </div>
-          <div id="hazard-banner-countdown" class="text-xs sm:text-base font-black font-mono text-amber-400 tracking-tight drop-shadow-[0_0_8px_rgba(217,169,85,0.6)]">
+          <div id="hazard-banner-countdown" class="text-xs sm:text-base font-black font-mono text-amber-400 tracking-tight drop-shadow-[0_1px_2px_rgba(180,83,9,0.25)]">
             02m 15s
           </div>
           <div id="hazard-banner-dist" class="text-[8px] font-mono font-bold text-slate-400">
@@ -395,27 +404,72 @@
         </div>
       </div>
 
-      <!-- TOP-LEFT SPEED & ROUTE PROGRESS HUD OVERLAY -->
-      <div class="absolute top-2 left-2 sm:top-3 sm:left-3 z-10 flex flex-col space-y-1.5 pointer-events-none max-w-[calc(100%-1rem)]">
-        <div class="glass-panel rounded-md px-3 py-2 sm:px-3.5 sm:py-2.5 shadow-2xl pointer-events-auto min-w-[160px] sm:min-w-[200px]">
+                  <!-- TOP-LEFT SPEED & COLLAPSIBLE ROUTE SCRUBBER HUD OVERLAY -->
+      <div class="absolute top-2 left-2 sm:top-3 sm:left-3 z-10 flex flex-col space-y-1.5 pointer-events-none w-[180px] sm:w-[220px]">
+        
+        <!-- Speedometer & Corridor Progress Card -->
+        <div class="glass-panel rounded-md px-3 py-2 sm:px-3.5 sm:py-2.5 shadow-xl pointer-events-auto flex flex-col justify-between w-full">
           <div class="flex items-baseline justify-between">
-            <div class="text-[9px] font-bold uppercase tracking-wider text-slate-400 font-mono">Train Speed</div>
-            <div class="text-[9px] text-rose-400 font-mono font-semibold bg-rose-500/10 px-1 py-0.2 rounded border border-rose-500/20">MPS: 130</div>
+            <div class="text-[9px] font-bold uppercase tracking-wider text-slate-500 font-mono">Train Speed</div>
+            <div class="text-[9px] text-rose-600 font-mono font-bold bg-rose-50 px-1.5 py-0.2 rounded border border-rose-200">MPS: 130</div>
           </div>
           <div class="flex items-baseline space-x-1.5 mt-0.5">
-            <span id="hud-speed" class="text-2xl sm:text-3xl font-black font-mono text-amber-400 tracking-tight drop-shadow-[0_0_10px_rgba(217,169,85,0.4)]">130</span>
-            <span class="text-[10px] text-slate-400 font-extrabold uppercase font-mono">km/h</span>
-            <span class="text-[10px] text-emerald-400 font-mono font-bold ml-auto" id="hud-target-speed">130 km/h</span>
+            <span id="hud-speed" class="text-2xl sm:text-3xl font-black font-mono text-amber-600 tracking-tight drop-shadow-[0_1px_2px_rgba(180,83,9,0.15)]">130</span>
+            <span class="text-[10px] text-slate-500 font-extrabold uppercase font-mono">km/h</span>
+            <span class="text-[10px] text-emerald-600 font-mono font-bold ml-auto" id="hud-target-speed">130 km/h</span>
           </div>
           <!-- Corridor Progress -->
-          <div class="mt-1 sm:mt-2">
-            <div class="flex justify-between text-[8px] sm:text-[9px] text-slate-400 font-mono mb-0.5">
+          <div class="mt-1 sm:mt-1.5">
+            <div class="flex justify-between text-[8px] sm:text-[9px] text-slate-500 font-mono mb-0.5">
               <span>NDLS</span>
-              <span id="hud-route-km" class="text-amber-400 font-extrabold">Km 0.0 / 180</span>
+              <span id="hud-route-km" class="text-amber-600 font-extrabold">Km 0.0 / 180</span>
               <span>HWH</span>
             </div>
-            <div class="w-full h-1.5 bg-slate-900 rounded-full overflow-hidden border border-slate-800">
-              <div id="route-progress-fill" class="h-full bg-gradient-to-r from-blue-500 via-amber-400 to-emerald-400 rounded-full w-0 transition-all duration-300"></div>
+            <div class="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden border border-slate-300">
+              <div id="route-progress-fill" class="h-full bg-gradient-to-r from-blue-500 via-amber-500 to-emerald-500 rounded-full w-0 transition-all duration-300"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Collapsible Route Scrubber Card (Below Speedometer) -->
+        <div class="glass-panel rounded-md p-2 sm:p-2.5 shadow-xl pointer-events-auto flex flex-col w-full transition-all duration-200">
+          <!-- Clickable Header: Title, Km Value & Collapse Toggle -->
+          <button id="btn-scrubber-collapse" type="button" aria-expanded="true" aria-controls="scrubber-dropdown-body" class="w-full flex items-center justify-between text-left cursor-pointer group focus:outline-none">
+            <div class="flex items-center space-x-1.5 min-w-0">
+              <span class="material-icons text-amber-600 text-xs">linear_scale</span>
+              <span class="text-[9px] font-bold uppercase tracking-wider text-slate-600 group-hover:text-slate-900 font-mono truncate">
+                Scrubber
+              </span>
+              <span id="slider-val-km" class="text-[8px] sm:text-[9px] font-mono font-black text-amber-700 px-1 py-0.2 rounded bg-amber-50 border border-amber-300 shrink-0">
+                Km 0.0
+              </span>
+            </div>
+            <span id="scrubber-collapse-icon" class="material-icons text-xs text-slate-400 group-hover:text-amber-600 transition-transform duration-200">expand_less</span>
+          </button>
+
+          <!-- Collapsible Body: Auto-Changing Station Dropdown -->
+          <div id="scrubber-dropdown-body" class="flex flex-col mt-1.5 space-y-1.5 transition-all duration-200">
+            <div class="relative">
+              <select id="route-scrubber-select" aria-label="Route Corridor Station Scrubber" class="w-full bg-white border border-[#cbd5e1] hover:border-amber-500 text-[#0f172a] text-xs font-bold rounded px-2.5 py-1.5 pr-6 focus:outline-none focus:ring-1 focus:ring-amber-500 cursor-pointer appearance-none truncate shadow-xs" style="color: #0f172a; background-color: #ffffff;">
+                <option value="0" class="text-[#0f172a] bg-white font-medium" style="color: #0f172a; background-color: #ffffff;">NDLS - New Delhi (Km 0)</option>
+                <option value="45" class="text-[#0f172a] bg-white font-medium" style="color: #0f172a; background-color: #ffffff;">CNB - Kanpur (Km 45)</option>
+                <option value="90" class="text-[#0f172a] bg-white font-medium" style="color: #0f172a; background-color: #ffffff;">PRYJ - Prayagraj (Km 90)</option>
+                <option value="140" class="text-[#0f172a] bg-white font-medium" style="color: #0f172a; background-color: #ffffff;">DHN - Dhanbad (Km 140)</option>
+                <option value="180" class="text-[#0f172a] bg-white font-medium" style="color: #0f172a; background-color: #ffffff;">HWH - Howrah (Km 180)</option>
+              </select>
+              <span class="material-icons text-sm text-amber-600 absolute right-1.5 top-2 pointer-events-none">arrow_drop_down</span>
+            </div>
+
+            <!-- Auto-Sync Status & Station Step Buttons -->
+            <div class="flex items-center justify-between text-[8px] sm:text-[9px] font-mono text-slate-500 pt-0.5">
+              <span class="flex items-center space-x-1 text-emerald-600 font-bold">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span>Auto-sync</span>
+              </span>
+              <div class="flex items-center space-x-1">
+                <button id="btn-scrub-prev" type="button" title="Jump to Previous Station" class="px-2 py-0.5 rounded bg-[#f1f5f9] hover:bg-[#e2e8f0] border border-[#cbd5e1] text-[#1e293b] hover:text-[#0f172a] transition cursor-pointer font-bold shadow-xs">◀ Prev</button>
+                <button id="btn-scrub-next" type="button" title="Jump to Next Station" class="px-2 py-0.5 rounded bg-[#f1f5f9] hover:bg-[#e2e8f0] border border-[#cbd5e1] text-[#1e293b] hover:text-[#0f172a] transition cursor-pointer font-bold shadow-xs">Next ▶</button>
+              </div>
             </div>
           </div>
         </div>
@@ -427,124 +481,86 @@
             <div class="absolute w-1.5 h-1.5 rounded-full bg-blue-500 animate-ping"></div>
             <div class="w-1 h-1 rounded-full bg-blue-400"></div>
           </div>
-          <span class="text-slate-300 font-medium font-mono">Horizon: <strong class="text-blue-400 font-bold">50 KM</strong> AHEAD</span>
+          <span class="text-slate-600 font-medium font-mono">Horizon: <strong class="text-blue-600 font-bold">50 KM</strong> AHEAD</span>
         </div>
       </div>
 
+                  <!-- ============================================================== -->
+      <!-- UNIFIED OPERATIONS CONTROL DECK (COMPACT BOTTOM-RIGHT DOCK)    -->
       <!-- ============================================================== -->
-      <!-- UNIFIED OPERATIONS CONTROL DECK (BOTTOM-DOCKED & FULLY ACCESSIBLE) -->
-      <!-- ============================================================== -->
-      <section id="control-deck" aria-label="Simulation Operations Control Deck" class="absolute bottom-2.5 sm:bottom-3.5 left-1/2 -translate-x-1/2 z-30 w-[96%] max-w-5xl glass-panel rounded-xl p-2.5 sm:p-3 shadow-2xl border border-slate-700/60 pointer-events-auto flex flex-col space-y-2">
+      <section id="control-deck" aria-label="Simulation Operations Control Deck" class="absolute bottom-3 right-3 sm:bottom-4 sm:right-4 z-30 w-auto max-w-[94vw] sm:max-w-none glass-panel rounded-2xl p-2 sm:p-2.5 shadow-2xl border border-slate-700/60 pointer-events-auto flex items-center space-x-2 transition-all duration-300">
         
-        <!-- Row 1: Corridor Route Scrubber with Station Milestones -->
-        <div class="flex flex-col space-y-1">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center space-x-2">
-              <span class="material-icons text-amber-400 text-sm">linear_scale</span>
-              <label for="input-slider-km" class="text-[10px] sm:text-xs font-mono font-bold uppercase tracking-wider text-slate-200">
-                Corridor Route Scrubber
-              </label>
-              <span id="slider-val-km" class="text-[10px] sm:text-xs font-mono font-black text-amber-400 px-2 py-0.5 rounded bg-amber-500/10 border border-amber-500/30">
-                Km 0.0
-              </span>
-            </div>
-            <div class="text-[8px] sm:text-[9px] font-mono text-slate-400 hidden sm:block">
-              Interactive Scrubber • Click or drag to jump anywhere along corridor
-            </div>
-          </div>
-
-          <!-- Route Range Slider -->
-          <input type="range" id="input-slider-km" min="0" max="180" step="0.5" value="0" aria-label="Route Corridor Position in Kilometers" class="w-full h-2 cursor-pointer accent-amber-400">
-
-          <!-- Station Ticks -->
-          <div class="flex justify-between text-[8px] sm:text-[9px] text-slate-400 font-mono px-0.5">
-            <span class="hover:text-amber-300 transition-colors font-bold">NDLS (0k)</span>
-            <span class="hover:text-amber-300 transition-colors">CNB (45k)</span>
-            <span class="hover:text-amber-300 transition-colors">PRYJ (90k)</span>
-            <span class="hover:text-amber-300 transition-colors">DHN (140k)</span>
-            <span class="hover:text-amber-300 transition-colors font-bold">HWH (180k)</span>
-          </div>
-        </div>
-
-        <div class="w-full h-px bg-slate-800/80"></div>
-
-        <!-- Row 2: Control Pods (Modular, High Contrast, Intuitive) -->
-        <div class="flex flex-wrap items-center justify-between gap-1.5 sm:gap-2">
+        <!-- Controls 2-Tier Vertical Body -->
+        <div id="deck-body" class="flex flex-col space-y-1.5 sm:space-y-2 transition-all duration-300">
           
-          <!-- Pod 1: Playback & Speed Controls -->
-          <div class="flex items-center space-x-1 sm:space-x-1.5 bg-slate-900/90 p-1 rounded-lg border border-slate-800 shrink-0">
-            <button id="btn-play-pause" aria-label="Play or Pause Simulation" class="px-2.5 sm:px-3 py-1 rounded-md bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs flex items-center space-x-1 shadow transition cursor-pointer">
-              <span class="material-icons text-sm mr-0.5">pause</span>
-              <span id="play-pause-text">Pause</span>
-            </button>
-            <button id="btn-reset" aria-label="Reset Simulation" title="Reset Simulation to New Delhi (Km 0)" class="p-1 rounded-md bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition cursor-pointer">
-              <span class="material-icons text-sm">restart_alt</span>
-            </button>
-            <div class="h-4 w-px bg-slate-700 mx-0.5"></div>
-            <div class="flex items-center space-x-0.5" role="group" aria-label="Simulation Speed Multiplier">
-              <button data-speed="1" aria-label="1X Speed" class="px-1.5 sm:px-2 py-0.5 text-[10px] font-mono font-bold rounded bg-blue-600 text-white transition cursor-pointer">1X</button>
-              <button data-speed="2" aria-label="2X Speed" class="px-1.5 sm:px-2 py-0.5 text-[10px] font-mono font-bold rounded bg-slate-800 text-slate-300 hover:bg-slate-700 transition cursor-pointer">2X</button>
-              <button data-speed="5" aria-label="5X Speed" class="px-1.5 sm:px-2 py-0.5 text-[10px] font-mono font-bold rounded bg-slate-800 text-slate-300 hover:bg-slate-700 transition cursor-pointer">5X</button>
-              <button data-speed="10" aria-label="10X Speed" class="px-1.5 sm:px-2 py-0.5 text-[10px] font-mono font-bold rounded bg-slate-800 text-slate-300 hover:bg-slate-700 transition cursor-pointer">10X</button>
-            </div>
-          </div>
-
-          <!-- Pod 2: Weather Scenario Selector -->
-          <div class="flex items-center space-x-1.5 bg-slate-900/90 px-2 py-1 rounded-lg border border-slate-800">
-            <label for="scenario-select" class="text-[9px] font-mono text-slate-400 uppercase font-bold flex items-center space-x-1 shrink-0">
-              <span class="material-icons text-xs text-amber-400">cloud</span>
-              <span class="hidden sm:inline">Scenario</span>
-            </label>
-            <div class="relative">
-              <select id="scenario-select" aria-label="Select Weather Scenario" class="bg-slate-950 border border-slate-700 hover:border-amber-400/80 text-slate-100 text-[11px] sm:text-xs font-semibold rounded px-2.5 py-1 pr-6 focus:outline-none focus:border-amber-400 cursor-pointer appearance-none max-w-[200px] sm:max-w-none truncate">
-                <option value="judge_fog_demo" selected>🎯 Interactive Fog Demo (Benchmark)</option>
-                <option value="dense_fog">🌫️ Dense Winter Fog (150m • 90 km/h)</option>
-                <option value="monsoon">🌧️ Heavy Monsoon Downpour (100 km/h)</option>
-                <option value="thunderstorm">⛈️ Severe Thunderstorm (80 km/h)</option>
-                <option value="clear">🌤️ Clear Weather Corridor (130 km/h)</option>
-              </select>
-              <span class="material-icons text-xs text-amber-400 absolute right-1.5 top-1.5 pointer-events-none">arrow_drop_down</span>
-            </div>
-          </div>
-
-          <!-- Pod 3: Sighting Visibility Tuner -->
-          <div class="flex items-center space-x-1.5 bg-slate-900/90 px-2 py-1 rounded-lg border border-slate-800">
-            <div class="flex flex-col">
-              <div class="flex items-center justify-between text-[8px] font-mono text-slate-400 uppercase font-bold">
-                <span>Visibility</span>
-                <span id="slider-val-vis" class="text-emerald-400 font-black ml-1.5">5000 m</span>
+          <!-- Portion 1: Playback & Speed Controls + Camera Perspectives -->
+          <div class="flex items-center space-x-1.5 sm:space-x-2">
+            <!-- Pod 1: Playback & Speed Controls -->
+            <div class="flex items-center space-x-1.5 bg-slate-900/90 p-1 sm:p-1.5 rounded-lg border border-slate-800 shrink-0">
+              <button id="btn-play-pause" aria-label="Play or Pause Simulation" class="px-3 py-1.5 rounded-md bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs sm:text-[13px] flex items-center space-x-1 shadow-sm transition cursor-pointer">
+                <span class="material-icons text-sm sm:text-base mr-0.5">pause</span>
+                <span id="play-pause-text">Pause</span>
+              </button>
+              <button id="btn-reset" aria-label="Reset Simulation" title="Reset Simulation to New Delhi (Km 0)" class="p-1.5 rounded-md bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-slate-100 transition cursor-pointer flex items-center justify-center">
+                <span class="material-icons text-sm sm:text-base">restart_alt</span>
+              </button>
+              <div class="h-4 sm:h-5 w-px bg-slate-700 mx-0.5"></div>
+              <div class="flex items-center space-x-1" role="group" aria-label="Simulation Speed Multiplier">
+                <button data-speed="1" aria-label="1X Speed" class="px-2 py-1 text-xs font-mono font-bold rounded-md bg-blue-600 text-white transition cursor-pointer">1X</button>
+                <button data-speed="2" aria-label="2X Speed" class="px-2 py-1 text-xs font-mono font-bold rounded-md bg-slate-800 text-slate-300 hover:bg-slate-700 transition cursor-pointer">2X</button>
+                <button data-speed="5" aria-label="5X Speed" class="px-2 py-1 text-xs font-mono font-bold rounded-md bg-slate-800 text-slate-300 hover:bg-slate-700 transition cursor-pointer">5X</button>
+                <button data-speed="10" aria-label="10X Speed" class="px-2 py-1 text-xs font-mono font-bold rounded-md bg-slate-800 text-slate-300 hover:bg-slate-700 transition cursor-pointer">10X</button>
               </div>
-              <input type="range" id="input-slider-vis" min="100" max="5000" step="50" value="5000" aria-label="Atmospheric Visibility in Meters" class="w-16 sm:w-24 h-1.5 cursor-pointer accent-emerald-400">
+            </div>
+
+            <!-- Pod 4: Camera Perspectives -->
+            <div class="flex items-center space-x-1 bg-slate-900/90 p-1 sm:p-1.5 rounded-lg border border-slate-800 shrink-0" role="group" aria-label="Camera Perspectives">
+              <button data-camera="TRAIN_FOLLOW" aria-label="Train Follow Camera" title="Train Follow" class="px-2.5 sm:px-3 py-1.5 text-xs sm:text-[13px] font-bold rounded-md bg-indigo-600 text-white transition flex items-center space-x-1.5 cursor-pointer shrink-0 shadow-sm">
+                <span class="material-icons text-sm sm:text-base">videocam</span>
+                <span>Follow</span>
+              </button>
+              <button data-camera="CAB_VIEW" aria-label="Locomotive Cab Camera" title="Cab" class="px-2.5 sm:px-3 py-1.5 text-xs sm:text-[13px] font-bold rounded-md bg-slate-800 text-slate-300 hover:bg-slate-700 transition flex items-center space-x-1.5 cursor-pointer shrink-0">
+                <span class="material-icons text-sm sm:text-base">directions_transit</span>
+                <span>Cab</span>
+              </button>
             </div>
           </div>
 
-          <!-- Pod 4: Camera Perspectives -->
-          <div class="flex items-center space-x-0.5 sm:space-x-1 bg-slate-900/90 p-1 rounded-lg border border-slate-800 overflow-x-auto" role="group" aria-label="Camera Perspectives">
-            <button data-camera="TRAIN_FOLLOW" aria-label="Train Follow Camera" title="Train Follow (External 3rd-person View)" class="px-2 py-0.5 sm:py-1 text-[10px] font-bold rounded bg-indigo-600 text-white transition flex items-center space-x-1 cursor-pointer shrink-0">
-              <span class="material-icons text-xs">videocam</span>
-              <span class="hidden md:inline">Follow</span>
-            </button>
-            <button data-camera="CAB_VIEW" aria-label="Locomotive Cab Camera" title="Locomotive Cab (Driver's Perspective)" class="px-2 py-0.5 sm:py-1 text-[10px] font-bold rounded bg-slate-800 text-slate-300 hover:bg-slate-700 transition flex items-center space-x-1 cursor-pointer shrink-0">
-              <span class="material-icons text-xs">directions_transit</span>
-              <span class="hidden md:inline">Cab</span>
-            </button>
-            <!--
-            <button data-camera="WEATHER_ZONE" aria-label="Hazard Front Camera" title="Hazard Front (Weather Lookahead View)" class="px-2 py-0.5 sm:py-1 text-[10px] font-bold rounded bg-slate-800 text-slate-300 hover:bg-slate-700 transition flex items-center space-x-1 cursor-pointer shrink-0">
-              <span class="material-icons text-xs">cloud</span>
-              <span class="hidden md:inline">Hazard</span>
-            </button>
-            <button data-camera="NETWORK" aria-label="Corridor Map Camera" title="Corridor Map (Network Overhead View)" class="px-2 py-0.5 sm:py-1 text-[10px] font-bold rounded bg-slate-800 text-slate-300 hover:bg-slate-700 transition flex items-center space-x-1 cursor-pointer shrink-0">
-              <span class="material-icons text-xs">map</span>
-              <span class="hidden md:inline">Map</span>
-            </button>
-            <button data-camera="STATION" aria-label="Station Platform Camera" title="Station Platform (Trackside View)" class="px-2 py-0.5 sm:py-1 text-[10px] font-bold rounded bg-slate-800 text-slate-300 hover:bg-slate-700 transition flex items-center space-x-1 cursor-pointer shrink-0">
-              <span class="material-icons text-xs">domain</span>
-              <span class="hidden md:inline">Station</span>
-            </button>
-            -->
+          <!-- Portion 2: Weather Scenario Selector + Sighting Visibility Tuner -->
+          <div class="flex items-center space-x-1.5 sm:space-x-2">
+            <!-- Pod 2: Weather Scenario Selector -->
+            <div class="flex items-center space-x-1.5 bg-slate-900/90 px-2 py-1 sm:py-1.5 rounded-lg border border-slate-800 shrink-0 flex-1">
+              <span class="material-icons text-sm sm:text-base text-amber-500 shrink-0">cloud</span>
+              <div class="relative w-full">
+                <select id="scenario-select" aria-label="Select Weather Scenario" class="w-full bg-slate-950 border border-slate-700 hover:border-amber-400 text-slate-100 text-xs sm:text-[13px] font-semibold rounded-md px-2.5 py-1 pr-6 focus:outline-none cursor-pointer appearance-none truncate">
+                  <!-- <option value="judge_fog_demo">Interactive Fog Demo</option> -->
+                  <option value="dense_fog" selected>Dense Winter Fog</option>
+                  <option value="monsoon">Heavy Monsoon</option>
+                  <option value="thunderstorm">Thunderstorm</option>
+                  <option value="clear">Clear Corridor</option>
+                </select>
+                <span class="material-icons text-xs sm:text-sm text-amber-500 absolute right-1.5 top-1.5 pointer-events-none">arrow_drop_down</span>
+              </div>
+            </div>
+
+            <!-- Pod 3: Sighting Visibility Tuner -->
+            <div class="flex items-center space-x-2 bg-slate-900/90 px-2.5 py-1 sm:py-1.5 rounded-lg border border-slate-800 shrink-0">
+              <div class="flex flex-col">
+                <div class="flex items-center justify-between text-[8px] sm:text-[9px] font-mono text-slate-400 uppercase font-bold">
+                  <span>Vis</span>
+                  <span id="slider-val-vis" class="text-emerald-500 font-black ml-1.5 text-xs">5000m</span>
+                </div>
+                <input type="range" id="input-slider-vis" min="100" max="5000" step="50" value="5000" aria-label="Atmospheric Visibility in Meters" class="w-18 sm:w-22 h-1.5 cursor-pointer accent-emerald-500">
+              </div>
+            </div>
           </div>
 
         </div>
+
+        <!-- Collapse Toggle -->
+        <button id="btn-deck-collapse" type="button" aria-label="Minimize or Expand Control Deck" title="Minimize / Expand Controls" class="w-6 h-6 sm:w-7 sm:h-7 rounded-md hover:bg-slate-200/80 text-slate-400 hover:text-slate-700 flex items-center justify-center transition cursor-pointer shrink-0 self-center">
+          <span id="deck-collapse-icon" class="material-icons text-sm sm:text-base">chevron_right</span>
+        </button>
       </section>
 
     </div>
@@ -564,7 +580,7 @@
             <span class="material-icons text-base">tune</span>
           </div>
           <div>
-            <h2 class="text-xs font-black uppercase tracking-wider text-white font-sans">ML Intelligence & ETA</h2>
+            <h2 class="text-xs font-black uppercase tracking-wider text-slate-100 font-sans">ML Intelligence & ETA</h2>
             <div class="text-[8px] text-slate-400 font-mono flex items-center">
               <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 mr-1 animate-pulse"></span>
               PROACTIVE WEATHER INTEGRATION
@@ -645,7 +661,7 @@
                 <span>WEATHER DELAY</span>
                 <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
               </div>
-              <div class="text-base font-mono font-black text-amber-400 mt-0.5 drop-shadow-[0_0_8px_rgba(217,169,85,0.5)]" id="hud-pred-weather-delay">+7 min</div>
+              <div class="text-base font-mono font-black text-amber-400 mt-0.5 drop-shadow-[0_1px_2px_rgba(180,83,9,0.25)]" id="hud-pred-weather-delay">+7 min</div>
             </div>
             <div class="text-[8px] text-slate-400 font-mono mt-0.5">Computed Ahead of Zone</div>
           </div>
@@ -657,7 +673,7 @@
                 <span>PREDICTED ETA</span>
                 <span id="hud-confidence" class="text-emerald-400 font-black">84%</span>
               </div>
-              <div class="text-base font-mono font-black text-emerald-400 mt-0.5 drop-shadow-[0_0_8px_rgba(52,211,153,0.5)]" id="hud-pred-eta">22:09</div>
+              <div class="text-base font-mono font-black text-emerald-400 mt-0.5 drop-shadow-[0_1px_2px_rgba(5,150,105,0.25)]" id="hud-pred-eta">22:09</div>
             </div>
             <div class="text-[8px] text-emerald-500/80 font-mono mt-0.5">ML Proactive Prediction</div>
           </div>
@@ -2360,7 +2376,7 @@
             pBadge.textContent = isInside ? 'ACTIVE DENSE FOG ZONE' : 'DENSE FOG ZONE AHEAD';
             pBadge.className = 'text-[9px] sm:text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 font-mono';
           }
-          if (pCountdown) pCountdown.className = 'text-sm sm:text-lg font-black font-mono text-amber-400 tracking-tight drop-shadow-[0_0_8px_rgba(217,169,85,0.6)]';
+          if (pCountdown) pCountdown.className = 'text-sm sm:text-lg font-black font-mono text-amber-400 tracking-tight drop-shadow-[0_1px_2px_rgba(180,83,9,0.25)]';
         } else if (hType === 'HEAVY RAIN') {
           pBanner.className = 'absolute top-2 sm:top-4 left-1/2 -translate-x-1/2 z-20 max-w-2xl w-[94%] sm:w-[92%] glass-panel rounded-lg p-2.5 sm:p-3 border border-blue-500/50 shadow-[0_0_25px_rgba(59,130,246,0.3)] flex items-center justify-between transition-all duration-300 pointer-events-auto';
           if (pIconBox) pIconBox.className = 'w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-blue-500/20 text-blue-400 flex items-center justify-center shrink-0 border border-blue-500/40 shadow-[0_0_12px_rgba(59,130,246,0.4)]';
@@ -2369,7 +2385,7 @@
             pBadge.textContent = isInside ? 'ACTIVE HEAVY RAIN ZONE' : 'HEAVY RAIN ZONE AHEAD';
             pBadge.className = 'text-[9px] sm:text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/40 font-mono';
           }
-          if (pCountdown) pCountdown.className = 'text-sm sm:text-lg font-black font-mono text-blue-400 tracking-tight drop-shadow-[0_0_8px_rgba(59,130,246,0.6)]';
+          if (pCountdown) pCountdown.className = 'text-sm sm:text-lg font-black font-mono text-blue-400 tracking-tight drop-shadow-[0_1px_2px_rgba(30,64,175,0.25)]';
         } else if (hType === 'THUNDERSTORM') {
           pBanner.className = 'absolute top-2 sm:top-4 left-1/2 -translate-x-1/2 z-20 max-w-2xl w-[94%] sm:w-[92%] glass-panel rounded-lg p-2.5 sm:p-3 border border-purple-500/50 shadow-[0_0_25px_rgba(168,85,247,0.3)] flex items-center justify-between transition-all duration-300 pointer-events-auto';
           if (pIconBox) pIconBox.className = 'w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-purple-500/20 text-purple-300 flex items-center justify-center shrink-0 border border-purple-500/40 shadow-[0_0_12px_rgba(168,85,247,0.4)]';
@@ -2378,7 +2394,7 @@
             pBadge.textContent = isInside ? 'ACTIVE THUNDERSTORM FRONT' : 'SEVERE THUNDERSTORM AHEAD';
             pBadge.className = 'text-[9px] sm:text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/40 font-mono';
           }
-          if (pCountdown) pCountdown.className = 'text-sm sm:text-lg font-black font-mono text-purple-300 tracking-tight drop-shadow-[0_0_8px_rgba(168,85,247,0.6)]';
+          if (pCountdown) pCountdown.className = 'text-sm sm:text-lg font-black font-mono text-purple-300 tracking-tight drop-shadow-[0_1px_2px_rgba(126,34,206,0.25)]';
         } else {
           pBanner.className = 'absolute top-2 sm:top-4 left-1/2 -translate-x-1/2 z-20 max-w-2xl w-[94%] sm:w-[92%] glass-panel rounded-lg p-2.5 sm:p-3 border border-emerald-500/30 shadow-[0_0_20px_rgba(16,185,129,0.15)] flex items-center justify-between transition-all duration-300 pointer-events-auto';
           if (pIconBox) pIconBox.className = 'w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0 border border-emerald-500/30';
@@ -2387,7 +2403,7 @@
             pBadge.textContent = 'TRACK CONDITIONS NOMINAL';
             pBadge.className = 'text-[9px] sm:text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-mono';
           }
-          if (pCountdown) pCountdown.className = 'text-sm sm:text-lg font-black font-mono text-emerald-400 tracking-tight drop-shadow-[0_0_8px_rgba(16,185,129,0.6)]';
+          if (pCountdown) pCountdown.className = 'text-sm sm:text-lg font-black font-mono text-emerald-400 tracking-tight drop-shadow-[0_1px_2px_rgba(5,150,105,0.25)]';
         }
       }
 
@@ -2425,12 +2441,9 @@
       const marker = document.getElementById('timeline-train-marker');
       if (marker) marker.style.left = `${prog}%`;
 
-      // Update interactive sliders if not actively dragging
-      const kmSlider = document.getElementById('input-slider-km');
-      if (kmSlider && document.activeElement !== kmSlider) {
-        kmSlider.value = d.routeKm;
-        setElText('slider-val-km', `Km ${d.routeKm}`);
-      }
+      // Route Position & Auto-Updating Scrubber Dropdown
+      setElText('slider-val-km', `Km ${d.routeKm}`);
+      autoUpdateRouteDropdown(d.routeKm);
       const hazardSlider = document.getElementById('input-slider-hazard');
       if (hazardSlider && document.activeElement !== hazardSlider && d.distToWeather) {
         const hKm = parseFloat(d.distToWeather);
@@ -2802,11 +2815,107 @@
           btnToggleIntel.classList.toggle('bg-amber-500/25', !isHidden);
           btnToggleIntel.classList.toggle('border-amber-400/80', !isHidden);
         }
+        updateControlDeckOffset();
         window.dispatchEvent(new Event('resize'));
       }
 
       if (btnToggleIntel) btnToggleIntel.addEventListener('click', toggleIntelSidebar);
       if (btnSidebarClose) btnSidebarClose.addEventListener('click', toggleIntelSidebar);
+
+            // Control Deck Collapse / Expand toggle
+      const btnDeckCollapse = document.getElementById('btn-deck-collapse');
+      const deckBody = document.getElementById('deck-body');
+      const deckCollapseIcon = document.getElementById('deck-collapse-icon');
+      if (btnDeckCollapse && deckBody) {
+        btnDeckCollapse.addEventListener('click', () => {
+          const isCollapsed = deckBody.classList.toggle('hidden');
+          deckCollapseIcon.textContent = isCollapsed ? 'chevron_left' : 'chevron_right';
+        });
+      }
+
+      function updateControlDeckOffset() {
+        const controlDeck = document.getElementById('control-deck');
+        if (!controlDeck) return;
+        const isHidden = intelSidebar && intelSidebar.classList.contains('sidebar-hidden');
+        if (!isHidden && window.innerWidth >= 1024) {
+          controlDeck.style.right = 'calc(24rem + 1rem)';
+        } else {
+          controlDeck.style.right = '';
+        }
+      }
+
+      window.addEventListener('resize', updateControlDeckOffset);
+      updateControlDeckOffset();
+
+                  // Route Scrubber Collapse / Expand Toggle
+      const btnScrubberCollapse = document.getElementById('btn-scrubber-collapse');
+      const scrubberDropdownBody = document.getElementById('scrubber-dropdown-body');
+      const scrubberCollapseIcon = document.getElementById('scrubber-collapse-icon');
+      if (btnScrubberCollapse && scrubberDropdownBody) {
+        btnScrubberCollapse.addEventListener('click', () => {
+          const isCollapsed = scrubberDropdownBody.classList.toggle('hidden');
+          btnScrubberCollapse.setAttribute('aria-expanded', !isCollapsed);
+          if (scrubberCollapseIcon) {
+            scrubberCollapseIcon.textContent = isCollapsed ? 'expand_more' : 'expand_less';
+          }
+        });
+      }
+
+      // Route Scrubber Dropdown (Auto-changes with progression and enables station jumps)
+      const routeScrubberSelect = document.getElementById('route-scrubber-select');
+      const STATIONS_MILESTONES = [
+        { km: 0, val: '0' },
+        { km: 45, val: '45' },
+        { km: 90, val: '90' },
+        { km: 140, val: '140' },
+        { km: 180, val: '180' }
+      ];
+
+      function autoUpdateRouteDropdown(routeKm) {
+        if (!routeScrubberSelect || document.activeElement === routeScrubberSelect) return;
+        const km = typeof routeKm === 'number' ? routeKm : parseFloat(routeKm || 0);
+        let closest = STATIONS_MILESTONES[0];
+        let minDiff = Math.abs(km - closest.km);
+        for (let i = 1; i < STATIONS_MILESTONES.length; i++) {
+          const diff = Math.abs(km - STATIONS_MILESTONES[i].km);
+          if (diff < minDiff) {
+            minDiff = diff;
+            closest = STATIONS_MILESTONES[i];
+          }
+        }
+        if (routeScrubberSelect.value !== closest.val) {
+          routeScrubberSelect.value = closest.val;
+        }
+      }
+
+      if (routeScrubberSelect) {
+        routeScrubberSelect.addEventListener('change', (e) => {
+          const targetKm = parseFloat(e.target.value);
+          simInstance.setCorridorKm(targetKm);
+          setElText('slider-val-km', `Km ${targetKm.toFixed(1)}`);
+        });
+      }
+
+      const btnScrubPrev = document.getElementById('btn-scrub-prev');
+      const btnScrubNext = document.getElementById('btn-scrub-next');
+      if (btnScrubPrev) {
+        btnScrubPrev.addEventListener('click', () => {
+          const currentKm = simInstance.train.routeKm;
+          const prevSt = [...STATIONS_MILESTONES].reverse().find(st => st.km < currentKm - 1.0) || STATIONS_MILESTONES[0];
+          simInstance.setCorridorKm(prevSt.km);
+          if (routeScrubberSelect) routeScrubberSelect.value = prevSt.val;
+          setElText('slider-val-km', `Km ${prevSt.km.toFixed(1)}`);
+        });
+      }
+      if (btnScrubNext) {
+        btnScrubNext.addEventListener('click', () => {
+          const currentKm = simInstance.train.routeKm;
+          const nextSt = STATIONS_MILESTONES.find(st => st.km > currentKm + 1.0) || STATIONS_MILESTONES[STATIONS_MILESTONES.length - 1];
+          simInstance.setCorridorKm(nextSt.km);
+          if (routeScrubberSelect) routeScrubberSelect.value = nextSt.val;
+          setElText('slider-val-km', `Km ${nextSt.km.toFixed(1)}`);
+        });
+      }
 
       // Keyboard Accessibility Shortcuts
       window.addEventListener('keydown', (e) => {
