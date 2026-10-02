@@ -246,463 +246,172 @@
       box-shadow: 0 0 8px rgba(217, 169, 85, 0.7);
     }
  
-    /* ---------------------------------------------------------------
-       LEFT COMMAND SIDEBAR — replaces old top navbar.
-       A slim brass-riveted rail by default so the 3D corridor stays
-       full screen; expands into a full operations console on click.
-       --------------------------------------------------------------- */
-    #command-sidebar {
-      width: 68px;
-      transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-      will-change: width;
-      background: linear-gradient(180deg, rgba(15, 23, 42, 0.98) 0%, rgba(10, 15, 29, 0.98) 50%, rgba(6, 10, 20, 0.99) 100%);
-      border-right: 1px solid rgba(217, 169, 85, 0.25);
-      box-shadow: 4px 0 28px rgba(0, 0, 0, 0.7);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-    }
-    #command-sidebar.sidebar-expanded {
-      width: 292px;
-    }
-    #command-sidebar .rail-label {
-      opacity: 0;
-      max-width: 0;
-      overflow: hidden;
-      white-space: nowrap;
-      transition: opacity 0.2s ease, max-width 0.3s ease;
-    }
-    #command-sidebar.sidebar-expanded .rail-label {
-      opacity: 1;
-      max-width: 230px;
-    }
-    #command-sidebar .rail-only {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      transition: opacity 0.15s ease;
-    }
-    #command-sidebar.sidebar-expanded .rail-only {
-      display: none !important;
-    }
-    #command-sidebar .rail-full {
-      display: none;
-      opacity: 0;
-      transition: opacity 0.25s ease 0.05s;
-    }
-    #command-sidebar.sidebar-expanded .rail-full {
-      display: flex;
-      flex-direction: column;
-      opacity: 1;
-    }
-    #sidebar-collapse-arrow {
-      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-    #command-sidebar.sidebar-expanded #sidebar-collapse-arrow {
-      transform: rotate(180deg);
+    /* Operations Control Deck & Intelligence Panel styling */
+    #control-deck {
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.85), 0 0 20px rgba(217, 169, 85, 0.12);
     }
 
-    /* Custom high-tech scrollbar for sidebar */
-    #command-sidebar .rail-full::-webkit-scrollbar {
-      width: 4px;
-    }
-    #command-sidebar .rail-full::-webkit-scrollbar-track {
-      background: rgba(10, 15, 29, 0.6);
-      border-radius: 4px;
-    }
-    #command-sidebar .rail-full::-webkit-scrollbar-thumb {
-      background: rgba(217, 169, 85, 0.35);
-      border-radius: 4px;
-    }
-    #command-sidebar .rail-full::-webkit-scrollbar-thumb:hover {
-      background: rgba(217, 169, 85, 0.7);
-    }
-
-    /* Rail floating tooltips in collapsed mode */
-    .rail-tooltip {
-      position: relative;
-    }
-    .rail-tooltip::after {
-      content: attr(data-tooltip);
-      position: absolute;
-      left: calc(100% + 12px);
-      top: 50%;
-      transform: translateY(-50%) scale(0.92);
-      background: #0B111E;
-      color: #F3F4F6;
-      font-size: 10.5px;
-      font-weight: 700;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-      padding: 5px 9px;
-      border-radius: 6px;
-      border: 1px solid rgba(217, 169, 85, 0.4);
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.85), 0 0 10px rgba(217, 169, 85, 0.2);
-      white-space: nowrap;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.18s ease, transform 0.18s ease;
-      z-index: 100;
-    }
-    #command-sidebar:not(.sidebar-expanded) .rail-tooltip:hover::after {
-      opacity: 1;
-      transform: translateY(-50%) scale(1);
-    }
-
-    /* ---------------------------------------------------------------
-       RIGHT INTELLIGENCE SIDEBAR — Identical architecture to Left Sidebar.
-       A slim brass-riveted rail by default (68px); expands into the
-       full Intelligence Console (395px) on click.
-       --------------------------------------------------------------- */
     #intelligence-sidebar {
-      width: 68px;
-      transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-      will-change: width;
-      background: linear-gradient(180deg, rgba(15, 23, 42, 0.98) 0%, rgba(10, 15, 29, 0.98) 50%, rgba(6, 10, 20, 0.99) 100%);
-      border-left: 1px solid rgba(217, 169, 85, 0.25);
-      box-shadow: -4px 0 28px rgba(0, 0, 0, 0.7);
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: -8px 0 32px rgba(0, 0, 0, 0.8);
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
     }
-    #intelligence-sidebar.sidebar-expanded {
-      width: 395px;
-    }
-    @media (max-width: 640px) {
-      #intelligence-sidebar.sidebar-expanded {
-        width: 100vw;
-        position: absolute;
-        right: 0;
-        top: 0;
-        bottom: 0;
-        z-index: 50;
-      }
-    }
-    #intelligence-sidebar .right-rail-label {
-      opacity: 0;
-      max-width: 0;
-      overflow: hidden;
-      white-space: nowrap;
-      transition: opacity 0.2s ease, max-width 0.3s ease;
-    }
-    #intelligence-sidebar.sidebar-expanded .right-rail-label {
-      opacity: 1;
-      max-width: 250px;
-    }
-    #intelligence-sidebar .right-rail-only {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      transition: opacity 0.15s ease;
-    }
-    #intelligence-sidebar.sidebar-expanded .right-rail-only {
-      display: none !important;
-    }
-    #intelligence-sidebar .right-rail-full {
-      display: none;
-      opacity: 0;
-      transition: opacity 0.25s ease 0.05s;
-    }
-    #intelligence-sidebar.sidebar-expanded .right-rail-full {
-      display: flex;
-      flex-direction: column;
-      opacity: 1;
-    }
-    #right-sidebar-collapse-arrow {
-      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-    #intelligence-sidebar.sidebar-expanded #right-sidebar-collapse-arrow {
-      transform: rotate(180deg);
+    #intelligence-sidebar.sidebar-hidden {
+      transform: translateX(100%);
+      pointer-events: none;
     }
 
-    /* Custom high-tech scrollbar for right sidebar */
-    #intelligence-sidebar .right-rail-full::-webkit-scrollbar,
-    #intelligence-sidebar .right-rail-full *::-webkit-scrollbar {
+    #intelligence-sidebar::-webkit-scrollbar,
+    #intelligence-sidebar *::-webkit-scrollbar {
       width: 4px;
     }
-    #intelligence-sidebar .right-rail-full::-webkit-scrollbar-track,
-    #intelligence-sidebar .right-rail-full *::-webkit-scrollbar-track {
+    #intelligence-sidebar::-webkit-scrollbar-track,
+    #intelligence-sidebar *::-webkit-scrollbar-track {
       background: rgba(10, 15, 29, 0.6);
       border-radius: 4px;
     }
-    #intelligence-sidebar .right-rail-full::-webkit-scrollbar-thumb,
-    #intelligence-sidebar .right-rail-full *::-webkit-scrollbar-thumb {
+    #intelligence-sidebar::-webkit-scrollbar-thumb,
+    #intelligence-sidebar *::-webkit-scrollbar-thumb {
       background: rgba(217, 169, 85, 0.35);
       border-radius: 4px;
     }
-    #intelligence-sidebar .right-rail-full::-webkit-scrollbar-thumb:hover,
-    #intelligence-sidebar .right-rail-full *::-webkit-scrollbar-thumb:hover {
+    #intelligence-sidebar::-webkit-scrollbar-thumb:hover,
+    #intelligence-sidebar *::-webkit-scrollbar-thumb:hover {
       background: rgba(217, 169, 85, 0.7);
-    }
-
-    /* Rail floating tooltips for right rail in collapsed mode (pointing left into scene) */
-    .rail-tooltip-right {
-      position: relative;
-    }
-    .rail-tooltip-right::after {
-      content: attr(data-tooltip);
-      position: absolute;
-      right: calc(100% + 12px);
-      top: 50%;
-      transform: translateY(-50%) scale(0.92);
-      background: #0B111E;
-      color: #F3F4F6;
-      font-size: 10.5px;
-      font-weight: 700;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-      padding: 5px 9px;
-      border-radius: 6px;
-      border: 1px solid rgba(217, 169, 85, 0.4);
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.85), 0 0 10px rgba(217, 169, 85, 0.2);
-      white-space: nowrap;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.18s ease, transform 0.18s ease;
-      z-index: 100;
-    }
-    #intelligence-sidebar:not(.sidebar-expanded) .rail-tooltip-right:hover::after {
-      opacity: 1;
-      transform: translateY(-50%) scale(1);
     }
   </style>
 </head>
-<body class="h-full overflow-hidden flex font-sans select-none antialiased bg-slate-950 text-slate-100">
+<body class="h-full overflow-hidden flex flex-col font-sans select-none antialiased bg-slate-950 text-slate-100">
 
   <!-- ============================================================== -->
-  <!-- LEFT COMMAND SIDEBAR: REPLACES OLD TOP NAVBAR                     -->
-  <!-- Collapsed = slim brass-riveted rail for 100% full screen view.    -->
-  <!-- Expanded = high-tech Mission Control with dynamic clock anchor.   -->
+  <!-- UNIFIED TOP HEADER: BRAND, PROFILE, REAL-TIME IST CLOCK, INTEL TOGGLE -->
   <!-- ============================================================== -->
-  <nav id="command-sidebar" class="h-full flex flex-col z-40 shrink-0 relative select-none">
-    <!-- Luminous Left Status Line -->
-    <div class="absolute top-0 left-0 bottom-0 w-[3px] bg-gradient-to-b from-amber-400 via-amber-500 to-amber-700 shadow-[0_0_10px_rgba(217,169,85,0.7)]"></div>
+  <header class="h-14 px-3 sm:px-5 flex items-center justify-between border-b border-slate-800/80 bg-slate-950/85 backdrop-blur-md z-30 shrink-0 relative">
+    <!-- Top Luminous Status Line -->
+    <div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-amber-500 via-emerald-400 to-amber-500 shadow-[0_0_8px_rgba(217,169,85,0.6)]"></div>
 
-    <!-- Header Row (Brand + Collapse Button) -->
-    <div class="h-16 px-2.5 sm:px-3 flex items-center justify-between border-b border-slate-800/80 bg-slate-950/40 shrink-0">
-      <div class="flex items-center space-x-2.5 min-w-0">
-        <!-- Golden Locomotive Crest -->
-        <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-amber-500/25 to-slate-950 border border-amber-400/80 shadow-[0_0_14px_rgba(217,169,85,0.35)] flex items-center justify-center shrink-0 cursor-pointer" id="sidebar-brand-btn" title="Toggle Command Console">
-          <span class="material-icons text-amber-400 text-xl">train</span>
-        </div>
-        <div class="rail-label min-w-0">
-          <div class="flex items-center space-x-1.5">
-            <h1 class="text-xs font-black tracking-wider text-white uppercase leading-none font-sans">
-              TRETA
-            </h1>
-            <span class="text-[8px] px-1.5 py-0.2 rounded bg-amber-500/10 text-amber-300 border border-amber-500/40 font-mono font-bold">PS 26028</span>
-          </div>
-          <div class="text-[8px] text-slate-400 font-mono mt-1 tracking-tight truncate flex items-center">
-            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 mr-1 animate-pulse"></span>
-            INDIAN RAILWAYS OPS
-          </div>
-        </div>
+    <!-- Left: Brand Crest & Train Identity -->
+    <div class="flex items-center space-x-3">
+      <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-amber-500/25 to-slate-900 border border-amber-400/80 shadow-[0_0_12px_rgba(217,169,85,0.35)] flex items-center justify-center shrink-0">
+        <span class="material-icons text-amber-400 text-xl">train</span>
       </div>
-      <button id="btn-sidebar-collapse" title="Expand / collapse command console" class="w-8 h-8 rounded-lg bg-slate-800/90 hover:bg-amber-500/20 border border-slate-700/60 hover:border-amber-400/50 text-amber-400 flex items-center justify-center transition-all cursor-pointer shrink-0 shadow-sm group">
-        <span id="sidebar-collapse-arrow" class="material-icons text-base group-hover:scale-110 transition-transform">chevron_right</span>
-      </button>
-    </div>
-
-    <!-- COLLAPSED RAIL-ONLY VIEW (When collapsed to 68px) -->
-    <div class="rail-only flex-1 py-3 space-y-3 px-2.5">
-      <!-- Active Train Status Badge -->
-      <button id="rail-btn-train" class="rail-tooltip w-11 h-11 rounded-lg bg-slate-800/70 hover:bg-slate-800 border border-slate-700/60 hover:border-emerald-500/50 flex flex-col items-center justify-center transition cursor-pointer relative text-slate-200" data-tooltip="Train 12301 (WAP-7 #30201) • Active">
-        <span class="material-icons text-lg text-emerald-400">speed</span>
-        <span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-        <span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-emerald-400"></span>
-      </button>
-
-
-      <!-- Active Scenario Icon -->
-      <button id="rail-btn-scenario" class="rail-tooltip w-11 h-11 rounded-lg bg-slate-800/70 hover:bg-slate-800 border border-slate-700/60 hover:border-amber-400/50 flex items-center justify-center text-amber-300 transition cursor-pointer" data-tooltip="Weather Scenario (Click to Pick)">
-        <span id="rail-scenario-icon" class="material-icons text-lg">cloud</span>
-      </button>
-
-      <!-- Compact Clock Readout Tile (Real-Time IST) -->
-      <button id="rail-btn-clock" class="rail-tooltip w-11 py-1.5 px-0.5 rounded-lg bg-slate-950/90 border border-emerald-500/40 hover:border-emerald-400 shadow-inner flex flex-col items-center justify-center transition cursor-pointer" data-tooltip="Real-Time IST Clock (Indian Standard Time)">
-        <span class="text-[7px] font-mono text-emerald-400 font-bold leading-none">IST</span>
-        <span id="hud-sim-time-rail" class="text-[9px] font-mono font-black text-emerald-300 leading-tight mt-0.5">--:--</span>
-      </button>
-
-      <!-- Real-World IST Sync Status Pill -->
-      <div id="rail-btn-orig-mode" class="rail-tooltip w-11 py-1 px-0.5 rounded bg-slate-900 border border-emerald-500/30 flex flex-col items-center justify-center" data-tooltip="Real-World Indian Standard Time (Live IST Active)">
-        <span class="text-[6px] font-mono text-emerald-400 uppercase font-bold">SYNC</span>
-        <span id="rail-mode-text" class="text-[8px] font-mono text-emerald-300 font-black">IST</span>
-      </div>
-
-      <div class="w-6 h-px bg-slate-800 my-1"></div>
-
-      <!-- Horn Button -->
-      <button id="rail-btn-horn" class="rail-tooltip w-11 h-11 rounded-lg bg-slate-800/70 hover:bg-slate-800 border border-slate-700/60 text-amber-400 flex items-center justify-center transition cursor-pointer opacity-50" data-tooltip="WAP-7 Horn (Muted)">
-        <span class="material-icons text-lg">campaign</span>
-      </button>
-
-      <!-- Audio Toggle Button -->
-      <button id="rail-btn-audio" class="rail-tooltip w-11 h-11 rounded-lg bg-slate-800/70 hover:bg-slate-800 border border-slate-700/60 text-slate-400 hover:text-slate-200 flex items-center justify-center transition cursor-pointer" data-tooltip="Toggle Audio">
-        <span class="material-icons text-lg">volume_off</span>
-      </button>
-
-      <!-- Expand Button at Bottom -->
-      <div class="mt-auto pb-1">
-        <button id="rail-btn-expand" class="rail-tooltip w-9 h-9 rounded-full bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-400 hover:text-amber-400 flex items-center justify-center transition cursor-pointer" data-tooltip="Expand Operations Console">
-          <span class="material-icons text-base">menu_open</span>
-        </button>
+      <div>
+        <div class="flex items-center space-x-2">
+          <h1 class="text-xs sm:text-sm font-black tracking-wider text-white uppercase font-sans">TRETA</h1>
+          <span class="text-[9px] px-1.5 py-0.2 rounded bg-amber-500/10 text-amber-300 border border-amber-500/40 font-mono font-bold">PS 26028</span>
+          <span class="hidden md:inline text-[9px] text-slate-400 font-mono">• Indian Railways Weather & ETA Simulation</span>
+        </div>
+        <div class="text-[9px] sm:text-[10px] text-slate-300 font-mono tracking-tight flex items-center space-x-2">
+          <span class="text-slate-200 font-semibold" id="hud-train-id">12301 Howrah Rajdhani</span>
+          <span class="text-slate-500">|</span>
+          <span class="text-amber-400/90 font-semibold" id="hud-loco-no">WAP-7 #30201</span>
+          <span class="px-1.5 py-0.2 rounded bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 font-bold text-[8px] flex items-center">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 mr-1 animate-pulse"></span>ACTIVE
+          </span>
+        </div>
       </div>
     </div>
 
-    <!-- EXPANDED OPERATIONS BODY (When expanded to 292px) -->
-    <div class="rail-full flex-1 overflow-y-auto px-3 py-3.5 space-y-3">
-
-      <!-- Card 1: Active Train Working Profile -->
-      <div class="glass-card rounded-lg p-2.5 border border-slate-800/90 bg-slate-950/60 shadow-lg relative overflow-hidden">
-        <div class="flex items-center justify-between text-[9px] font-mono text-slate-400 mb-1">
-          <span class="uppercase tracking-widest text-slate-500 font-bold">WORKING PROFILE</span>
-          <span class="px-1.5 py-0.2 rounded bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 flex items-center font-bold">
-            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 mr-1 animate-ping"></span>ACTIVE
-          </span>
-        </div>
-        <div class="text-xs font-bold text-slate-100 font-mono tracking-tight truncate" id="hud-train-id">12301 Howrah Rajdhani</div>
-        <div class="flex items-center justify-between text-[9px] text-slate-400 font-mono mt-0.5">
-          <span id="hud-loco-no" class="text-slate-300 font-semibold">WAP-7 #30201</span>
-          <span class="text-amber-400/90 font-bold">25kV AC OHE</span>
-        </div>
+    <!-- Right: Real-Time Live IST Clock + ML Intelligence Console Toggle -->
+    <div class="flex items-center space-x-2.5 sm:space-x-3">
+      <!-- Live IST Clock Readout -->
+      <div class="hidden sm:flex items-center space-x-2 px-2.5 py-1 rounded-md bg-slate-900/90 border border-emerald-500/35 shadow-inner">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+        <span class="text-[9px] font-mono uppercase text-emerald-400 font-bold">LIVE IST</span>
+        <span id="hud-real-time" class="text-xs sm:text-sm font-mono font-black text-emerald-300">--:--:-- IST</span>
       </div>
 
-      <!-- Card 2: REAL-TIME IST CLOCK -->
-      <div class="glass-card rounded-lg p-3 border border-emerald-500/35 bg-gradient-to-br from-emerald-950/25 via-slate-950/80 to-slate-900/50 shadow-xl relative">
-        <div class="flex items-center justify-between text-[9px] font-mono mb-1.5">
-          <span class="uppercase tracking-widest text-emerald-400 font-bold flex items-center">
-            <span class="material-icons text-xs mr-1 text-emerald-400">schedule</span>
-            REAL-TIME IST CLOCK
-          </span>
-          <span class="text-[8px] font-mono font-bold px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 flex items-center">
-            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 mr-1 animate-pulse"></span>
-            LIVE IST
-          </span>
-        </div>
-
-        <!-- Large Digital LED Clock Display (Real IST Clock) -->
-        <div class="text-center py-2.5 bg-slate-950/90 rounded-md border border-slate-800/90 shadow-inner my-1">
-          <div class="text-2xl font-mono font-black text-emerald-400 tracking-wider drop-shadow-[0_0_12px_rgba(52,211,153,0.5)]" id="hud-sim-time">--:--:--</div>
-          <div class="text-[8px] text-slate-400 font-mono mt-0.5 flex items-center justify-center space-x-1">
-            <span>Timezone:</span>
-            <span class="text-slate-300 font-bold">Indian Standard Time (UTC+05:30)</span>
-          </div>
-        </div>
-
-      </div>
-
-      <!-- Card 3: Weather Hazard Scenario Selector -->
-      <div class="glass-card rounded-lg p-2.5 border border-slate-800 bg-slate-950/60 shadow-lg">
-        <div class="text-[9px] text-slate-400 uppercase font-bold tracking-widest font-mono mb-1.5 flex items-center justify-between">
-          <span>ACTIVE SCENARIO</span>
-          <span class="material-icons text-xs text-blue-400">cloud</span>
-        </div>
-        <div class="relative">
-          <select id="scenario-select" class="w-full bg-slate-900 border border-slate-700/80 hover:border-amber-400/60 text-slate-100 text-[11px] font-semibold rounded-md px-2.5 py-2 pr-7 focus:outline-none focus:border-amber-400 appearance-none cursor-pointer shadow-inner transition-colors">
-            <option value="judge_fog_demo" selected>Weather Simulation</option>
-            <option value="dense_fog">Dense Winter Fog Corridor (150m)</option>
-            <option value="clear">Clear Weather Corridor (130 km/h)</option>
-            <option value="monsoon">Heavy Downpour (Monsoon)</option>
-            <option value="thunderstorm">Severe Thunderstorm (Lightning)</option>
-          </select>
-          <span class="material-icons text-xs text-amber-400 absolute right-2 top-2.5 pointer-events-none">arrow_drop_down</span>
-        </div>
-      </div>
-
-      <!-- Card 5: Locomotive Audio & Pilot Controls -->
-      <div class="glass-card rounded-lg p-2.5 border border-slate-800 bg-slate-950/60 shadow-lg mt-auto">
-        <div class="text-[9px] text-slate-400 uppercase font-bold tracking-widest font-mono mb-2">LOCOMOTIVE AUDIO</div>
-        <div class="grid grid-cols-2 gap-2">
-          <button id="btn-horn" title="Horn (muted - unmute audio first)" class="w-full py-2 px-2 bg-slate-800 hover:bg-slate-700 active:bg-amber-600 border border-slate-700 text-amber-400 rounded-md shadow transition cursor-pointer flex items-center justify-center space-x-1 opacity-50">
-            <span class="material-icons text-sm">campaign</span>
-            <span class="text-[10px] font-bold font-mono uppercase">HORN</span>
-          </button>
-          <button id="btn-audio-toggle" title="Toggle Synthesized Audio" class="w-full py-2 px-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 rounded-md shadow transition cursor-pointer flex items-center justify-center space-x-1">
-            <span class="material-icons text-sm">volume_off</span>
-            <span class="text-[10px] font-bold font-mono uppercase" id="audio-toggle-text">MUTED</span>
-          </button>
-        </div>
-      </div>
+      <!-- Toggle Intelligence Console Button -->
+      <button id="btn-toggle-intel" aria-label="Toggle Dynamic ETA and Weather Intelligence Panel" class="px-2.5 sm:px-3 py-1.5 rounded-lg bg-slate-800/90 hover:bg-amber-500/20 border border-slate-700/80 hover:border-amber-400/60 text-slate-200 hover:text-amber-300 text-xs font-mono font-bold flex items-center space-x-1.5 transition cursor-pointer shadow-md">
+        <span class="material-icons text-sm text-amber-400">tune</span>
+        <span>ML Intelligence</span>
+        <span class="w-2 h-2 rounded-full bg-blue-400 animate-pulse ml-0.5"></span>
+      </button>
     </div>
-  </nav>
- 
+  </header>
+
   <!-- ============================================================== -->
-  <!-- MAIN WORKSPACE: 3D VIEWPORT (FULL SCREEN) + SLIDING INTELLIGENCE DRAWER -->
+  <!-- MAIN WORKSPACE: 3D VIEWPORT CANVAS + HUD + CONTROL DECK         -->
   <!-- ============================================================== -->
-  <main class="flex-1 h-full overflow-hidden relative">
- 
-    <!-- 3D VIEWPORT CANVAS AREA (TRUE FULL SCREEN) -->
-    <div id="viewport-container" class="w-full h-full relative bg-slate-950 overflow-hidden flex flex-col">
+  <main class="flex-1 h-full overflow-hidden relative flex">
+
+    <!-- 3D VIEWPORT CONTAINER -->
+    <div id="viewport-container" class="w-full h-full relative bg-slate-950 overflow-hidden flex flex-col flex-1">
       <!-- Three.js Canvas -->
       <canvas id="three-canvas" class="w-full h-full block focus:outline-none"></canvas>
- 
+
       <!-- JUDGE DEMO PROGRESS BANNER OVERLAY -->
-      <div id="judge-step-banner" class="hidden absolute top-2 sm:top-4 left-1/2 -translate-x-1/2 z-20 max-w-2xl w-[94%] sm:w-[92%] glass-panel rounded-md p-2 sm:p-3 border-l-4 border-l-amber-500 shadow-2xl flex items-center space-x-2 sm:space-x-3.5 animate-fadeIn">
-        <div class="w-7 h-7 sm:w-9 sm:h-9 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center shrink-0 border border-amber-500/30">
-          <span class="material-icons text-base sm:text-xl font-bold">radar</span>
+      <div id="judge-step-banner" class="hidden absolute top-2 sm:top-3 left-1/2 -translate-x-1/2 z-20 max-w-2xl w-[94%] sm:w-[92%] glass-panel rounded-md p-2 sm:p-2.5 border-l-4 border-l-amber-500 shadow-2xl flex items-center space-x-2 sm:space-x-3.5 animate-fadeIn">
+        <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center shrink-0 border border-amber-500/30">
+          <span class="material-icons text-base sm:text-lg font-bold">radar</span>
         </div>
         <div class="flex-1 min-w-0">
           <div class="flex items-center justify-between">
-            <span class="text-[9px] sm:text-[11px] font-extrabold uppercase tracking-wider text-amber-400">SIH Benchmark Sequence</span>
-            <span id="judge-step-timer" class="text-[10px] sm:text-xs font-mono font-bold px-1.5 sm:px-2 py-0.2 sm:py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">T+0s</span>
+            <span class="text-[9px] sm:text-[10px] font-extrabold uppercase tracking-wider text-amber-400">SIH Benchmark Sequence</span>
+            <span id="judge-step-timer" class="text-[10px] sm:text-xs font-mono font-bold px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">T+0s</span>
           </div>
-          <p id="judge-step-text" class="text-[10px] sm:text-xs font-medium text-slate-100 leading-snug mt-0.5 sm:mt-1 truncate font-mono">
+          <p id="judge-step-text" class="text-[10px] sm:text-xs font-medium text-slate-100 leading-snug mt-0.5 truncate font-mono">
             Initializing proactive lookahead evaluation...
           </p>
         </div>
       </div>
 
       <!-- PROACTIVE WEATHER HAZARD SCREEN EARLY AWARENESS BANNER -->
-      <div id="proactive-hazard-banner" class="absolute top-2 sm:top-4 left-1/2 -translate-x-1/2 z-20 max-w-2xl w-[94%] sm:w-[92%] glass-panel rounded-lg p-2.5 sm:p-3 border border-amber-500/40 shadow-[0_0_25px_rgba(217,169,85,0.25)] flex items-center justify-between transition-all duration-300 pointer-events-auto">
+      <div id="proactive-hazard-banner" class="absolute top-2 sm:top-3 left-1/2 -translate-x-1/2 z-20 max-w-2xl w-[94%] sm:w-[92%] glass-panel rounded-lg p-2 sm:p-2.5 border border-amber-500/40 shadow-[0_0_25px_rgba(217,169,85,0.25)] flex items-center justify-between transition-all duration-300 pointer-events-auto">
         <!-- Left: Glowing Icon + Hazard Title, Span & Advisory -->
         <div class="flex items-center space-x-2.5 sm:space-x-3 min-w-0">
-          <div id="hazard-banner-icon-box" class="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center shrink-0 border border-amber-500/40 shadow-[0_0_12px_rgba(217,169,85,0.4)]">
-            <span id="hazard-banner-icon" class="material-icons text-lg sm:text-2xl animate-pulse">cloud</span>
+          <div id="hazard-banner-icon-box" class="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center shrink-0 border border-amber-500/40 shadow-[0_0_12px_rgba(217,169,85,0.4)]">
+            <span id="hazard-banner-icon" class="material-icons text-lg sm:text-xl animate-pulse">cloud</span>
           </div>
           <div class="min-w-0">
-            <div class="flex items-center space-x-1.5 sm:space-x-2 flex-wrap gap-y-1">
+            <div class="flex items-center space-x-1.5 sm:space-x-2 flex-wrap gap-y-0.5">
               <span id="hazard-banner-badge" class="text-[9px] sm:text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 font-mono">
                 DENSE FOG ZONE AHEAD
               </span>
-              <span id="hazard-banner-span-badge" class="text-[9px] sm:text-[10px] font-mono text-slate-200 font-bold bg-slate-900/80 px-2 py-0.5 rounded border border-slate-700/70">
+              <span id="hazard-banner-span-badge" class="text-[8px] sm:text-[9px] font-mono text-slate-200 font-bold bg-slate-900/80 px-2 py-0.5 rounded border border-slate-700/70">
                 REGION LENGTH: 30.0 KM (Km 30.0 ➔ 60.0)
               </span>
             </div>
-            <p id="hazard-banner-desc" class="text-[10px] sm:text-xs font-medium text-slate-200 truncate mt-0.5 sm:mt-1 font-mono">
+            <p id="hazard-banner-desc" class="text-[9px] sm:text-xs font-medium text-slate-200 truncate mt-0.5 font-mono">
               Dense radiation fog front • Sighting: 180m • Safe MPS: 90 km/h
             </p>
           </div>
         </div>
 
         <!-- Right: Time to Arrival / Exit Countdown & Distance -->
-        <div class="flex flex-col items-end shrink-0 pl-2 sm:pl-3.5 border-l border-slate-700/60 ml-2">
-          <div class="text-[8px] sm:text-[9px] font-mono uppercase text-slate-400 tracking-wider font-bold">
+        <div class="flex flex-col items-end shrink-0 pl-2 sm:pl-3 border-l border-slate-700/60 ml-2">
+          <div class="text-[8px] font-mono uppercase text-slate-400 tracking-wider font-bold">
             <span id="hazard-banner-time-label">ARRIVAL IN</span>
           </div>
-          <div id="hazard-banner-countdown" class="text-sm sm:text-lg font-black font-mono text-amber-400 tracking-tight drop-shadow-[0_0_8px_rgba(217,169,85,0.6)]">
+          <div id="hazard-banner-countdown" class="text-xs sm:text-base font-black font-mono text-amber-400 tracking-tight drop-shadow-[0_0_8px_rgba(217,169,85,0.6)]">
             02m 15s
           </div>
-          <div id="hazard-banner-dist" class="text-[8px] sm:text-[9px] font-mono font-bold text-slate-400">
+          <div id="hazard-banner-dist" class="text-[8px] font-mono font-bold text-slate-400">
             28.0 km ahead
           </div>
         </div>
       </div>
 
-      <!-- VIEWPORT TOP HUD OVERLAYS -->
-      <div class="absolute top-2 left-2 sm:top-4 sm:left-4 z-10 flex flex-col space-y-1.5 sm:space-y-2 pointer-events-none max-w-[calc(100%-1rem)]">
-        <!-- Speed & Distance Card -->
-        <div class="glass-panel rounded-md px-3 py-2 sm:px-4 sm:py-3.5 shadow-2xl pointer-events-auto min-w-[160px] sm:min-w-[220px]">
+      <!-- TOP-LEFT SPEED & ROUTE PROGRESS HUD OVERLAY -->
+      <div class="absolute top-2 left-2 sm:top-3 sm:left-3 z-10 flex flex-col space-y-1.5 pointer-events-none max-w-[calc(100%-1rem)]">
+        <div class="glass-panel rounded-md px-3 py-2 sm:px-3.5 sm:py-2.5 shadow-2xl pointer-events-auto min-w-[160px] sm:min-w-[200px]">
           <div class="flex items-baseline justify-between">
-            <div class="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono">Train Speed</div>
-            <div class="text-[9px] sm:text-[10px] text-rose-400 font-mono font-semibold bg-rose-500/10 px-1 py-0.5 rounded border border-rose-500/20">MPS: 130</div>
+            <div class="text-[9px] font-bold uppercase tracking-wider text-slate-400 font-mono">Train Speed</div>
+            <div class="text-[9px] text-rose-400 font-mono font-semibold bg-rose-500/10 px-1 py-0.2 rounded border border-rose-500/20">MPS: 130</div>
           </div>
-          <div class="flex items-baseline space-x-1.5 sm:space-x-2 mt-0.5 sm:mt-1">
-            <span id="hud-speed" class="text-2xl sm:text-4xl font-black font-mono text-amber-400 tracking-tight drop-shadow-[0_0_12px_rgba(217,169,85,0.4)]">130</span>
-            <span class="text-[10px] sm:text-xs text-slate-400 font-extrabold uppercase font-mono">km/h</span>
-            <span class="text-[10px] sm:text-xs text-emerald-400 font-mono font-bold ml-auto" id="hud-target-speed">130 km/h</span>
+          <div class="flex items-baseline space-x-1.5 mt-0.5">
+            <span id="hud-speed" class="text-2xl sm:text-3xl font-black font-mono text-amber-400 tracking-tight drop-shadow-[0_0_10px_rgba(217,169,85,0.4)]">130</span>
+            <span class="text-[10px] text-slate-400 font-extrabold uppercase font-mono">km/h</span>
+            <span class="text-[10px] text-emerald-400 font-mono font-bold ml-auto" id="hud-target-speed">130 km/h</span>
           </div>
           <!-- Corridor Progress -->
-          <div class="mt-1.5 sm:mt-3">
-            <div class="flex justify-between text-[9px] sm:text-[10px] text-slate-400 font-mono mb-0.5 sm:mb-1">
+          <div class="mt-1 sm:mt-2">
+            <div class="flex justify-between text-[8px] sm:text-[9px] text-slate-400 font-mono mb-0.5">
               <span>NDLS</span>
-              <span id="hud-route-km" class="text-amber-400 font-extrabold">Km 2.0 / 180</span>
+              <span id="hud-route-km" class="text-amber-400 font-extrabold">Km 0.0 / 180</span>
               <span>HWH</span>
             </div>
             <div class="w-full h-1.5 bg-slate-900 rounded-full overflow-hidden border border-slate-800">
@@ -710,438 +419,332 @@
             </div>
           </div>
         </div>
- 
+
         <!-- Forward Radar Lookahead Scanner Status -->
-        <div class="glass-panel-subtle rounded-md px-2.5 py-1.5 sm:px-3.5 sm:py-2 text-[10px] sm:text-xs flex items-center space-x-2 pointer-events-auto border border-blue-500/20 w-fit">
-          <div class="relative w-3.5 h-3.5 sm:w-4 sm:h-4 flex items-center justify-center shrink-0">
-            <div class="w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full border border-blue-400/40"></div>
-            <div class="absolute w-2 h-2 rounded-full bg-blue-500 animate-ping"></div>
-            <div class="w-1.5 h-1.5 rounded-full bg-blue-400"></div>
+        <div class="glass-panel-subtle rounded-md px-2.5 py-1 text-[9px] sm:text-[10px] flex items-center space-x-1.5 pointer-events-auto border border-blue-500/20 w-fit">
+          <div class="relative w-3 h-3 flex items-center justify-center shrink-0">
+            <div class="w-3 h-3 rounded-full border border-blue-400/40"></div>
+            <div class="absolute w-1.5 h-1.5 rounded-full bg-blue-500 animate-ping"></div>
+            <div class="w-1 h-1 rounded-full bg-blue-400"></div>
           </div>
-          <span class="text-[10px] sm:text-[11px] text-slate-300 font-medium font-mono">Horizon: <strong class="text-blue-400 font-bold">50 KM</strong><span class="hidden sm:inline"> AHEAD</span></span>
-        </div>
-      </div>
- 
-      <!-- CAMERA MODE SELECTOR (OVERLAY BOTTOM-LEFT) -->
-      <div class="absolute bottom-12 left-2 right-2 max-w-[calc(100%-1rem)] overflow-x-auto glass-panel rounded-md p-1 flex items-center space-x-1 shadow-2xl sm:bottom-4 sm:left-4 sm:right-auto sm:max-w-none z-10">
-        <button data-camera="TRAIN_FOLLOW" class="px-2 py-1 sm:px-3 sm:py-1.5 text-[10px] sm:text-xs font-bold rounded-md bg-indigo-600 text-white transition flex items-center space-x-1 cursor-pointer shadow-md shrink-0">
-          <span class="material-icons text-xs">videocam</span>
-          <span class="hidden sm:inline">Train Follow</span><span class="sm:hidden">Follow</span>
-        </button>
-        <button data-camera="CAB_VIEW" class="px-2 py-1 sm:px-3 sm:py-1.5 text-[10px] sm:text-xs font-bold rounded-md bg-slate-800 text-slate-300 hover:bg-slate-700 transition flex items-center space-x-1 cursor-pointer shrink-0">
-          <span class="material-icons text-xs">directions_transit</span>
-          <span class="hidden sm:inline">Cab View</span><span class="sm:hidden">Cab</span>
-        </button>
-        <button data-camera="WEATHER_ZONE" class="px-2 py-1 sm:px-3 sm:py-1.5 text-[10px] sm:text-xs font-bold rounded-md bg-slate-800 text-slate-300 hover:bg-slate-700 transition flex items-center space-x-1 cursor-pointer shrink-0">
-          <span class="material-icons text-xs">cloud</span>
-          <span class="hidden sm:inline">Hazard Front</span><span class="sm:hidden">Hazard</span>
-        </button>
-        <button data-camera="NETWORK" class="px-2 py-1 sm:px-3 sm:py-1.5 text-[10px] sm:text-xs font-bold rounded-md bg-slate-800 text-slate-300 hover:bg-slate-700 transition flex items-center space-x-1 cursor-pointer shrink-0">
-          <span class="material-icons text-xs">map</span>
-          <span class="hidden sm:inline">Corridor Map</span><span class="sm:hidden">Map</span>
-        </button>
-        <button data-camera="STATION" class="px-2 py-1 sm:px-3 sm:py-1.5 text-[10px] sm:text-xs font-bold rounded-md bg-slate-800 text-slate-300 hover:bg-slate-700 transition flex items-center space-x-1 cursor-pointer shrink-0">
-          <span class="material-icons text-xs">domain</span>
-          <span class="hidden sm:inline">Station View</span><span class="sm:hidden">Station</span>
-        </button>
-      </div>
- 
-      <!-- PLAYBACK & TIME SPEED CONTROLS (OVERLAY BOTTOM-RIGHT) -->
-      <div class="absolute bottom-2 left-2 right-2 justify-between z-10 glass-panel rounded-md p-1 flex items-center shadow-2xl sm:bottom-4 sm:left-auto sm:right-4 sm:justify-start sm:space-x-1">
-        <button id="btn-play-pause" class="px-2.5 py-1 sm:px-3.5 sm:py-1.5 text-[10px] sm:text-xs font-extrabold rounded-md bg-blue-600 text-white hover:bg-blue-500 transition flex items-center cursor-pointer shadow-md shrink-0">
-          <span class="material-icons text-xs sm:text-sm mr-1">pause</span>Pause
-        </button>
-        <button id="btn-reset" class="p-1 sm:px-2.5 sm:py-1.5 text-[10px] sm:text-xs font-semibold rounded-md bg-slate-800 text-slate-300 hover:bg-slate-700 transition cursor-pointer shrink-0" title="Reset Simulation">
-          <span class="material-icons text-xs sm:text-sm">restart_alt</span>
-        </button>
-        <div class="h-3 sm:h-4 w-px bg-slate-700 mx-0.5 sm:mx-1"></div>
-        <div class="flex items-center space-x-0.5 sm:space-x-1">
-          <button data-speed="1" class="px-1.5 sm:px-2.5 py-0.5 sm:py-1 text-[9px] sm:text-xs font-mono font-bold rounded-md bg-blue-600 text-white transition cursor-pointer">1X</button>
-          <button data-speed="2" class="px-1.5 sm:px-2.5 py-0.5 sm:py-1 text-[9px] sm:text-xs font-mono font-bold rounded-md bg-slate-800 text-slate-300 hover:bg-slate-700 transition cursor-pointer">2X</button>
-          <button data-speed="5" class="px-1.5 sm:px-2.5 py-0.5 sm:py-1 text-[9px] sm:text-xs font-mono font-bold rounded-md bg-slate-800 text-slate-300 hover:bg-slate-700 transition cursor-pointer">5X</button>
-          <button data-speed="10" class="px-1.5 sm:px-2.5 py-0.5 sm:py-1 text-[9px] sm:text-xs font-mono font-bold rounded-md bg-slate-800 text-slate-300 hover:bg-slate-700 transition cursor-pointer">10X</button>
-        </div>
-      </div>
-    </div>
-  </main>
-
-  <!-- ============================================================== -->
-  <!-- RIGHT INTELLIGENCE SIDEBAR: EXACT ARCHITECTURE AS LEFT SIDEBAR     -->
-  <!-- Collapsed = slim brass-riveted rail (68px) with quick-access tiles -->
-  <!-- Expanded = full 395px Intelligence Console matching mockups        -->
-  <!-- ============================================================== -->
-  <aside id="intelligence-sidebar" class="h-full flex flex-col z-40 shrink-0 relative select-none">
-    <!-- Luminous Right Status Line -->
-    <div class="absolute top-0 right-0 bottom-0 w-[3px] bg-gradient-to-b from-amber-400 via-amber-500 to-amber-700 shadow-[0_0_10px_rgba(217,169,85,0.7)]"></div>
-
-    <!-- Header Row (Brand Crest + Collapse/Expand Button) -->
-    <div class="h-16 px-2.5 sm:px-3 flex items-center justify-between border-b border-slate-800/80 bg-slate-950/40 shrink-0">
-      <!-- Collapse / Expand Toggle Button -->
-      <button id="btn-right-sidebar-collapse" title="Expand / collapse intelligence console" class="w-8 h-8 rounded-lg bg-slate-800/90 hover:bg-amber-500/20 border border-slate-700/60 hover:border-amber-400/50 text-amber-400 flex items-center justify-center transition-all cursor-pointer shrink-0 shadow-sm group">
-        <span id="right-sidebar-collapse-arrow" class="material-icons text-base group-hover:scale-110 transition-transform">chevron_left</span>
-      </button>
-
-      <!-- Golden Intelligence Crest + Brand Label -->
-      <div class="flex items-center space-x-2.5 min-w-0 flex-row-reverse space-x-reverse">
-        <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-amber-500/25 to-slate-950 border border-amber-400/80 shadow-[0_0_14px_rgba(217,169,85,0.35)] flex items-center justify-center shrink-0 cursor-pointer" id="right-sidebar-brand-btn" title="Toggle Intelligence Console">
-          <span class="material-icons text-amber-400 text-xl">tune</span>
-        </div>
-        <div class="right-rail-label min-w-0 text-right">
-          <div class="flex items-center justify-end space-x-1.5">
-            <span class="text-[8px] px-1.5 py-0.2 rounded bg-blue-500/10 text-blue-300 border border-blue-500/40 font-mono font-bold">ML CORE</span>
-            <h2 class="text-xs font-black tracking-wider text-white uppercase leading-none font-sans">
-              INTELLIGENCE
-            </h2>
-          </div>
-          <div class="text-[8px] text-slate-400 font-mono mt-1 tracking-tight truncate flex items-center justify-end">
-            <span>PROACTIVE WEATHER AI</span>
-            <span class="w-1.5 h-1.5 rounded-full bg-blue-400 ml-1 animate-pulse"></span>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- COLLAPSED RIGHT RAIL-ONLY VIEW (When collapsed to 68px) -->
-    <div class="right-rail-only flex-1 py-3 space-y-3 px-2.5">
-      <!-- Dynamic ETA Engine Rail Tile -->
-      <button id="right-rail-btn-eta" class="rail-tooltip-right w-11 py-1.5 px-0.5 rounded-lg bg-slate-950/90 border border-amber-500/40 hover:border-amber-400 shadow-inner flex flex-col items-center justify-center transition cursor-pointer" data-tooltip="Dynamic ETA Engine (Click to Open)">
-        <span class="material-icons text-base text-amber-400">schedule</span>
-        <span id="hud-rail-pred-eta" class="text-[8px] font-mono font-black text-amber-400 leading-tight mt-0.5">22:09</span>
-      </button>
-
-      <!-- Weather Risk Model Rail Tile -->
-      <button id="right-rail-btn-risk" class="rail-tooltip-right w-11 h-11 rounded-lg bg-slate-800/70 hover:bg-slate-800 border border-slate-700/60 hover:border-rose-500/50 flex flex-col items-center justify-center transition cursor-pointer relative text-slate-200" data-tooltip="Weather Risk Model (High Risk 82%)">
-        <span class="material-icons text-lg text-rose-400">radar</span>
-        <span id="hud-rail-risk-text" class="text-[7px] font-mono font-black text-rose-400 mt-0.5">82%</span>
-      </button>
-
-      <!-- Simulation Sliders Rail Tile -->
-      <button id="right-rail-btn-controls" class="rail-tooltip-right w-11 h-11 rounded-lg bg-slate-800/70 hover:bg-slate-800 border border-slate-700/60 hover:border-indigo-400/50 flex items-center justify-center text-indigo-300 transition cursor-pointer" data-tooltip="Simulation Sliders & Scrubbing">
-        <span class="material-icons text-lg">tune</span>
-      </button>
-
-      <div class="w-6 h-px bg-slate-800 my-1"></div>
-
-      <!-- Quick Action Fog Rail Tile -->
-      <button id="right-rail-btn-fog" class="rail-tooltip-right w-11 h-11 rounded-lg bg-amber-950/30 hover:bg-amber-900/40 border border-amber-500/50 text-amber-300 flex items-center justify-center transition cursor-pointer" data-tooltip="Test Fog Scenario @ 28km">
-        <span class="material-icons text-lg">cloud</span>
-      </button>
-
-      <!-- Quick Action Clear Rail Tile -->
-      <button id="right-rail-btn-clear" class="rail-tooltip-right w-11 h-11 rounded-lg bg-emerald-950/30 hover:bg-emerald-900/40 border border-emerald-500/50 text-emerald-300 flex items-center justify-center transition cursor-pointer" data-tooltip="Clear Weather Corridor">
-        <span class="material-icons text-lg">wb_sunny</span>
-      </button>
-
-      <!-- Expand Button at Bottom -->
-      <div class="mt-auto pb-1">
-        <button id="right-rail-btn-expand" class="rail-tooltip-right w-9 h-9 rounded-full bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-400 hover:text-amber-400 flex items-center justify-center transition cursor-pointer" data-tooltip="Expand Intelligence Console">
-          <span class="material-icons text-base rotate-180">menu_open</span>
-        </button>
-      </div>
-    </div>
-
-    <!-- EXPANDED OPERATIONS BODY (When expanded to 395px) -->
-    <div class="right-rail-full flex-1 flex flex-col overflow-hidden min-h-0">
-
-      <!-- SLIDING SEGMENTED TABS (ACTS AS SLIDER SWITCHER) -->
-      <div class="p-3 border-b border-slate-800/80 bg-slate-950/80 shrink-0">
-        <div class="flex items-center justify-between mb-2.5">
-          <span class="text-[11px] font-black uppercase tracking-widest text-slate-300 font-mono flex items-center">
-            <span class="material-icons text-sm text-amber-400 mr-1.5">tune</span>
-            INTELLIGENCE CONSOLE
-          </span>
-          <div class="flex items-center space-x-1.5">
-            <button id="slider-btn-prev" class="w-6 h-6 rounded bg-slate-900 hover:bg-slate-800 border border-slate-700/80 text-slate-300 hover:text-white flex items-center justify-center transition cursor-pointer" title="Previous Slide">
-              <span class="material-icons text-sm">chevron_left</span>
-            </button>
-            <button id="slider-btn-next" class="w-6 h-6 rounded bg-slate-900 hover:bg-slate-800 border border-slate-700/80 text-slate-300 hover:text-white flex items-center justify-center transition cursor-pointer" title="Next Slide">
-              <span class="material-icons text-sm">chevron_right</span>
-            </button>
-            <button id="btn-sidebar-close" class="w-6 h-6 rounded bg-slate-900 hover:bg-rose-950/60 border border-slate-700/80 text-slate-400 hover:text-rose-300 flex items-center justify-center transition cursor-pointer ml-0.5" title="Collapse Drawer">
-              <span class="material-icons text-sm">close</span>
-            </button>
-          </div>
-        </div>
-
-        <!-- 3-Slide Interactive Pill Navigation Slider -->
-        <div class="grid grid-cols-3 gap-1.5 p-1 bg-slate-950 rounded-md border border-slate-800 text-[10px] font-mono font-bold">
-          <button data-slide-target="0" class="slider-tab-btn py-1.5 px-1 rounded-md transition-all duration-200 text-center truncate bg-[#D9A955] text-slate-950 font-black shadow-md">
-            ETA ENGINE
-          </button>
-          <button data-slide-target="1" class="slider-tab-btn py-1.5 px-1 rounded-md transition-all duration-200 text-center truncate text-slate-400 hover:text-slate-200 font-bold">
-            RISK MODEL
-          </button>
-          <button data-slide-target="2" class="slider-tab-btn py-1.5 px-1 rounded-md transition-all duration-200 text-center truncate text-slate-400 hover:text-slate-200 font-bold">
-            CONTROLS
-          </button>
+          <span class="text-slate-300 font-medium font-mono">Horizon: <strong class="text-blue-400 font-bold">50 KM</strong> AHEAD</span>
         </div>
       </div>
 
-      <!-- CAROUSEL SLIDER WRAPPER (HORIZONTAL SLIDING CONTAINER) -->
-      <div class="flex-1 overflow-hidden relative">
-        <div id="slider-track" class="flex h-full w-[300%] transition-transform duration-300 ease-out">
-
-          <!-- ========================================== -->
-          <!-- SLIDE 1: DYNAMIC ETA ENGINE               -->
-          <!-- ========================================== -->
-          <div class="w-1/3 h-full overflow-y-auto p-3.5 flex flex-col space-y-3">
-            
-            <!-- Header Card -->
-            <div class="flex items-center justify-between">
-              <div class="flex items-center space-x-2.5">
-                <div class="w-8 h-8 rounded-full border border-amber-500/40 bg-amber-500/10 flex items-center justify-center text-amber-400 shadow-[0_0_10px_rgba(217,169,85,0.2)]">
-                  <span class="material-icons text-base">schedule</span>
-                </div>
-                <div>
-                  <h2 class="text-xs font-black uppercase tracking-wider text-slate-100">Dynamic ETA Engine</h2>
-                  <div class="text-[9px] text-slate-400 font-mono tracking-wider">PROACTIVE WEATHER INTEGRATION</div>
-                </div>
-              </div>
-              <span class="text-[9px] text-blue-400 bg-blue-950/40 px-2 py-0.5 rounded border border-blue-500/40 font-mono font-bold flex items-center shadow">
-                <span class="w-1.5 h-1.5 rounded-full bg-blue-400 mr-1.5 animate-pulse"></span>CONTINUOUS ML SYNC
+      <!-- ============================================================== -->
+      <!-- UNIFIED OPERATIONS CONTROL DECK (BOTTOM-DOCKED & FULLY ACCESSIBLE) -->
+      <!-- ============================================================== -->
+      <section id="control-deck" aria-label="Simulation Operations Control Deck" class="absolute bottom-2.5 sm:bottom-3.5 left-1/2 -translate-x-1/2 z-30 w-[96%] max-w-5xl glass-panel rounded-xl p-2.5 sm:p-3 shadow-2xl border border-slate-700/60 pointer-events-auto flex flex-col space-y-2">
+        
+        <!-- Row 1: Corridor Route Scrubber with Station Milestones -->
+        <div class="flex flex-col space-y-1">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+              <span class="material-icons text-amber-400 text-sm">linear_scale</span>
+              <label for="input-slider-km" class="text-[10px] sm:text-xs font-mono font-bold uppercase tracking-wider text-slate-200">
+                Corridor Route Scrubber
+              </label>
+              <span id="slider-val-km" class="text-[10px] sm:text-xs font-mono font-black text-amber-400 px-2 py-0.5 rounded bg-amber-500/10 border border-amber-500/30">
+                Km 0.0
               </span>
             </div>
-
-            <!-- OCC TIMETABLE PROGRESSION STRIP -->
-            <div class="hud-corner-card p-3">
-              <div class="flex items-center justify-between text-[10px] font-mono mb-2">
-                <span class="font-extrabold text-slate-400 uppercase tracking-wider">TIMETABLE PROGRESSION</span>
-                <span id="hud-timetable-offset" class="font-black text-amber-400 uppercase tracking-wider text-[10px]">+7 MIN FORECAST OFFSET</span>
-              </div>
-              
-              <div class="flex items-center justify-between py-1">
-                <!-- SCHED BOX -->
-                <div class="flex-1 bg-slate-950/90 border border-slate-800 rounded px-1.5 py-1.5 text-center">
-                  <div class="text-[8px] font-mono font-bold text-slate-400 tracking-wider">SCHED</div>
-                  <div id="hud-sched-eta-prog" class="text-xs font-mono font-bold text-cyan-300 mt-0.5">--:--</div>
-                </div>
-                
-                <!-- Connector Line 1 -->
-                <div class="w-4 sm:w-6 h-[2px] bg-slate-700/80 mx-1"></div>
-                
-                <!-- CURRENT BOX -->
-                <div class="flex-1 bg-slate-950/90 border border-slate-800 rounded px-1.5 py-1.5 text-center">
-                  <div class="text-[8px] font-mono font-bold text-slate-400 tracking-wider">CURRENT</div>
-                  <div id="hud-curr-eta-prog" class="text-xs font-mono font-bold text-cyan-300 mt-0.5">--:--</div>
-                </div>
-                
-                <!-- Connector Line 2 (Highlighted Golden) -->
-                <div class="w-4 sm:w-6 h-[2px] bg-amber-500/80 mx-1 shadow-[0_0_6px_rgba(217,169,85,0.6)]"></div>
-                
-                <!-- PREDICTED BOX (Gold border highlight) -->
-                <div class="flex-1 bg-amber-950/20 border-2 border-amber-500/90 rounded px-1.5 py-1.5 text-center shadow-[0_0_10px_rgba(217,169,85,0.25)]">
-                  <div class="text-[8px] font-mono font-black text-amber-400 tracking-wider">PREDICTED</div>
-                  <div id="hud-pred-eta-prog" class="text-xs font-mono font-black text-amber-400 mt-0.5">--:--</div>
-                </div>
-              </div>
-            </div>
-
-            <!-- 2x2 Grid of Primary Metrics -->
-            <div class="grid grid-cols-2 gap-2.5">
-              <!-- Scheduled ETA -->
-              <div class="hud-corner-card p-3 flex flex-col justify-between min-h-[78px]">
-                <div>
-                  <div class="text-[9px] text-slate-400 uppercase font-mono font-bold tracking-wider">SCHEDULED ETA</div>
-                  <div class="text-xl font-mono font-black text-slate-100 mt-0.5" id="hud-sched-eta">--:--</div>
-                </div>
-                <div class="text-[9px] text-slate-400 font-mono mt-1">Timetable Baseline</div>
-              </div>
-
-              <!-- Current ETA -->
-              <div class="hud-corner-card p-3 flex flex-col justify-between min-h-[78px]">
-                <div>
-                  <div class="text-[9px] text-slate-400 uppercase font-mono font-bold tracking-wider">CURRENT ETA</div>
-                  <div class="text-xl font-mono font-black text-slate-100 mt-0.5" id="hud-curr-eta">22:02</div>
-                </div>
-                <div class="text-[9px] text-slate-400 font-mono mt-1" id="hud-op-delay">+2 min</div>
-              </div>
-
-              <!-- Weather Delay (Hero Card) -->
-              <div class="hud-corner-card p-3 flex flex-col justify-between min-h-[78px]">
-                <div>
-                  <div class="flex items-center justify-between text-[9px] text-amber-400 uppercase font-mono font-bold tracking-wider">
-                    <span>WEATHER DELAY</span>
-                    <span class="w-1.5 h-1.5 rounded-full bg-amber-400 inline-block animate-pulse"></span>
-                  </div>
-                  <div class="text-xl font-mono font-black text-amber-400 mt-0.5 drop-shadow-[0_0_8px_rgba(217,169,85,0.5)]" id="hud-pred-weather-delay">+7 min</div>
-                </div>
-                <div class="text-[9px] text-slate-400 font-mono mt-1">Computed Ahead of Zone</div>
-              </div>
-
-              <!-- Predicted ETA -->
-              <div class="hud-corner-card p-3 flex flex-col justify-between min-h-[78px]">
-                <div>
-                  <div class="flex items-center justify-between text-[9px] text-emerald-400 uppercase font-mono font-bold tracking-wider">
-                    <span>PREDICTED ETA</span>
-                    <span id="hud-confidence" class="text-emerald-400 font-black">84%</span>
-                  </div>
-                  <div class="text-xl font-mono font-black text-emerald-400 mt-0.5 drop-shadow-[0_0_8px_rgba(52,211,153,0.5)]" id="hud-pred-eta">22:09</div>
-                </div>
-                <div class="text-[9px] text-emerald-500/80 font-mono mt-1">ML Confidence Validated</div>
-              </div>
+            <div class="text-[8px] sm:text-[9px] font-mono text-slate-400 hidden sm:block">
+              Interactive Scrubber • Click or drag to jump anywhere along corridor
             </div>
           </div>
 
-          <!-- ========================================== -->
-          <!-- SLIDE 2: WEATHER RISK MODEL & ADVISORY    -->
-          <!-- ========================================== -->
-          <div class="w-1/3 h-full overflow-y-auto p-3.5 flex flex-col space-y-3">
-            <!-- Header -->
-            <div class="flex items-center justify-between">
-              <div class="flex items-center space-x-2.5">
-                <div class="w-8 h-8 rounded-full border border-blue-500/40 bg-blue-500/10 flex items-center justify-center text-blue-400 shadow-[0_0_10px_rgba(59,130,246,0.2)]">
-                  <span class="material-icons text-base">radar</span>
-                </div>
-                <div>
-                  <h2 class="text-xs font-black uppercase tracking-wider text-slate-100">Weather Risk Model</h2>
-                  <div class="text-[9px] text-slate-400 font-mono tracking-wider">ML HAZARD ESTIMATION</div>
-                </div>
-              </div>
-              <span id="hud-risk-badge" class="px-2.5 py-0.5 text-[10px] font-black rounded-full bg-rose-950/40 text-rose-300 border border-rose-800/60 font-mono uppercase">HIGH RISK</span>
-            </div>
+          <!-- Route Range Slider -->
+          <input type="range" id="input-slider-km" min="0" max="180" step="0.5" value="0" aria-label="Route Corridor Position in Kilometers" class="w-full h-2 cursor-pointer accent-amber-400">
 
-            <!-- Weather Risk Probability Card -->
-            <div class="hud-corner-card p-3">
-              <div class="flex justify-between text-xs font-mono mb-2">
-                <span class="text-slate-400">Weather Risk Probability</span>
-                <span id="hud-risk-level" class="text-rose-400 font-black">HIGH (82%)</span>
-              </div>
-              <div class="w-full h-2 bg-slate-950 rounded-full overflow-hidden border border-slate-800/80">
-                <div id="risk-gauge-fill" class="h-full bg-gradient-to-r from-emerald-500 via-amber-400 to-rose-500 rounded-full w-[82%] shadow-[0_0_8px_rgba(244,63,94,0.6)] transition-all duration-300"></div>
-              </div>
-            </div>
+          <!-- Station Ticks -->
+          <div class="flex justify-between text-[8px] sm:text-[9px] text-slate-400 font-mono px-0.5">
+            <span class="hover:text-amber-300 transition-colors font-bold">NDLS (0k)</span>
+            <span class="hover:text-amber-300 transition-colors">CNB (45k)</span>
+            <span class="hover:text-amber-300 transition-colors">PRYJ (90k)</span>
+            <span class="hover:text-amber-300 transition-colors">DHN (140k)</span>
+            <span class="hover:text-amber-300 transition-colors font-bold">HWH (180k)</span>
+          </div>
+        </div>
 
-            <!-- Telemetry Parameters -->
-            <div class="space-y-1 text-xs font-mono">
-              <div class="flex justify-between items-center py-1.5 border-b border-slate-800/80">
-                <span class="text-slate-400">Current Zone Weather</span>
-                <span id="hud-curr-weather-badge" class="px-2.5 py-0.5 rounded bg-emerald-950/60 text-emerald-300 border border-emerald-500/40 font-bold text-xs">CLEAR</span>
-              </div>
+        <div class="w-full h-px bg-slate-800/80"></div>
 
-              <div class="flex justify-between items-center py-1.5 border-b border-slate-800/80">
-                <span class="text-slate-400">Upcoming Weather Ahead</span>
-                <span id="hud-upcoming-weather-badge" class="px-2.5 py-0.5 rounded bg-amber-950/60 text-amber-300 border border-amber-500/40 font-bold text-xs">DENSE FOG</span>
-              </div>
-
-              <div class="flex justify-between items-center py-1.5 border-b border-slate-800/80">
-                <span class="text-slate-400">Distance to Hazard</span>
-                <span id="hud-distance-weather" class="font-black text-amber-400 text-sm">10.2 km</span>
-              </div>
-
-              <div class="flex justify-between items-center py-1.5 border-b border-slate-800/80">
-                <span class="text-slate-400">Time to Hazard Entry</span>
-                <span id="hud-hazard-time-to-entry" class="font-black text-amber-400 text-sm">02m 15s</span>
-              </div>
-
-              <div class="flex justify-between items-center py-1.5 border-b border-slate-800/80">
-                <span class="text-slate-400">Hazard Region Total Length</span>
-                <span id="hud-hazard-total-length" class="font-bold text-slate-100 text-sm">30.0 km (Km 30 ➔ 60)</span>
-              </div>
-
-              <div class="flex justify-between items-center py-1.5 border-b border-slate-800/80">
-                <span class="text-slate-400">Sighting Visibility</span>
-                <span id="hud-visibility" class="font-bold text-slate-100 text-sm">5000 m</span>
-              </div>
-
-              <div class="flex justify-between items-center py-1.5 border-b border-slate-800/80">
-                <span class="text-slate-400">Predicted Speed Reduction</span>
-                <span id="hud-speed-impact" class="font-black text-rose-400 text-sm">-40 km/h</span>
-              </div>
+        <!-- Row 2: Control Pods (Modular, High Contrast, Intuitive) -->
+        <div class="flex flex-wrap items-center justify-between gap-1.5 sm:gap-2">
+          
+          <!-- Pod 1: Playback & Speed Controls -->
+          <div class="flex items-center space-x-1 sm:space-x-1.5 bg-slate-900/90 p-1 rounded-lg border border-slate-800 shrink-0">
+            <button id="btn-play-pause" aria-label="Play or Pause Simulation" class="px-2.5 sm:px-3 py-1 rounded-md bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs flex items-center space-x-1 shadow transition cursor-pointer">
+              <span class="material-icons text-sm mr-0.5">pause</span>
+              <span id="play-pause-text">Pause</span>
+            </button>
+            <button id="btn-reset" aria-label="Reset Simulation" title="Reset Simulation to New Delhi (Km 0)" class="p-1 rounded-md bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition cursor-pointer">
+              <span class="material-icons text-sm">restart_alt</span>
+            </button>
+            <div class="h-4 w-px bg-slate-700 mx-0.5"></div>
+            <div class="flex items-center space-x-0.5" role="group" aria-label="Simulation Speed Multiplier">
+              <button data-speed="1" aria-label="1X Speed" class="px-1.5 sm:px-2 py-0.5 text-[10px] font-mono font-bold rounded bg-blue-600 text-white transition cursor-pointer">1X</button>
+              <button data-speed="2" aria-label="2X Speed" class="px-1.5 sm:px-2 py-0.5 text-[10px] font-mono font-bold rounded bg-slate-800 text-slate-300 hover:bg-slate-700 transition cursor-pointer">2X</button>
+              <button data-speed="5" aria-label="5X Speed" class="px-1.5 sm:px-2 py-0.5 text-[10px] font-mono font-bold rounded bg-slate-800 text-slate-300 hover:bg-slate-700 transition cursor-pointer">5X</button>
+              <button data-speed="10" aria-label="10X Speed" class="px-1.5 sm:px-2 py-0.5 text-[10px] font-mono font-bold rounded bg-slate-800 text-slate-300 hover:bg-slate-700 transition cursor-pointer">10X</button>
             </div>
           </div>
 
-          <!-- ========================================== -->
-          <!-- SLIDE 3: INTERACTIVE SLIDERS & CONTROLS   -->
-          <!-- ========================================== -->
-          <div class="w-1/3 h-full overflow-y-auto p-3.5 flex flex-col space-y-3">
-            <div class="flex items-center justify-between">
-              <div class="flex items-center space-x-2.5">
-                <div class="w-8 h-8 rounded-lg bg-blue-900/30 border border-blue-500/40 text-blue-400 flex items-center justify-center shadow">
-                  <span class="material-icons text-base">tune</span>
-                </div>
-                <div>
-                  <h2 class="text-xs font-black uppercase tracking-wider text-slate-100">Simulation Sliders</h2>
-                  <div class="text-[9px] text-slate-400 font-mono tracking-wider">MANUAL SCENARIO SCRUBBING</div>
-                </div>
-              </div>
+          <!-- Pod 2: Weather Scenario Selector -->
+          <div class="flex items-center space-x-1.5 bg-slate-900/90 px-2 py-1 rounded-lg border border-slate-800">
+            <label for="scenario-select" class="text-[9px] font-mono text-slate-400 uppercase font-bold flex items-center space-x-1 shrink-0">
+              <span class="material-icons text-xs text-amber-400">cloud</span>
+              <span class="hidden sm:inline">Scenario</span>
+            </label>
+            <div class="relative">
+              <select id="scenario-select" aria-label="Select Weather Scenario" class="bg-slate-950 border border-slate-700 hover:border-amber-400/80 text-slate-100 text-[11px] sm:text-xs font-semibold rounded px-2.5 py-1 pr-6 focus:outline-none focus:border-amber-400 cursor-pointer appearance-none max-w-[200px] sm:max-w-none truncate">
+                <option value="judge_fog_demo" selected>🎯 Interactive Fog Demo (Benchmark)</option>
+                <option value="dense_fog">🌫️ Dense Winter Fog (150m • 90 km/h)</option>
+                <option value="monsoon">🌧️ Heavy Monsoon Downpour (100 km/h)</option>
+                <option value="thunderstorm">⛈️ Severe Thunderstorm (80 km/h)</option>
+                <option value="clear">🌤️ Clear Weather Corridor (130 km/h)</option>
+              </select>
+              <span class="material-icons text-xs text-amber-400 absolute right-1.5 top-1.5 pointer-events-none">arrow_drop_down</span>
             </div>
+          </div>
 
-            <!-- SLIDER 1: CORRIDOR POSITION SCRUBBER -->
-            <div class="hud-corner-card p-3.5">
-              <div class="flex justify-between text-xs font-mono mb-1">
-                <span class="text-slate-300 font-bold">Route Scrubber</span>
-                <span id="slider-val-km" class="text-amber-400 font-black">Km 32.1</span>
+          <!-- Pod 3: Sighting Visibility Tuner -->
+          <div class="flex items-center space-x-1.5 bg-slate-900/90 px-2 py-1 rounded-lg border border-slate-800">
+            <div class="flex flex-col">
+              <div class="flex items-center justify-between text-[8px] font-mono text-slate-400 uppercase font-bold">
+                <span>Visibility</span>
+                <span id="slider-val-vis" class="text-emerald-400 font-black ml-1.5">5000 m</span>
               </div>
-              <input type="range" id="input-slider-km" min="0" max="180" step="0.5" value="32.1" class="w-full mt-2 cursor-pointer">
-              <div class="flex justify-between text-[9px] text-slate-500 font-mono mt-1.5">
-                <span>NDLS (0k)</span>
-                <span>CNB (45k)</span>
-                <span>PRYJ (90k)</span>
-                <span>HWH (180k)</span>
-              </div>
+              <input type="range" id="input-slider-vis" min="100" max="5000" step="50" value="5000" aria-label="Atmospheric Visibility in Meters" class="w-16 sm:w-24 h-1.5 cursor-pointer accent-emerald-400">
             </div>
+          </div>
 
-            <!-- SLIDER 2: SIMULATE HAZARD DISTANCE AHEAD -->
-            <div class="hud-corner-card p-3.5">
-              <div class="flex justify-between text-xs font-mono mb-1">
-                <span class="text-slate-300 font-bold">Fog Distance Ahead</span>
-                <span id="slider-val-hazard" class="text-cyan-400 font-black">28.0 km</span>
-              </div>
-              <input type="range" id="input-slider-hazard" min="0" max="50" step="1" value="28" class="w-full mt-2 cursor-pointer">
-              <div class="flex justify-between text-[9px] text-slate-500 font-mono mt-1.5">
-                <span>0 km (Inside Fog)</span>
-                <span>25 km</span>
-                <span>50 km (Lookahead Horizon)</span>
-              </div>
-            </div>
-
-            <!-- SLIDER 3: WEATHER VISIBILITY / SEVERITY -->
-            <div class="hud-corner-card p-3.5">
-              <div class="flex justify-between text-xs font-mono mb-1">
-                <span class="text-slate-300 font-bold">Sighting Visibility</span>
-                <span id="slider-val-vis" class="text-emerald-400 font-black">180 m</span>
-              </div>
-              <input type="range" id="input-slider-vis" min="100" max="5000" step="50" value="180" class="w-full mt-2 cursor-pointer">
-              <div class="flex justify-between text-[9px] text-slate-500 font-mono mt-1.5">
-                <span>100m (Dense Fog)</span>
-                <span>1500m</span>
-                <span>5000m (Clear Sky)</span>
-              </div>
-            </div>
-
-            <!-- Quick Action Preset Buttons -->
-            <div class="grid grid-cols-2 gap-2 pt-1 font-mono text-[10px]">
-              <button id="btn-quick-fog" class="py-2.5 px-2 rounded-lg bg-amber-950/30 text-amber-300 border border-amber-500/50 hover:bg-amber-500/20 transition cursor-pointer font-bold tracking-wider uppercase text-center shadow flex items-center justify-center space-x-1">
-                <span class="material-icons text-xs">cloud</span>
-                <span>FOG (30k)</span>
-              </button>
-              <button id="btn-quick-rain" class="py-2.5 px-2 rounded-lg bg-blue-950/30 text-blue-300 border border-blue-500/50 hover:bg-blue-500/20 transition cursor-pointer font-bold tracking-wider uppercase text-center shadow flex items-center justify-center space-x-1">
-                <span class="material-icons text-xs">water_drop</span>
-                <span>RAIN (25k)</span>
-              </button>
-              <button id="btn-quick-storm" class="py-2.5 px-2 rounded-lg bg-purple-950/30 text-purple-300 border border-purple-500/50 hover:bg-purple-500/20 transition cursor-pointer font-bold tracking-wider uppercase text-center shadow flex items-center justify-center space-x-1">
-                <span class="material-icons text-xs">bolt</span>
-                <span>STORM (35k)</span>
-              </button>
-              <button id="btn-quick-clear" class="py-2.5 px-2 rounded-lg bg-emerald-950/30 text-emerald-300 border border-emerald-500/50 hover:bg-emerald-500/20 transition cursor-pointer font-bold tracking-wider uppercase text-center shadow flex items-center justify-center space-x-1">
-                <span class="material-icons text-xs">wb_sunny</span>
-                <span>CLEAR (180k)</span>
-              </button>
-            </div>
+          <!-- Pod 4: Camera Perspectives -->
+          <div class="flex items-center space-x-0.5 sm:space-x-1 bg-slate-900/90 p-1 rounded-lg border border-slate-800 overflow-x-auto" role="group" aria-label="Camera Perspectives">
+            <button data-camera="TRAIN_FOLLOW" aria-label="Train Follow Camera" title="Train Follow (External 3rd-person View)" class="px-2 py-0.5 sm:py-1 text-[10px] font-bold rounded bg-indigo-600 text-white transition flex items-center space-x-1 cursor-pointer shrink-0">
+              <span class="material-icons text-xs">videocam</span>
+              <span class="hidden md:inline">Follow</span>
+            </button>
+            <button data-camera="CAB_VIEW" aria-label="Locomotive Cab Camera" title="Locomotive Cab (Driver's Perspective)" class="px-2 py-0.5 sm:py-1 text-[10px] font-bold rounded bg-slate-800 text-slate-300 hover:bg-slate-700 transition flex items-center space-x-1 cursor-pointer shrink-0">
+              <span class="material-icons text-xs">directions_transit</span>
+              <span class="hidden md:inline">Cab</span>
+            </button>
+            <!--
+            <button data-camera="WEATHER_ZONE" aria-label="Hazard Front Camera" title="Hazard Front (Weather Lookahead View)" class="px-2 py-0.5 sm:py-1 text-[10px] font-bold rounded bg-slate-800 text-slate-300 hover:bg-slate-700 transition flex items-center space-x-1 cursor-pointer shrink-0">
+              <span class="material-icons text-xs">cloud</span>
+              <span class="hidden md:inline">Hazard</span>
+            </button>
+            <button data-camera="NETWORK" aria-label="Corridor Map Camera" title="Corridor Map (Network Overhead View)" class="px-2 py-0.5 sm:py-1 text-[10px] font-bold rounded bg-slate-800 text-slate-300 hover:bg-slate-700 transition flex items-center space-x-1 cursor-pointer shrink-0">
+              <span class="material-icons text-xs">map</span>
+              <span class="hidden md:inline">Map</span>
+            </button>
+            <button data-camera="STATION" aria-label="Station Platform Camera" title="Station Platform (Trackside View)" class="px-2 py-0.5 sm:py-1 text-[10px] font-bold rounded bg-slate-800 text-slate-300 hover:bg-slate-700 transition flex items-center space-x-1 cursor-pointer shrink-0">
+              <span class="material-icons text-xs">domain</span>
+              <span class="hidden md:inline">Station</span>
+            </button>
+            -->
           </div>
 
         </div>
-      </div>
-
-      <!-- BOTTOM SLIDER DOTS INDICATOR -->
-      <div class="py-2 px-4 bg-slate-950/95 border-t border-slate-800/80 flex items-center justify-center space-x-2 shrink-0">
-        <span class="slider-dot w-6 h-1.5 rounded-full bg-[#D9A955] shadow-[0_0_8px_rgba(217,169,85,0.8)] transition-all duration-300 cursor-pointer" title="Dynamic ETA Engine"></span>
-        <span class="slider-dot w-1.5 h-1.5 rounded-full bg-slate-700 hover:bg-slate-500 transition-all duration-300 cursor-pointer" title="Weather Risk Model"></span>
-        <span class="slider-dot w-1.5 h-1.5 rounded-full bg-slate-700 hover:bg-slate-500 transition-all duration-300 cursor-pointer" title="Simulation Controls & Sliders"></span>
-      </div>
+      </section>
 
     </div>
-  </aside>
+
+    <!-- ============================================================== -->
+    <!-- RIGHT SIDEBAR: ML INTELLIGENCE & DYNAMIC ETA CONSOLE           -->
+    <!-- Dedicated, High-Information Telemetry (Toggleable Drawer)       -->
+    <!-- ============================================================== -->
+    <aside id="intelligence-sidebar" aria-label="Dynamic ETA and Weather Intelligence Panel" class="fixed top-14 right-0 bottom-0 w-96 max-w-[92vw] z-40 bg-gradient-to-b from-slate-900/95 via-slate-950/95 to-slate-950/98 backdrop-blur-xl border-l border-amber-500/25 shadow-2xl flex flex-col transition-transform duration-300 ease-in-out translate-x-0">
+      <!-- Glowing Left Status Line -->
+      <div class="absolute top-0 left-0 bottom-0 w-[2px] bg-gradient-to-b from-amber-400 via-amber-500 to-amber-700 shadow-[0_0_8px_rgba(217,169,85,0.7)]"></div>
+
+      <!-- Header Row -->
+      <div class="p-3 border-b border-slate-800/80 bg-slate-950/60 flex items-center justify-between shrink-0">
+        <div class="flex items-center space-x-2">
+          <div class="w-7 h-7 rounded-lg bg-amber-500/20 text-amber-400 border border-amber-500/40 flex items-center justify-center">
+            <span class="material-icons text-base">tune</span>
+          </div>
+          <div>
+            <h2 class="text-xs font-black uppercase tracking-wider text-white font-sans">ML Intelligence & ETA</h2>
+            <div class="text-[8px] text-slate-400 font-mono flex items-center">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 mr-1 animate-pulse"></span>
+              PROACTIVE WEATHER INTEGRATION
+            </div>
+          </div>
+        </div>
+        <button id="btn-sidebar-close" aria-label="Close Intelligence Panel" class="w-7 h-7 rounded-lg bg-slate-800 hover:bg-rose-950/80 text-slate-400 hover:text-rose-300 border border-slate-700 flex items-center justify-center transition cursor-pointer">
+          <span class="material-icons text-sm">close</span>
+        </button>
+      </div>
+
+      <!-- Scrollable Telemetry Body -->
+      <div class="flex-1 overflow-y-auto p-3 space-y-3">
+        
+        <!-- Section 1: Timetable Progression Strip -->
+        <div class="hud-corner-card p-2.5">
+          <div class="flex items-center justify-between text-[9px] font-mono mb-1.5">
+            <span class="font-extrabold text-slate-300 uppercase tracking-wider flex items-center">
+              <span class="material-icons text-xs mr-1 text-amber-400">schedule</span>
+              TIMETABLE PROGRESSION
+            </span>
+            <span id="hud-timetable-offset" class="font-black text-amber-400 uppercase tracking-wider text-[9px]">
+              +7 MIN FORECAST OFFSET
+            </span>
+          </div>
+          
+          <div class="flex items-center justify-between py-1">
+            <!-- SCHED BOX -->
+            <div class="flex-1 bg-slate-950/90 border border-slate-800 rounded px-1.5 py-1 text-center">
+              <div class="text-[8px] font-mono font-bold text-slate-400 tracking-wider">SCHED</div>
+              <div id="hud-sched-eta-prog" class="text-xs font-mono font-bold text-cyan-300 mt-0.5">--:--</div>
+            </div>
+            
+            <!-- Connector Line 1 -->
+            <div class="w-3 h-[2px] bg-slate-700/80 mx-1"></div>
+            
+            <!-- CURRENT BOX -->
+            <div class="flex-1 bg-slate-950/90 border border-slate-800 rounded px-1.5 py-1 text-center">
+              <div class="text-[8px] font-mono font-bold text-slate-400 tracking-wider">CURRENT</div>
+              <div id="hud-curr-eta-prog" class="text-xs font-mono font-bold text-cyan-300 mt-0.5">--:--</div>
+            </div>
+            
+            <!-- Connector Line 2 (Highlighted Golden) -->
+            <div class="w-3 h-[2px] bg-amber-500/80 mx-1 shadow-[0_0_6px_rgba(217,169,85,0.6)]"></div>
+            
+            <!-- PREDICTED BOX -->
+            <div class="flex-1 bg-amber-950/30 border-2 border-amber-500/90 rounded px-1.5 py-1 text-center shadow-[0_0_10px_rgba(217,169,85,0.25)]">
+              <div class="text-[8px] font-mono font-black text-amber-400 tracking-wider">PREDICTED</div>
+              <div id="hud-pred-eta-prog" class="text-xs font-mono font-black text-amber-400 mt-0.5">--:--</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 2: 2x2 Primary Metrics Grid -->
+        <div class="grid grid-cols-2 gap-2">
+          <!-- Scheduled ETA -->
+          <div class="hud-corner-card p-2 flex flex-col justify-between">
+            <div>
+              <div class="text-[8px] text-slate-400 uppercase font-mono font-bold tracking-wider">SCHEDULED ETA</div>
+              <div class="text-base font-mono font-black text-slate-100 mt-0.5" id="hud-sched-eta">--:--</div>
+            </div>
+            <div class="text-[8px] text-slate-500 font-mono mt-0.5">Timetable Baseline</div>
+          </div>
+
+          <!-- Current ETA -->
+          <div class="hud-corner-card p-2 flex flex-col justify-between">
+            <div>
+              <div class="text-[8px] text-slate-400 uppercase font-mono font-bold tracking-wider">CURRENT ETA</div>
+              <div class="text-base font-mono font-black text-slate-100 mt-0.5" id="hud-curr-eta">22:02</div>
+            </div>
+            <div class="text-[8px] text-slate-400 font-mono mt-0.5" id="hud-op-delay">+2 min</div>
+          </div>
+
+          <!-- Weather Delay -->
+          <div class="hud-corner-card p-2 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between text-[8px] text-amber-400 uppercase font-mono font-bold tracking-wider">
+                <span>WEATHER DELAY</span>
+                <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
+              </div>
+              <div class="text-base font-mono font-black text-amber-400 mt-0.5 drop-shadow-[0_0_8px_rgba(217,169,85,0.5)]" id="hud-pred-weather-delay">+7 min</div>
+            </div>
+            <div class="text-[8px] text-slate-400 font-mono mt-0.5">Computed Ahead of Zone</div>
+          </div>
+
+          <!-- Predicted ETA -->
+          <div class="hud-corner-card p-2 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between text-[8px] text-emerald-400 uppercase font-mono font-bold tracking-wider">
+                <span>PREDICTED ETA</span>
+                <span id="hud-confidence" class="text-emerald-400 font-black">84%</span>
+              </div>
+              <div class="text-base font-mono font-black text-emerald-400 mt-0.5 drop-shadow-[0_0_8px_rgba(52,211,153,0.5)]" id="hud-pred-eta">22:09</div>
+            </div>
+            <div class="text-[8px] text-emerald-500/80 font-mono mt-0.5">ML Proactive Prediction</div>
+          </div>
+        </div>
+
+        <!-- Section 3: Next Station Target Card -->
+        <div class="hud-corner-card p-2.5">
+          <div class="flex items-center justify-between text-[8px] font-mono text-slate-400 uppercase mb-1">
+            <span class="font-bold tracking-wider">NEXT STATION TARGET</span>
+            <span id="hud-next-station-dist" class="text-amber-400 font-bold">12.9 km away</span>
+          </div>
+          <div class="flex items-center justify-between">
+            <div class="text-xs font-mono font-extrabold text-slate-100 truncate" id="hud-next-station-name">CNB - Kanpur Central</div>
+            <div class="text-xs font-mono font-black text-emerald-400" id="hud-next-station-eta">ETA 22:09</div>
+          </div>
+        </div>
+
+        <!-- Section 4: Dynamic OCC Station-by-Station Timetable Tracker -->
+        <div class="hud-corner-card p-2.5">
+          <div class="text-[9px] text-slate-300 uppercase font-mono font-bold tracking-wider mb-1.5 flex items-center justify-between">
+            <span class="flex items-center">
+              <span class="material-icons text-xs mr-1 text-blue-400">route</span>
+              CORRIDOR STATIONS TRACKER
+            </span>
+            <span class="text-[8px] text-slate-400 font-mono">NDLS ➔ HWH</span>
+          </div>
+          <div id="timetable-progression-list"></div>
+        </div>
+
+        <!-- Section 5: Weather Risk Model & Forward Lookahead -->
+        <div class="hud-corner-card p-2.5">
+          <div class="flex items-center justify-between mb-1.5">
+            <div class="flex items-center space-x-1.5">
+              <span class="material-icons text-xs text-blue-400">radar</span>
+              <span class="text-[10px] font-black uppercase tracking-wider text-slate-200 font-mono">Weather Risk Model</span>
+            </div>
+            <span id="hud-risk-badge" class="px-2 py-0.5 text-[8px] font-black rounded-full bg-rose-950/40 text-rose-300 border border-rose-800/60 font-mono uppercase">HIGH RISK</span>
+          </div>
+
+          <!-- Risk Probability Gauge -->
+          <div class="mb-2">
+            <div class="flex justify-between text-[9px] font-mono mb-1">
+              <span class="text-slate-400">Hazard Probability</span>
+              <span id="hud-risk-level" class="text-rose-400 font-black">HIGH (82%)</span>
+            </div>
+            <div class="w-full h-1.5 bg-slate-950 rounded-full overflow-hidden border border-slate-800/80">
+              <div id="risk-gauge-fill" class="h-full bg-gradient-to-r from-emerald-500 via-amber-400 to-rose-500 rounded-full w-[82%] shadow-[0_0_8px_rgba(244,63,94,0.6)] transition-all duration-300"></div>
+            </div>
+          </div>
+
+          <!-- Telemetry Parameters -->
+          <div class="space-y-1 text-[10px] font-mono">
+            <div class="flex justify-between items-center py-0.5 border-b border-slate-800/60">
+              <span class="text-slate-400">Current Zone Weather</span>
+              <span id="hud-curr-weather-badge" class="px-1.5 py-0.2 rounded bg-emerald-950/60 text-emerald-300 border border-emerald-500/40 font-bold text-[9px]">CLEAR</span>
+            </div>
+            <div class="flex justify-between items-center py-0.5 border-b border-slate-800/60">
+              <span class="text-slate-400">Upcoming Weather Ahead</span>
+              <span id="hud-upcoming-weather-badge" class="px-1.5 py-0.2 rounded bg-amber-950/60 text-amber-300 border border-amber-500/40 font-bold text-[9px]">DENSE FOG</span>
+            </div>
+            <div class="flex justify-between items-center py-0.5 border-b border-slate-800/60">
+              <span class="text-slate-400">Distance to Hazard</span>
+              <span id="hud-distance-weather" class="font-black text-amber-400">10.2 km</span>
+            </div>
+            <div class="flex justify-between items-center py-0.5 border-b border-slate-800/60">
+              <span class="text-slate-400">Time to Hazard Entry</span>
+              <span id="hud-hazard-time-to-entry" class="font-black text-amber-400">02m 15s</span>
+            </div>
+            <div class="flex justify-between items-center py-0.5 border-b border-slate-800/60">
+              <span class="text-slate-400">Hazard Region Length</span>
+              <span id="hud-hazard-total-length" class="font-bold text-slate-100">30.0 km</span>
+            </div>
+            <div class="flex justify-between items-center py-0.5 border-b border-slate-800/60">
+              <span class="text-slate-400">Sighting Visibility</span>
+              <span id="hud-visibility" class="font-bold text-slate-100">5000 m</span>
+            </div>
+            <div class="flex justify-between items-center py-0.5">
+              <span class="text-slate-400">Predicted Speed Impact</span>
+              <span id="hud-speed-impact" class="font-black text-rose-400">-40 km/h</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </aside>
+
+  </main>
  
   <!-- ============================================================== -->
   <!-- APPLICATION CODE SCRIPT: SELF-CONTAINED SIMULATION ENGINE       -->
@@ -3061,61 +2664,45 @@
       const container = document.getElementById('viewport-container');
       const canvas = document.getElementById('three-canvas');
       simInstance = new Simulation(container, canvas);
- 
-      renderTimeline(simInstance.activeZones);
- 
-      // Play / Pause
-      document.getElementById('btn-play-pause').addEventListener('click', (e) => {
-        simInstance.isPlaying = !simInstance.isPlaying;
-        e.currentTarget.innerHTML = simInstance.isPlaying
-          ? '<span class="material-icons text-sm mr-1">pause</span>Pause'
-          : '<span class="material-icons text-sm mr-1">play_arrow</span>Play';
-      });
- 
-      // Reset
-      document.getElementById('btn-reset').addEventListener('click', () => {
-        simInstance.train.routeKm = 0.0;
-        simInstance.train.worldX = 0;
-        simInstance.train.currentSpeed = 130;
-        simInstance.train.targetSpeed = 130;
-        simInstance.train.currentDelayMinutes = 0.0;
-        simInstance.train.accumulatedLossSeconds = 0;
-        simInstance.isScrubbed = false;
-        simInstance.elapsedSimSec = 0.0;
-        simInstance.initOriginalTime();
-        simInstance.logEvent(`Reset to departure baseline (${simInstance.originalTimeLabel}, 130 km/h).`);
-        document.getElementById('judge-step-banner').classList.add('hidden');
-      });
- 
-      // Judge Demo Button (if present)
-      const btnJudgeDemo = document.getElementById('btn-judge-demo');
-      if (btnJudgeDemo) {
-        btnJudgeDemo.addEventListener('click', () => {
-          window.startJudgeBenchmark();
+
+      // Initialize real-time IST clock ticker
+      startRealTimeTicker();
+
+      // Play / Pause Simulation
+      const btnPlayPause = document.getElementById('btn-play-pause');
+      const playPauseText = document.getElementById('play-pause-text');
+      if (btnPlayPause) {
+        btnPlayPause.addEventListener('click', () => {
+          simInstance.isPlaying = !simInstance.isPlaying;
+          if (playPauseText) playPauseText.textContent = simInstance.isPlaying ? 'Pause' : 'Resume';
+          const icon = btnPlayPause.querySelector('.material-icons');
+          if (icon) icon.textContent = simInstance.isPlaying ? 'pause' : 'play_arrow';
+          btnPlayPause.classList.toggle('bg-blue-600', simInstance.isPlaying);
+          btnPlayPause.classList.toggle('bg-emerald-600', !simInstance.isPlaying);
         });
       }
- 
-      // Horn & Audio (Item 7: When muted, horn does not sound and does not force unmuting)
-      const hornBtn = document.getElementById('btn-horn');
-      const railHornBtn = document.getElementById('rail-btn-horn');
-      [hornBtn, railHornBtn].forEach(btn => {
-        if (!btn) return;
-        btn.addEventListener('click', () => {
-          if (isMuted) return; // Muted: do nothing at all, do NOT force unmute, do NOT play sound
-          soundWAP7Horn();
+
+      // Reset Simulation to Departure Baseline (New Delhi Km 0)
+      const btnReset = document.getElementById('btn-reset');
+      if (btnReset) {
+        btnReset.addEventListener('click', () => {
+          simInstance.train.routeKm = 0.0;
+          simInstance.train.worldX = 0;
+          simInstance.train.currentSpeed = 130;
+          simInstance.train.targetSpeed = 130;
+          simInstance.train.currentDelayMinutes = 0.0;
+          simInstance.train.accumulatedLossSeconds = 0;
+          simInstance.isScrubbed = false;
+          simInstance.elapsedSimSec = 0.0;
+          simInstance.initOriginalTime();
+          simInstance.setCorridorKm(0.0);
+          document.getElementById('judge-step-banner')?.classList.add('hidden');
+          window.judgeSequenceActive = false;
+          simInstance.logEvent(`Reset to departure baseline (${simInstance.originalTimeLabel}, 130 km/h).`);
         });
-      });
- 
-      const audioToggleBtn = document.getElementById('btn-audio-toggle');
-      const railAudioBtn = document.getElementById('rail-btn-audio');
-      [audioToggleBtn, railAudioBtn].forEach(btn => {
-        if (!btn) return;
-        btn.addEventListener('click', () => {
-          toggleAudioMute();
-        });
-      });
- 
-      // Camera Buttons
+      }
+
+      // Camera Perspective Buttons
       document.querySelectorAll('[data-camera]').forEach(btn => {
         btn.addEventListener('click', () => {
           simInstance.activeCameraMode = btn.dataset.camera;
@@ -3127,8 +2714,8 @@
           btn.classList.add('bg-indigo-600', 'text-white');
         });
       });
- 
-      // Speed Buttons
+
+      // Simulation Speed Buttons (1X, 2X, 5X, 10X)
       document.querySelectorAll('[data-speed]').forEach(btn => {
         btn.addEventListener('click', () => {
           const spd = parseFloat(btn.dataset.speed);
@@ -3141,191 +2728,8 @@
           btn.classList.add('bg-blue-600', 'text-white');
         });
       });
- 
-      // Slider Tab Navigation Buttons
-      document.querySelectorAll('[data-slide-target]').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const target = parseInt(btn.dataset.slideTarget);
-          window.setSlide(target);
-        });
-      });
- 
-      document.getElementById('slider-btn-prev').addEventListener('click', () => {
-        window.setSlide(activeSlideIndex - 1);
-      });
-      document.getElementById('slider-btn-next').addEventListener('click', () => {
-        window.setSlide(activeSlideIndex + 1);
-      });
- 
-      // Dot click navigation
-      document.querySelectorAll('.slider-dot').forEach((dot, idx) => {
-        dot.addEventListener('click', () => {
-          window.setSlide(idx);
-        });
-      });
- 
-      // Touch / Swipe support for track
-      const trackEl = document.getElementById('slider-track');
-      if (trackEl) {
-        let touchStartX = 0;
-        trackEl.addEventListener('touchstart', (e) => {
-          touchStartX = e.changedTouches[0].screenX;
-        }, { passive: true });
-        trackEl.addEventListener('touchend', (e) => {
-          const diff = touchStartX - e.changedTouches[0].screenX;
-          if (Math.abs(diff) > 40) {
-            if (diff > 0) window.setSlide(activeSlideIndex + 1);
-            else window.setSlide(activeSlideIndex - 1);
-          }
-        }, { passive: true });
-      }
- 
-      // Keyboard arrow shortcuts
-      window.addEventListener('keydown', (e) => {
-        if (['INPUT', 'SELECT', 'TEXTAREA'].includes(e.target.tagName)) return;
-        if (e.key === 'ArrowRight') {
-          window.setSlide(activeSlideIndex + 1);
-        } else if (e.key === 'ArrowLeft') {
-          window.setSlide(activeSlideIndex - 1);
-        }
-      });
 
-      // =========================================================================
-      // RIGHT INTELLIGENCE SIDEBAR: Symmetrical Architecture to Left Command Sidebar
-      // =========================================================================
-      const rightSidebar = document.getElementById('intelligence-sidebar');
-      const btnRightCollapse = document.getElementById('btn-right-sidebar-collapse');
-      const btnRightBrand = document.getElementById('right-sidebar-brand-btn');
-      const btnRightCloseInside = document.getElementById('btn-sidebar-close');
-      const btnRightExpandRail = document.getElementById('right-rail-btn-expand');
-      const btnRightEtaRail = document.getElementById('right-rail-btn-eta');
-      const btnRightRiskRail = document.getElementById('right-rail-btn-risk');
-      const btnRightControlsRail = document.getElementById('right-rail-btn-controls');
-      const btnRightFogRail = document.getElementById('right-rail-btn-fog');
-      const btnRightClearRail = document.getElementById('right-rail-btn-clear');
-
-      function toggleRightSidebar() {
-        if (!rightSidebar) return;
-        rightSidebar.classList.toggle('sidebar-expanded');
-        window.dispatchEvent(new Event('resize'));
-        setTimeout(() => window.dispatchEvent(new Event('resize')), 320);
-      }
-
-      function expandRightSidebar(targetSlide = null) {
-        if (!rightSidebar) return;
-        rightSidebar.classList.add('sidebar-expanded');
-        if (typeof targetSlide === 'number' && window.setSlide) {
-          window.setSlide(targetSlide);
-        }
-        window.dispatchEvent(new Event('resize'));
-        setTimeout(() => window.dispatchEvent(new Event('resize')), 320);
-      }
-
-      function collapseRightSidebar() {
-        if (!rightSidebar) return;
-        rightSidebar.classList.remove('sidebar-expanded');
-        window.dispatchEvent(new Event('resize'));
-        setTimeout(() => window.dispatchEvent(new Event('resize')), 320);
-      }
-
-      if (btnRightCollapse) btnRightCollapse.addEventListener('click', toggleRightSidebar);
-      if (btnRightBrand) btnRightBrand.addEventListener('click', toggleRightSidebar);
-      if (btnRightCloseInside) btnRightCloseInside.addEventListener('click', collapseRightSidebar);
-      if (btnRightExpandRail) btnRightExpandRail.addEventListener('click', () => expandRightSidebar());
-      if (btnRightEtaRail) btnRightEtaRail.addEventListener('click', () => expandRightSidebar(0));
-      if (btnRightRiskRail) btnRightRiskRail.addEventListener('click', () => expandRightSidebar(1));
-      if (btnRightControlsRail) btnRightControlsRail.addEventListener('click', () => expandRightSidebar(2));
-      if (btnRightFogRail) {
-        btnRightFogRail.addEventListener('click', () => {
-          document.getElementById('btn-quick-fog')?.click();
-        });
-      }
-      if (btnRightClearRail) {
-        btnRightClearRail.addEventListener('click', () => {
-          document.getElementById('btn-quick-clear')?.click();
-        });
-      }
-
-      // =========================================================================
-      // LEFT COMMAND SIDEBAR: Expand / Collapse & Rail Interactions
-      // =========================================================================
-      const commandSidebar = document.getElementById('command-sidebar');
-      const btnCollapse = document.getElementById('btn-sidebar-collapse');
-      const btnExpandRail = document.getElementById('rail-btn-expand');
-      const btnBrand = document.getElementById('sidebar-brand-btn');
-      const btnTrainRail = document.getElementById('rail-btn-train');
-      const btnClockRail = document.getElementById('rail-btn-clock');
-      const btnJudgeRail = document.getElementById('rail-btn-judge');
-      const btnScenarioRail = document.getElementById('rail-btn-scenario');
-      const btnOrigModeRail = document.getElementById('rail-btn-orig-mode');
-      const btnHornRail = document.getElementById('rail-btn-horn');
-      const btnAudioRail = document.getElementById('rail-btn-audio');
-
-      function toggleCommandSidebar() {
-        if (!commandSidebar) return;
-        commandSidebar.classList.toggle('sidebar-expanded');
-        window.dispatchEvent(new Event('resize'));
-        setTimeout(() => window.dispatchEvent(new Event('resize')), 320);
-      }
-
-      function expandCommandSidebar() {
-        if (!commandSidebar) return;
-        commandSidebar.classList.add('sidebar-expanded');
-        window.dispatchEvent(new Event('resize'));
-        setTimeout(() => window.dispatchEvent(new Event('resize')), 320);
-      }
-
-      function collapseCommandSidebar() {
-        if (!commandSidebar) return;
-        commandSidebar.classList.remove('sidebar-expanded');
-        window.dispatchEvent(new Event('resize'));
-        setTimeout(() => window.dispatchEvent(new Event('resize')), 320);
-      }
-
-      if (btnCollapse) btnCollapse.addEventListener('click', toggleCommandSidebar);
-      if (btnBrand) btnBrand.addEventListener('click', toggleCommandSidebar);
-      if (btnExpandRail) btnExpandRail.addEventListener('click', expandCommandSidebar);
-      if (btnTrainRail) btnTrainRail.addEventListener('click', expandCommandSidebar);
-      if (btnClockRail) btnClockRail.addEventListener('click', expandCommandSidebar);
-      if (btnHornRail) {
-        btnHornRail.addEventListener('click', () => {
-          document.getElementById('btn-horn')?.click();
-        });
-      }
-      if (btnAudioRail) {
-        btnAudioRail.addEventListener('click', () => {
-          document.getElementById('btn-audio')?.click();
-        });
-      }
-
-      if (btnJudgeRail) {
-        btnJudgeRail.addEventListener('click', () => {
-          window.startJudgeBenchmark();
-        });
-      }
-
-      if (btnScenarioRail) {
-        btnScenarioRail.addEventListener('click', () => {
-          expandCommandSidebar();
-          const sel = document.getElementById('scenario-select');
-          if (sel) sel.focus();
-        });
-      }
-
-      // Real-Time IST Sync Button
-      const btnSyncIST = document.getElementById('btn-sync-ist');
-      if (btnSyncIST) {
-        btnSyncIST.addEventListener('click', () => {
-          simInstance.initOriginalTime();
-          simInstance.logEvent(`Corridor departure synchronized to current live IST (${simInstance.originalTimeLabel}).`);
-        });
-      }
-
-      // Initialize real-time IST clock ticker and UI
-      startRealTimeTicker();
-      setClockAnchorModeUI();
- 
-      // SLIDER 1: CORRIDOR POSITION SCRUBBER
+      // Corridor Route Position Scrubber
       const kmSlider = document.getElementById('input-slider-km');
       if (kmSlider) {
         kmSlider.addEventListener('input', (e) => {
@@ -3334,22 +2738,8 @@
           simInstance.setCorridorKm(val);
         });
       }
- 
-      // SLIDER 2: SIMULATE HAZARD DISTANCE AHEAD
-      const hazardSlider = document.getElementById('input-slider-hazard');
-      if (hazardSlider) {
-        hazardSlider.addEventListener('input', (e) => {
-          const val = parseFloat(e.target.value);
-          setElText('slider-val-hazard', `${val.toFixed(1)} km`);
-          simInstance.distToHazard = val;
-          if (simInstance.upcomingHazardZone) {
-            simInstance.upcomingHazardZone.start_km = simInstance.train.routeKm + val;
-          }
-          simInstance.performLookahead(true);
-        });
-      }
- 
-      // SLIDER 3: VISIBILITY / SEVERITY SLIDER
+
+      // Sighting Visibility Tuner Slider
       const visSlider = document.getElementById('input-slider-vis');
       if (visSlider) {
         visSlider.addEventListener('input', (e) => {
@@ -3363,117 +2753,75 @@
           simInstance.performLookahead(true);
         });
       }
- 
-      // Interactive Click & Drag on Bottom Ribbon Bar
-      const ribbonBar = document.getElementById('timeline-ribbon-bar');
-      if (ribbonBar) {
-        const handleRibbonSeek = (e) => {
-          const rect = ribbonBar.getBoundingClientRect();
-          const clickX = e.clientX - rect.left;
-          const pct = Math.max(0, Math.min(1, clickX / rect.width));
-          const targetKm = pct * 180.0;
-          simInstance.setCorridorKm(targetKm);
-        };
-        ribbonBar.addEventListener('click', handleRibbonSeek);
-      }
- 
-      // Quick Action Preset Buttons (Dynamic Multi-Hazard Corridors)
-      const btnQuickFog = document.getElementById('btn-quick-fog');
-      if (btnQuickFog) {
-        btnQuickFog.addEventListener('click', () => {
-          simInstance.setCorridorKm(2.0);
-          simInstance.activeZones = [
-            { start_km: 0, end_km: 30, weather_type: 'CLEAR', visibility_m: 5000 },
-            { start_km: 30, end_km: 60, weather_type: 'DENSE FOG', visibility_m: 180 },
-            { start_km: 60, end_km: 180, weather_type: 'CLEAR', visibility_m: 4500 }
-          ];
-          renderTimeline(simInstance.activeZones);
-          window.setSlide(0);
+
+      // Weather Scenario Dropdown Selector
+      const scenarioSelect = document.getElementById('scenario-select');
+      if (scenarioSelect) {
+        scenarioSelect.addEventListener('change', (e) => {
+          const val = e.target.value;
+          if (val === 'judge_fog_demo') {
+            window.startJudgeBenchmark();
+          } else {
+            window.judgeSequenceActive = false;
+            document.getElementById('judge-step-banner')?.classList.add('hidden');
+            if (val === 'clear') {
+              simInstance.activeZones = [{ start_km: 0, end_km: 180, weather_type: 'CLEAR', visibility_m: 6000 }];
+            } else if (val === 'dense_fog') {
+              simInstance.activeZones = [
+                { start_km: 0, end_km: 25, weather_type: 'CLEAR', visibility_m: 4500 },
+                { start_km: 25, end_km: 85, weather_type: 'DENSE FOG', visibility_m: 150 },
+                { start_km: 85, end_km: 180, weather_type: 'CLEAR', visibility_m: 4000 }
+              ];
+            } else if (val === 'monsoon') {
+              simInstance.activeZones = [
+                { start_km: 0, end_km: 180, weather_type: 'HEAVY RAIN', visibility_m: 600 }
+              ];
+            } else if (val === 'thunderstorm') {
+              simInstance.activeZones = [
+                { start_km: 0, end_km: 30, weather_type: 'CLEAR', visibility_m: 4500 },
+                { start_km: 30, end_km: 120, weather_type: 'THUNDERSTORM', visibility_m: 400 },
+                { start_km: 120, end_km: 180, weather_type: 'CLEAR', visibility_m: 4500 }
+              ];
+            }
+          }
           simInstance.performLookahead(true);
-          simInstance.logEvent('Preset Applied: Dense Fog Zone (30 km span @ Km 30-60).');
         });
       }
 
-      const btnQuickRain = document.getElementById('btn-quick-rain');
-      if (btnQuickRain) {
-        btnQuickRain.addEventListener('click', () => {
-          simInstance.setCorridorKm(2.0);
-          simInstance.activeZones = [
-            { start_km: 0, end_km: 20, weather_type: 'CLEAR', visibility_m: 5000 },
-            { start_km: 20, end_km: 45, weather_type: 'HEAVY RAIN', visibility_m: 600 },
-            { start_km: 45, end_km: 180, weather_type: 'CLEAR', visibility_m: 4500 }
-          ];
-          renderTimeline(simInstance.activeZones);
-          window.setSlide(0);
-          simInstance.performLookahead(true);
-          simInstance.logEvent('Preset Applied: Heavy Rain Corridor (25 km span @ Km 20-45).');
-        });
-      }
+      // ML Intelligence Panel Slide In / Out Toggle
+      const intelSidebar = document.getElementById('intelligence-sidebar');
+      const btnToggleIntel = document.getElementById('btn-toggle-intel');
+      const btnSidebarClose = document.getElementById('btn-sidebar-close');
 
-      const btnQuickStorm = document.getElementById('btn-quick-storm');
-      if (btnQuickStorm) {
-        btnQuickStorm.addEventListener('click', () => {
-          simInstance.setCorridorKm(2.0);
-          simInstance.activeZones = [
-            { start_km: 0, end_km: 25, weather_type: 'CLEAR', visibility_m: 5000 },
-            { start_km: 25, end_km: 60, weather_type: 'THUNDERSTORM', visibility_m: 350 },
-            { start_km: 60, end_km: 180, weather_type: 'CLEAR', visibility_m: 4500 }
-          ];
-          renderTimeline(simInstance.activeZones);
-          window.setSlide(0);
-          simInstance.performLookahead(true);
-          simInstance.logEvent('Preset Applied: Severe Thunderstorm Front (35 km span @ Km 25-60).');
-        });
-      }
-
-      const btnQuickClear = document.getElementById('btn-quick-clear');
-      if (btnQuickClear) {
-        btnQuickClear.addEventListener('click', () => {
-          simInstance.activeZones = [
-            { start_km: 0, end_km: 180, weather_type: 'CLEAR', visibility_m: 6000 }
-          ];
-          renderTimeline(simInstance.activeZones);
-          window.setSlide(0);
-          simInstance.performLookahead(true);
-          simInstance.logEvent('Preset Applied: All Clear Corridor Profile (180 km).');
-        });
-      }
- 
-      // Scenario dropdown: strictly the 5 requested scenarios (Item 2)
-      document.getElementById('scenario-select').addEventListener('change', (e) => {
-        const val = e.target.value;
-        if (val === 'clear') {
-          simInstance.activeZones = [{ start_km: 0, end_km: 180, weather_type: 'CLEAR', visibility_m: 6000 }];
-        } else if (val === 'dense_fog') {
-          simInstance.activeZones = [
-            { start_km: 0, end_km: 25, weather_type: 'CLEAR', visibility_m: 4500 },
-            { start_km: 25, end_km: 85, weather_type: 'DENSE FOG', visibility_m: 150 },
-            { start_km: 85, end_km: 180, weather_type: 'CLEAR', visibility_m: 4000 }
-          ];
-        } else if (val === 'monsoon') {
-          // Monsoon rain covers entire corridor uninterrupted in all cameras (Item 15)
-          simInstance.activeZones = [
-            { start_km: 0, end_km: 180, weather_type: 'HEAVY RAIN', visibility_m: 600 }
-          ];
-        } else if (val === 'thunderstorm') {
-          // Thunderstorm: lightning effects without rain (Item 14)
-          simInstance.activeZones = [
-            { start_km: 0, end_km: 30, weather_type: 'CLEAR', visibility_m: 4500 },
-            { start_km: 30, end_km: 120, weather_type: 'THUNDERSTORM', visibility_m: 400 },
-            { start_km: 120, end_km: 180, weather_type: 'CLEAR', visibility_m: 4500 }
-          ];
-        } else {
-          // judge_fog_demo or default
-          simInstance.activeZones = [
-            { start_km: 0, end_km: 30, weather_type: 'CLEAR', visibility_m: 5000 },
-            { start_km: 30, end_km: 60, weather_type: 'DENSE FOG', visibility_m: 180 },
-            { start_km: 60, end_km: 180, weather_type: 'CLEAR', visibility_m: 4500 }
-          ];
+      function toggleIntelSidebar() {
+        if (!intelSidebar) return;
+        intelSidebar.classList.toggle('sidebar-hidden');
+        const isHidden = intelSidebar.classList.contains('sidebar-hidden');
+        if (btnToggleIntel) {
+          btnToggleIntel.classList.toggle('bg-slate-800/90', isHidden);
+          btnToggleIntel.classList.toggle('bg-amber-500/25', !isHidden);
+          btnToggleIntel.classList.toggle('border-amber-400/80', !isHidden);
         }
-        renderTimeline(simInstance.activeZones);
-        simInstance.performLookahead(true);
+        window.dispatchEvent(new Event('resize'));
+      }
+
+      if (btnToggleIntel) btnToggleIntel.addEventListener('click', toggleIntelSidebar);
+      if (btnSidebarClose) btnSidebarClose.addEventListener('click', toggleIntelSidebar);
+
+      // Keyboard Accessibility Shortcuts
+      window.addEventListener('keydown', (e) => {
+        if (['INPUT', 'SELECT', 'TEXTAREA'].includes(e.target.tagName)) return;
+        if (e.code === 'Space') {
+          e.preventDefault();
+          document.getElementById('btn-play-pause')?.click();
+        } else if (e.key === 'r' || e.key === 'R') {
+          document.getElementById('btn-reset')?.click();
+        } else if (e.key === 'i' || e.key === 'I') {
+          toggleIntelSidebar();
+        }
       });
     });
+
   </script>
 </body>
 </html>
